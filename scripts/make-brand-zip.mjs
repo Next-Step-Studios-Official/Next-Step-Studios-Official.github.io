@@ -21,8 +21,36 @@ if (!fs.existsSync(MANIFEST)) {
 }
 
 const manifest = JSON.parse(fs.readFileSync(MANIFEST, 'utf8'));
+
+/**
+ * The kit is two folders, not the site's own tree: the live mark in `current/`
+ * and retired marks in `archive/`. The folder is derived from where the file
+ * actually lives, so the ZIP can never label an archived mark as current.
+ */
+const zipFolder = (file) => (file.path.includes('/archive/') ? 'archive' : 'current');
+
+/** The date a retired mark carries in its filename, as a UTC noon timestamp. */
+const fileDate = (file) => {
+  const match = path.basename(file.path).match(/(\d{4})-(\d{2})-(\d{2})/);
+  if (!match) return null;
+  const date = new Date(Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3]), 12));
+  return Number.isNaN(date.getTime()) ? null : date;
+};
+
+const generatedDate = new Date(`${manifest.generated}T12:00:00Z`);
+
 const files = manifest.marks.flatMap((mark) =>
-  mark.files.map((file) => ({ ...file, zipPath: file.path.replace(/^\//, '') })),
+  mark.files.map((file) => {
+    const folder = zipFolder(file);
+    return {
+      ...file,
+      folder,
+      zipPath: `${folder}/${path.basename(file.path)}`,
+      // Archived files keep their retirement date in the ZIP metadata too, so
+      // the date survives a filename being copied somewhere else.
+      zipDate: folder === 'archive' ? fileDate(file) ?? generatedDate : generatedDate,
+    };
+  }),
 );
 
 /* ------------------------------------------------------------------- crc32 */
@@ -45,26 +73,32 @@ const crc32 = (buffer) => {
 
 /* -------------------------------------------------------------- zip writer */
 
-const DOS_TIME = 0x6000; // 12:00:00
-const DOS_DATE = ((2026 - 1980) << 9) | (11 << 5) | 21;
+/** MS-DOS date and time, the only timestamps a ZIP entry carries. */
+const dosStamp = (date) => ({
+  date: ((Math.max(1980, date.getUTCFullYear()) - 1980) << 9) |
+    ((date.getUTCMonth() + 1) << 5) |
+    date.getUTCDate(),
+  time: (date.getUTCHours() << 11) | (date.getUTCMinutes() << 5) | Math.floor(date.getUTCSeconds() / 2),
+});
 
 const localParts = [];
 const centralParts = [];
 let offset = 0;
 
-const addFile = (name, content) => {
+const addFile = (name, content, date = generatedDate) => {
   const nameBuffer = Buffer.from(name, 'utf8');
   const data = Buffer.isBuffer(content) ? content : Buffer.from(content, 'utf8');
   const compressed = zlib.deflateRawSync(data, { level: 9 });
   const checksum = crc32(data);
+  const stamp = dosStamp(date);
 
   const local = Buffer.alloc(30);
   local.writeUInt32LE(0x04034b50, 0);
   local.writeUInt16LE(20, 4);
   local.writeUInt16LE(0x0800, 6); // UTF-8 names
   local.writeUInt16LE(8, 8); // deflate
-  local.writeUInt16LE(DOS_TIME, 10);
-  local.writeUInt16LE(DOS_DATE, 12);
+  local.writeUInt16LE(stamp.time, 10);
+  local.writeUInt16LE(stamp.date, 12);
   local.writeUInt32LE(checksum, 14);
   local.writeUInt32LE(compressed.length, 18);
   local.writeUInt32LE(data.length, 22);
@@ -79,8 +113,8 @@ const addFile = (name, content) => {
   central.writeUInt16LE(20, 6);
   central.writeUInt16LE(0x0800, 8);
   central.writeUInt16LE(8, 10);
-  central.writeUInt16LE(DOS_TIME, 12);
-  central.writeUInt16LE(DOS_DATE, 14);
+  central.writeUInt16LE(stamp.time, 12);
+  central.writeUInt16LE(stamp.date, 14);
   central.writeUInt32LE(checksum, 16);
   central.writeUInt32LE(compressed.length, 20);
   central.writeUInt32LE(data.length, 24);
@@ -104,7 +138,7 @@ const rows = manifest.marks
     const png = mark.files.filter((file) => file.format === 'png').length;
     const jpg = mark.files.filter((file) => file.format === 'jpg').length;
     const svg = mark.files.filter((file) => file.format === 'svg').length;
-    return `  ${mark.name}\n    ${png} PNG, ${jpg} JPG, ${svg} SVG\n    ${mark.note}`;
+    return `  ${mark.name}  →  ${zipFolder(mark.files[0])}/\n    ${png} PNG, ${jpg} JPG, ${svg} SVG\n    ${mark.note}`;
   })
   .join('\n\n');
 
@@ -112,6 +146,12 @@ const readme = `Next Step Studios — brand kit
 Generated ${manifest.generated}
 
 WHAT IS IN HERE
+
+  README.txt    This file.
+  current/      The live mark. Use these unless you specifically need an old one.
+  archive/      Retired marks, kept because old posts and documents still use
+                them. Each filename carries its retirement date, and the ZIP
+                stores that date as the file's metadata too.
 
 ${rows}
 
@@ -131,10 +171,10 @@ light treatment on dark, the standard transparent files on light.
 
 WHICH FILE IS WHICH
 
-  logo-<size>.png / .svg          Current logo, transparent, standard treatment.
-  logo-<size>.jpg                 Current logo on ${manifest.baseColour}, light outline.
-  logo-light-<size>.png / .svg    Current logo, transparent, light outline.
-  neon-emblem-2026-07-25-<size>.* Retired mark, kept for old posts and documents.
+  current/logo-<size>.png / .svg          Live logo, transparent, standard treatment.
+  current/logo-<size>.jpg                 Live logo on ${manifest.baseColour}, light outline.
+  current/logo-light-<size>.png / .svg    Live logo, transparent, light outline.
+  archive/neon-emblem-2026-07-25-<size>.* Retired mark, kept for old posts and documents.
 
 FAVICONS (in the site, not repeated in this ZIP's logo folders)
 
@@ -152,16 +192,29 @@ imply endorsement, partnership or sponsorship.
 
 The full rules are at /brand. Retired marks are never overwritten or deleted;
 they live at /archive with the retirement date in the filename.
+
+HOW THIS KIT IS BUILT
+
+This ZIP is generated from the website repository; editing the ZIP by hand only
+lasts until the next build. To change it:
+
+  npm run brand       rebuild every logo size and the ZIP from the artwork
+  npm run brand:zip   rebuild only the ZIP from the files already in the repo
+
+The folder comes from the file's home in the repository: public/brand/press
+ships as current/, public/brand/archive ships as archive/. The step-by-step
+instructions are in README.md, under "The brand kit ZIP".
 `;
 
-addFile('README.txt', readme);
+addFile('README.txt', readme, generatedDate);
 for (const file of files) {
-  const source = path.join('public', file.zipPath);
+  // The manifest path is the source on disk; zipPath is the folder inside the kit.
+  const source = path.join('public', file.path.replace(/^\//, ''));
   if (!fs.existsSync(source)) {
     console.error(`Missing asset: ${source}`);
     process.exit(1);
   }
-  addFile(file.zipPath, fs.readFileSync(source));
+  addFile(file.zipPath, fs.readFileSync(source), file.zipDate);
 }
 
 const central = Buffer.concat(centralParts);
