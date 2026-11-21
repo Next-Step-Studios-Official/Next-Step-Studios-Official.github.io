@@ -55,6 +55,14 @@ npm run assets        # alias for npm run brand
 Everything below is a placeholder, an environment value or a piece of content
 that only you can supply. Nothing in this list is invented in the code.
 
+| Placeholder | Where it lives | What to put there |
+| --- | --- | --- |
+| `BREVO_API_KEY`, `NOTIFY_EMAIL`, `MAIL_FROM` | Worker secrets, and `.env` for the Node host | Brevo API key, the inbox that receives copies, the verified sender |
+| `BOT_STATUS_URL` | Actions **repository variable** | The bot's public health URL |
+| `@contributor-1` … `@contributor-4` | `src/lib/contributors.ts` | Real handles, roles and focus |
+| `PUBLIC_CONTACT_ENDPOINT` | `.env` (optional) | Another contact service URL |
+| `RELEASE_REPOS`, `GITHUB_TOKEN` | `.env` or the workflow | Repositories to list releases from |
+
 ### 1. The contact service
 
 The form posts JSON to `CONTACT_ENDPOINT` in `src/lib/contact.ts`, which
@@ -83,6 +91,32 @@ Optional settings, set as secrets on the worker:
 | `CONTACT_WEBHOOK_URL` | Discord/Slack webhook notified on each message (`{content, text}`). |
 | `CONTACT_RATE_LIMIT` | Messages per IP per 15 minutes (default 5). |
 | `ALLOWED_ORIGINS` | Extra comma-separated origins allowed to post, beyond the GitHub Pages origin. |
+| `BREVO_API_KEY` | Brevo API key; the free plan sends 300 emails a day. Empty means no email. |
+| `NOTIFY_EMAIL` | Inbox that receives each message. Defaults to the published contact address. |
+| `MAIL_FROM` | A sender Brevo has verified. Defaults to `NOTIFY_EMAIL`. |
+
+#### Email copies (free)
+
+Messages are stored first, so email is optional and best effort: if a send
+fails, the message is still in the inbox and the visitor still sees success.
+
+Brevo's free plan sends 300 emails a day with no card and no custom domain:
+
+1. Create an account at <https://app.brevo.com>, then open **SMTP & API → API
+   keys** and create a key.
+2. Add and verify the address you want copies sent to under **Senders**.
+3. Set these on the deployed Worker (and in `.env` for the Node version):
+
+   | Name | Value |
+   | --- | --- |
+   | `BREVO_API_KEY` | the key from step 1 |
+   | `NOTIFY_EMAIL` | the inbox from step 2 — defaults to the published contact address |
+   | `MAIL_FROM` | the verified sender — defaults to `NOTIFY_EMAIL` |
+
+The notification is sent from `MAIL_FROM` with `Reply-To` set to the visitor, so
+replying answers them directly. Until a key is set, `GET /healthz` reports
+`"email": "not configured"` and the form works as before. The deployed Worker
+must be redeployed after adding the key for the change to take effect.
 
 Building the site with an empty `PUBLIC_CONTACT_ENDPOINT` puts the form back in
 its "not connected" state: it renders, says it cannot send, and points at the
@@ -154,6 +188,23 @@ The bot writes that file after each check and publishes it with
 `contents: write`. Until it runs on a schedule, the page shows an empty
 history rather than an invented uptime figure. The deploy workflow ignores
 status-only pushes, so a feed update does not trigger a rebuild.
+
+#### Publishing checks from GitHub Actions (free)
+
+`.github/workflows/status-probe.yml` probes one URL every five minutes and
+commits the result, so the status page becomes live without a server. Set a
+repository **variable** — not a secret, because the URL is public:
+
+**Settings → Secrets and variables → Actions → Variables → New repository variable**
+
+| Name | Value |
+| --- | --- |
+| `BOT_STATUS_URL` | The bot's public health URL, e.g. `https://bot.example.com/health` |
+
+While it is empty the workflow exits without writing anything, and `/status`
+keeps its honest empty state. A 2xx or 3xx response counts as online; anything
+else, including a ten-second timeout, counts as offline. If the bot exposes no
+HTTP endpoint, keep using `scripts/status-publish.mjs` on the bot's host.
 
 ### 7. Optional: a custom domain
 

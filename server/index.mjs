@@ -19,7 +19,8 @@
  *   ADMIN_PASSWORD_HASH   output of `node server/hash-password.mjs`
  * Optional:
  *   PORT (default 8787), DATA_DIR, CONTACT_ALLOWED_ORIGIN,
- *   CONTACT_WEBHOOK_URL, CONTACT_RATE_LIMIT (default 5 per 15 minutes)
+ *   CONTACT_WEBHOOK_URL, CONTACT_RATE_LIMIT (default 5 per 15 minutes),
+ *   BREVO_API_KEY, NOTIFY_EMAIL, MAIL_FROM (email copies, free plan)
  */
 import { createServer } from 'node:http';
 import { createHmac, randomBytes, randomUUID, scryptSync, timingSafeEqual } from 'node:crypto';
@@ -33,6 +34,11 @@ const ALLOWED_ORIGIN = (process.env.CONTACT_ALLOWED_ORIGIN ?? '').replace(/\/$/,
 const SESSION_SECRET = process.env.SESSION_SECRET ?? '';
 const ADMIN_PASSWORD_HASH = process.env.ADMIN_PASSWORD_HASH ?? '';
 const WEBHOOK_URL = process.env.CONTACT_WEBHOOK_URL ?? '';
+const BREVO_API_KEY = (process.env.BREVO_API_KEY ?? '').trim();
+const NOTIFY_EMAIL = (
+  process.env.NOTIFY_EMAIL ?? 'nextstepstudiosofficial.contact@gmail.com'
+).trim();
+const MAIL_FROM = (process.env.MAIL_FROM ?? '').trim() || NOTIFY_EMAIL;
 const RATE_LIMIT = Number(process.env.CONTACT_RATE_LIMIT ?? 5);
 const WINDOW_MS = 15 * 60 * 1000;
 const SESSION_MS = 8 * 60 * 60 * 1000;
@@ -185,6 +191,63 @@ const rewriteMessages = async (messages) => {
   const temp = `${MESSAGES_FILE}.tmp`;
   await writeFile(temp, messages.map((message) => JSON.stringify(message)).join('\n') + '\n');
   await rename(temp, MESSAGES_FILE);
+};
+
+/* ── email notification ─────────────────────────────────────────────── */
+
+const escapeHtml = (value) =>
+  String(value).replace(
+    /[&<>"']/g,
+    (character) =>
+      ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character],
+  );
+
+/** True when an API key and a destination are configured. */
+const emailReady = Boolean(BREVO_API_KEY && NOTIFY_EMAIL && MAIL_FROM);
+
+/** Brevo transaction email. Best effort: never throws into the request path. */
+const sendEmail = async (record) => {
+  if (!emailReady) return false;
+  const text = [
+    `New ${record.subject} message from ${record.name}`,
+    `From: ${record.name} <${record.email}>`,
+    `Received: ${record.receivedAt}`,
+    `Message ID: ${record.id}`,
+    '',
+    record.message,
+    '',
+    'Reply to this email to answer directly.',
+  ].join('\n');
+  const html = [
+    '<div style="font:16px/1.55 system-ui,sans-serif;color:#101520">',
+    `<h2 style="margin:0 0 .75rem">New ${escapeHtml(record.subject)} message</h2>`,
+    `<p style="margin:0 0 .35rem"><strong>From:</strong> ${escapeHtml(record.name)} &lt;${escapeHtml(record.email)}&gt;</p>`,
+    `<p style="margin:0 0 .35rem"><strong>Received:</strong> ${escapeHtml(record.receivedAt)}</p>`,
+    `<p style="margin:0 0 1rem"><strong>Message ID:</strong> ${escapeHtml(record.id)}</p>`,
+    '<hr style="border:0;border-top:1px solid #d3d9e3;margin:1rem 0">',
+    `<p style="white-space:pre-wrap;margin:0">${escapeHtml(record.message)}</p>`,
+    '<p style="margin:1.25rem 0 0;color:#5a6678;font-size:13px">Reply to this email to answer directly.</p>',
+    '</div>',
+  ].join('');
+  const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+    method: 'POST',
+    headers: { 'api-key': BREVO_API_KEY, 'Content-Type': 'application/json', Accept: 'application/json' },
+    body: JSON.stringify({
+      sender: { email: MAIL_FROM, name: 'Next Step Studios website' },
+      to: [{ email: NOTIFY_EMAIL }],
+      replyTo: { email: record.email, name: record.name },
+      subject: `New ${record.subject} message from ${record.name}`,
+      textContent: text,
+      htmlContent: html,
+    }),
+    signal: AbortSignal.timeout(10_000),
+  });
+  if (!response.ok) {
+    const detail = await response.text().catch(() => '');
+    console.warn('contact email failed:', response.status, detail.slice(0, 300));
+    return false;
+  }
+  return true;
 };
 
 /* ── dashboard page ───────────────────────────────────────────────────── */
@@ -468,6 +531,10 @@ const server = createServer(async (req, res) => {
           body: JSON.stringify({ content: summary, text: summary }),
         }).catch((error) => console.warn('contact webhook failed:', error.message));
       }
+
+      // Best effort, after the write: the message is already stored, so a
+      // failed send is logged and the visitor still gets a success response.
+      if (emailReady) sendEmail(record).catch((error) => console.warn('contact email failed:', error.message));
 
       send(res, 201, { ok: true, id: record.id });
       return;

@@ -27,7 +27,7 @@ const tickerItems = [
   'No accounts',
   'No tracking',
   'No cookies',
-  'Bot documentation · v0.2.0 drafts',
+  `Bot documentation · v${policies[0]?.data.version ?? '0.2.0'} drafts`,
   `${COMMANDS.length} slash commands documented`,
   'Full-text search · no third parties',
   `Independent studio · ${TEAM_WORD} people`,
@@ -120,7 +120,7 @@ const routes = [
             <div><dt>Tracking</dt><dd>None</dd></div>
             <div><dt>Accounts</dt><dd>None</dd></div>
             <div><dt>Focus</dt><dd>Next Step Bot</dd></div>
-            <div><dt>Bot docs</dt><dd>v0.2.0 · draft</dd></div>
+            <div><dt>Bot docs</dt><dd>v{policies[0]?.data.version ?? '0.2.0'} · draft</dd></div>
             <div><dt>Modules</dt><dd>{BOT_MODULES.length} · {COMMANDS.length} commands</dd></div>
             <div><dt>Search</dt><dd>Full text</dd></div>
           </dl>

@@ -1,0 +1,84 @@
+name: Probe bot status
+
+# Writes a real check to public/status.json by pinging the bot's public health
+# URL every five minutes. Free on public repositories; no server and no paid
+# service is involved.
+#
+# ── The one value to set ─────────────────────────────────────────────────────
+# Repository → Settings → Secrets and variables → Actions → Variables →
+# "New repository variable":
+#
+#     Name:  BOT_STATUS_URL
+#     Value: the bot's public health URL, e.g. https://bot.example.com/health
+#
+# While BOT_STATUS_URL is empty this workflow does nothing. It does not fail,
+# and it does not write an invented check: /status keeps its honest
+# "no status checks have been published yet" state. Set the variable and the
+# checks start with the next run (GitHub may start scheduled runs a few minutes
+# late).
+#
+# Any 2xx or 3xx response counts as online; anything else, including a timeout
+# after ten seconds, counts as offline. The measured round-trip time is recorded
+# with the check.
+
+on:
+  schedule:
+    # Every five minutes. GitHub's scheduler is not exact, so gaps of a few
+    # minutes are normal and the page treats anything older than ten minutes as
+    # stale rather than as downtime.
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: status-probe
+  cancel-in-progress: false
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Probe the bot
+        id: probe
+        env:
+          BOT_STATUS_URL: ${{ vars.BOT_STATUS_URL }}
+        run: |
+          set -u
+          if [ -z "${BOT_STATUS_URL:-}" ]; then
+            echo "::notice title=Status probe skipped::BOT_STATUS_URL is not set. Add it under Settings → Secrets and variables → Actions → Variables to publish real checks."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          result="$(curl -sS -o /dev/null --max-time 10 -w '%{http_code} %{time_total}' "$BOT_STATUS_URL" || echo '000 0')"
+          code="${result%% *}"
+          seconds="${result##* }"
+          case "$code" in
+            2??|3??) online=1 ;;
+            *) online=0 ;;
+          esac
+          ms="$(awk -v s="$seconds" 'BEGIN { printf "%d", s * 1000 }')"
+          echo "HTTP $code in ${ms}ms"
+          echo "skip=false" >> "$GITHUB_OUTPUT"
+          echo "online=$online" >> "$GITHUB_OUTPUT"
+          echo "ms=$ms" >> "$GITHUB_OUTPUT"
+
+      - name: Publish the check
+        if: steps.probe.outputs.skip == 'false'
+        env:
+          STATUS_ONLINE: ${{ steps.probe.outputs.online }}
+          STATUS_LATENCY_MS: ${{ steps.probe.outputs.ms }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        # The publisher appends the check, trims the window to 24 hours and
+        # commits public/status.json. The deploy workflow ignores that file, so
+        # this does not rebuild the site.
+        run: node scripts/status-publish.mjs --publish

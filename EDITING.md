@@ -58,11 +58,13 @@ The default is the deployed service:
 - private inbox: `https://next-step-studios-contact-wqep7k.freebuff.site/dashboard`
 - health: `https://next-step-studios-contact-wqep7k.freebuff.site/healthz`
 
-Messages are stored in the service's D1 database and read in the private inbox. **The
-service does not send email.** If you want an email copy of each message, the place to add
-it is after the insert in `server/worker.mjs` (a provider API call with its own key and a
-verified sending domain), and the same change must be deployed to the Worker. The site
-never pretends an email was sent when it wasn't.
+Messages are stored in the service's D1 database and read in the private inbox. An email copy
+is optional and already wired: set `BREVO_API_KEY`, `NOTIFY_EMAIL` and, if you want a
+specific sender, `MAIL_FROM` in the Worker's secrets. Brevo's free plan is 300 emails a day
+with no card and no custom domain; the `MAIL_FROM` address must be verified in Brevo. The
+notification sets `Reply-To` to the visitor, so replying answers them. Until a key is set no
+email is sent, `/healthz` reports `"email": "not configured"`, and the form still works.
+Redeploy the Worker after adding the key.
 
 Set the inbox password on the first visit to the dashboard. Optional Worker secrets are
 listed in the README: `ADMIN_PASSWORD_HASH`, `CONTACT_WEBHOOK_URL`, `CONTACT_RATE_LIMIT`
@@ -88,7 +90,14 @@ node scripts/status-publish.mjs --publish
 
 Without `--publish` it only updates the local `public/status.json`, which is useful for
 testing. The token needs `contents: write` on this repository. A scheduler that runs the
-command every five minutes is enough; GitHub Actions is not required. The deploy workflow
+command every five minutes is enough — or let the site's own workflow do it:
+
+`.github/workflows/status-probe.yml` probes `BOT_STATUS_URL` every five minutes and
+publishes the check, so no server is needed. Set the URL as an Actions **repository
+variable** (Settings → Secrets and variables → Actions → Variables); while it is empty the
+workflow writes nothing and the page keeps its empty state.
+
+The deploy workflow
 ignores status-only pushes, because the page reads the raw file directly.
 
 The seed file in the repository has an empty `checks` array. That is deliberate: until the

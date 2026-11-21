@@ -22,6 +22,12 @@
  *   ALLOWED_ORIGINS       extra comma-separated origins allowed to post
  *   CONTACT_WEBHOOK_URL   optional Discord/Slack webhook for new messages
  *   CONTACT_RATE_LIMIT    messages per IP per 15 minutes (default 5)
+ *   BREVO_API_KEY         Brevo API key; free plan is 300 emails a day
+ *   NOTIFY_EMAIL          inbox that receives a copy of each message
+ *   MAIL_FROM             Brevo-verified sender; defaults to NOTIFY_EMAIL
+ *
+ * Email is best effort: a message is stored first, so a failed send never
+ * loses it and never turns a successful submission into an error.
  *
  * If no password hash is configured the dashboard offers a one-time setup
  * screen, so the deployed inbox is never left with a password anybody knows.
@@ -240,6 +246,88 @@ async function readJson(request, limit = 64 * 1024) {
   if (raw.length > limit) throw new Error('Request body too large');
   if (!raw) return {};
   return JSON.parse(raw);
+}
+
+/* ── email notification ─────────────────────────────────────────────── */
+
+/**
+ * Brevo's transactional endpoint. The free plan sends 300 emails a day, needs
+ * no custom domain and no card: verify one sender address in Brevo, put its API
+ * key in BREVO_API_KEY, and contact messages arrive in NOTIFY_EMAIL.
+ */
+const BREVO_ENDPOINT = 'https://api.brevo.com/v3/smtp/email';
+
+const escapeHtml = (value) =>
+  String(value).replace(
+    /[&<>"']/g,
+    (character) =>
+      ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character],
+  );
+
+/**
+ * The email settings, resolved from the environment.
+ *
+ * NOTIFY_EMAIL falls back to the address already published on the contact page
+ * and in the policies, so setting only BREVO_API_KEY is enough to start
+ * receiving copies. MAIL_FROM must be a sender Brevo has verified; it is the
+ * address the notification appears to come from, and replies go to the visitor
+ * because replyTo is set per message.
+ */
+const emailConfig = (env) => {
+  const apiKey = String(env.BREVO_API_KEY ?? '').trim();
+  const to = String(env.NOTIFY_EMAIL ?? 'nextstepstudiosofficial.contact@gmail.com').trim();
+  const from = String(env.MAIL_FROM ?? '').trim() || to;
+  return { apiKey, to, from, ready: Boolean(apiKey && to && from) };
+};
+
+/** Send one notification. Returns false, never throws, when not configured. */
+async function sendEmail(env, record) {
+  const { apiKey, to, from, ready } = emailConfig(env);
+  if (!ready) return false;
+
+  const text = [
+    `New ${record.subject} message from ${record.name}`,
+    `From: ${record.name} <${record.email}>`,
+    `Received: ${record.receivedAt}`,
+    `Message ID: ${record.id}`,
+    '',
+    record.message,
+    '',
+    'Reply to this email to answer directly.',
+  ].join('\n');
+
+  const html = [
+    '<div style="font:16px/1.55 system-ui,sans-serif;color:#101520">',
+    `<h2 style="margin:0 0 .75rem">New ${escapeHtml(record.subject)} message</h2>`,
+    `<p style="margin:0 0 .35rem"><strong>From:</strong> ${escapeHtml(record.name)} &lt;${escapeHtml(record.email)}&gt;</p>`,
+    `<p style="margin:0 0 .35rem"><strong>Received:</strong> ${escapeHtml(record.receivedAt)}</p>`,
+    `<p style="margin:0 0 1rem"><strong>Message ID:</strong> ${escapeHtml(record.id)}</p>`,
+    '<hr style="border:0;border-top:1px solid #d3d9e3;margin:1rem 0">',
+    `<p style="white-space:pre-wrap;margin:0">${escapeHtml(record.message)}</p>`,
+    '<p style="margin:1.25rem 0 0;color:#5a6678;font-size:13px">Reply to this email to answer directly.</p>',
+    '</div>',
+  ].join('');
+
+  const response = await fetch(BREVO_ENDPOINT, {
+    method: 'POST',
+    headers: { 'api-key': apiKey, 'Content-Type': 'application/json', Accept: 'application/json' },
+    body: JSON.stringify({
+      sender: { email: from, name: 'Next Step Studios website' },
+      to: [{ email: to }],
+      replyTo: { email: record.email, name: record.name },
+      subject: `New ${record.subject} message from ${record.name}`,
+      textContent: text,
+      htmlContent: html,
+    }),
+    signal: AbortSignal.timeout(10_000),
+  });
+
+  if (!response.ok) {
+    const detail = await response.text().catch(() => '');
+    console.warn('contact email failed', response.status, detail.slice(0, 300));
+    return false;
+  }
+  return true;
 }
 
 /* ── dashboard ─────────────────────────────────────────────────────────── */
@@ -485,6 +573,7 @@ export default {
           storage: env.DB ? 'd1' : 'missing',
           session: env.SESSION_SECRET ? 'configured' : 'missing',
           dashboard: env.DB && env.SESSION_SECRET ? 'configured' : 'incomplete',
+          email: emailConfig(env).ready ? 'configured' : 'not configured',
         });
       }
 
@@ -593,6 +682,16 @@ export default {
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ content: summary, text: summary }),
             }).catch(() => undefined),
+          );
+        }
+
+        // Best effort, after the insert: a failed email leaves the message in
+        // the inbox and still answers the visitor with success.
+        if (emailConfig(env).ready) {
+          ctx.waitUntil(
+            sendEmail(env, record).catch((error) =>
+              console.warn('contact email failed', error?.message ?? error),
+            ),
           );
         }
 

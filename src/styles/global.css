@@ -2207,3 +2207,74 @@ body.palette-open {
   font-weight: 100 800;
   src: url("/fonts/jetbrains-mono-latin-italic.woff2") format("woff2");
 }
+
+/* ---------------------------------------------------------------------------
+   Touch, overflow and motion hardening
+   Every control is at least 44px tall on a coarse pointer, wide content
+   scrolls inside its own box instead of widening the page, and decorative
+   motion stops when the visitor asks for reduced motion.
+--------------------------------------------------------------------------- */
+html {
+  overflow-x: clip;
+}
+
+.prose a,
+.link-value,
+.footer-mail {
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 720px) {
+  /* A wide table scrolls inside its own box rather than pushing the page. */
+  .prose table {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+@media (pointer: coarse) {
+  .tool-btn,
+  .theme-toggle,
+  .menu-toggle,
+  .nav a,
+  .footer-links a,
+  .link-list a {
+    min-height: 2.75rem;
+  }
+
+  .btn {
+    min-height: 3rem;
+  }
+
+  .nav a,
+  .footer-links a {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .footer-links {
+    gap: 0;
+  }
+
+  .footer-links li + li {
+    border-top: 1px solid var(--color-line-soft);
+  }
+
+  .footer-links a {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ticker-track,
+  .hud-scan {
+    animation: none !important;
+  }
+
+  .ticker {
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+}
