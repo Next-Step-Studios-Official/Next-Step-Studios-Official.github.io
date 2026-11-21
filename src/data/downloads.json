@@ -1,5 +1,22 @@
 [
   {
+    "slug": "brand-kit",
+    "title": "Brand kit",
+    "summary": "Every logo format in one zip — transparent and light sets at 1024, 512, 256 and 128 in PNG and SVG, JPGs, the archive and a README of the usage rules.",
+    "category": "files",
+    "platforms": ["any"],
+    "kinds": ["archive"],
+    "href": "/downloads/next-step-studios-brand-kit.zip",
+    "formats": [
+      {
+        "label": "ZIP",
+        "href": "/downloads/next-step-studios-brand-kit.zip",
+        "download": true
+      },
+      { "label": "Press kit", "href": "/press" }
+    ]
+  },
+  {
     "slug": "command-cheatsheet",
     "title": "Slash command cheatsheet",
     "summary": "Every documented slash command, grouped, on a two-page A4 sheet.",
