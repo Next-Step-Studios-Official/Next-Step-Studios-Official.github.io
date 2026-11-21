@@ -134,9 +134,12 @@ the release asset and never re-hosts it.
 ### 4. Discord
 
 `src/lib/discord.ts` is the single place for the invite and channel links.
-The invite is already set; the guild and channel IDs are empty and fall back to
-`null` (the site then links to `/links`). Fill them in when you want the site
-to deep-link to channels.
+The invite and the server id are set, and the ticket panel channel is linked
+from the contact page. The other channel ids (announcements, development,
+updates, support) are still empty and fall back to `null`, so the site omits
+those links instead of showing dead buttons. Paste an id beside its name and
+every component that reads it starts linking — Discord cannot resolve a channel
+by name, so the id is the only way to deep-link one.
 
 ### 5. The contact email
 
