@@ -43,16 +43,20 @@ function channelLink(guildId: string, channelId: string): string | null {
 }
 
 /**
- * Guild and channel identifiers. These are not secrets, but they are also not
- * known yet — paste real values here and the matching links appear.
+ * Guild and channel identifiers. These are not secrets; they are what makes a
+ * deep link possible, because Discord cannot link to a channel by name.
+ *
+ * Only the ticket panel is supplied so far. The other entries stay empty on
+ * purpose: a button that goes nowhere is worse than no button, so the UI omits
+ * them until a real id is pasted here.
  */
-const GUILD_ID = '';
+const GUILD_ID = '1401664304763113562';
 const CHANNEL_IDS = {
   announcements: '',
   development: '',
   updates: '',
   support: '',
-  tickets: '',
+  tickets: '1402293886088511579',
 } as const;
 
 export type DiscordChannelKey = keyof typeof CHANNEL_IDS;
@@ -90,3 +94,6 @@ export const discordChannel = (key: DiscordChannelKey): string | null => {
   const value = DISCORD.channels[key];
   return isUsableDiscordUrl(value) ? value : null;
 };
+
+/** The public ticket panel, where someone picks a ticket type. */
+export const discordTicketPanel = (): string | null => discordChannel('tickets');
