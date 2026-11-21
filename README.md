@@ -5,8 +5,9 @@ policy documents, a devlog and the downloads catalogue.
 
 The site itself is static: Astro builds plain HTML into `dist/`, and GitHub
 Pages serves it. The contact form is the one exception — GitHub Pages cannot run
-server code, so the form posts to a small Node service in `server/`. Nothing
-else needs a backend.
+server code, so the form posts to the contact service in `server/`. That service
+is live as a Cloudflare Worker with a D1 database; `server/index.mjs` is the
+same API for a plain Node host if you would rather run it yourself.
 
 Live at **https://next-step-studios-official.github.io/**.
 
@@ -34,7 +35,7 @@ Other commands:
 ```bash
 npm run releases      # refresh src/data/releases.json from GitHub
 npm run contact       # run the contact service locally
-npm run hash-password # hash the dashboard password
+npm run hash-password # hash the dashboard password (add -- --worker for the deployed one)
 npm run pdfs          # policy PDFs + the command cheatsheet
 npm run cheatsheet    # the printable command cheatsheet only
 npm run og            # regenerate the per-page share cards
@@ -52,40 +53,47 @@ that only you can supply. Nothing in this list is invented in the code.
 
 ### 1. The contact service
 
-The form posts JSON to whatever URL you set in `PUBLIC_CONTACT_ENDPOINT`. The
-included server (`server/index.mjs`) is that endpoint. It needs a host that can
-run Node 20+ — Render, Railway, Fly.io, a VPS or any similar host. GitHub Pages
-**cannot** run it.
+The form posts JSON to `CONTACT_ENDPOINT` in `src/lib/contact.ts`, which
+defaults to the deployed service:
 
-```bash
-# on the host
-PUBLIC_CONTACT_ENDPOINT=https://contact.example.com   # build-time, for the site
-CONTACT_ALLOWED_ORIGIN=https://next-step-studios-official.github.io
-PORT=8787
-DATA_DIR=/var/lib/nss-contact
-SESSION_SECRET=<64 random hex characters>
-ADMIN_PASSWORD_HASH=scrypt:<salt>:<hash>
-CONTACT_WEBHOOK_URL=            # optional
-CONTACT_RATE_LIMIT=5            # messages per IP per 15 minutes
-```
-
-| Value | How to get it |
+| What | Where |
 | --- | --- |
-| `SESSION_SECRET` | `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"` |
-| `ADMIN_PASSWORD_HASH` | `npm run hash-password -- 'a long password'` |
-| `DATA_DIR` | Any writable directory. Messages go to `messages.ndjson`. |
-| `CONTACT_WEBHOOK_URL` | Optional Discord/Slack webhook. Each message posts `{content, text}`. |
+| Form endpoint | `https://next-step-studios-contact-wqep7k.freebuff.site/api/contact` |
+| Inbox | `https://next-step-studios-contact-wqep7k.freebuff.site/dashboard` |
+| Health check | `https://next-step-studios-contact-wqep7k.freebuff.site/healthz` |
 
-Start it with `npm run contact`. Check `GET /healthz`; it reports whether the
-dashboard is configured. The inbox is at `https://<host>/dashboard`.
+**Set the inbox password on your first visit.** Open the inbox link, choose a
+password of 12 characters or more, and it is stored as a PBKDF2 hash in the D1
+database. The setup screen refuses to run once a password exists. Nothing is
+emailed, and no password is written down anywhere.
 
-Set the same endpoint in the Pages build so the deployed form knows where to
-post. Add it as a repository secret/variable and pass it into the build step in
-`.github/workflows/deploy.yml`, or set it in your local `.env` for a test build.
+The service is `server/worker.mjs`, deployed from `server/sites.manifest.json`
+with a D1 binding named `DB` and a `SESSION_SECRET` secret. The secret signs
+session cookies and hashes IP addresses; rotating it signs every session out.
 
-If `PUBLIC_CONTACT_ENDPOINT` is empty, the form still renders but says it is not
-connected and points at the email address. It never claims to have sent
-anything.
+Optional settings, set as secrets on the worker:
+
+| Value | Effect |
+| --- | --- |
+| `ADMIN_PASSWORD_HASH` | Fixes the password instead of using the setup screen. Print one with `npm run hash-password -- --worker 'your password'`. |
+| `CONTACT_WEBHOOK_URL` | Discord/Slack webhook notified on each message (`{content, text}`). |
+| `CONTACT_RATE_LIMIT` | Messages per IP per 15 minutes (default 5). |
+| `ALLOWED_ORIGINS` | Extra comma-separated origins allowed to post, beyond the GitHub Pages origin. |
+
+Building the site with an empty `PUBLIC_CONTACT_ENDPOINT` puts the form back in
+its "not connected" state: it renders, says it cannot send, and points at the
+email address instead. It never claims a message was sent somewhere it wasn't.
+
+#### Running the Node version instead
+
+`server/index.mjs` is the same API for a host that runs Node 20+ — Render,
+Railway, Fly.io, a VPS. GitHub Pages **cannot** run it. It stores messages in
+`DATA_DIR/messages.ndjson` and reads `CONTACT_ALLOWED_ORIGIN`, `SESSION_SECRET`,
+`ADMIN_PASSWORD_HASH` (a `scrypt:` hash from
+`npm run hash-password -- 'your password'`), `PORT`, `DATA_DIR` and the optional
+webhook and rate limit. Start it with `npm run contact`; the inbox is
+`https://<host>/dashboard`. Point the site at it with
+`PUBLIC_CONTACT_ENDPOINT=https://contact.example.com/api/contact` at build time.
 
 ### 2. The contributors list
 
@@ -159,10 +167,11 @@ Dashboard routes, all requiring the signed session cookie:
 - `GET /api/messages`
 - `PATCH /api/messages/:id` `{status: "new" | "read" | "done"}`
 
-The server checks the password with scrypt, signs sessions with HMAC-SHA256,
-refuses cross-origin `PATCH` requests, rate-limits contact posts and login
-attempts, hashes IP addresses before storing them, and sends `no-store` on every
-API response.
+Both versions check the password with a slow hash (scrypt on the Node host,
+PBKDF2 in the Worker), sign sessions with HMAC-SHA256, refuse cross-origin
+`PATCH` requests, rate-limit contact posts and login attempts, hash IP addresses
+before storing them, and send `no-store` on every API response. The Worker adds
+`GET /api/state` and `POST /api/setup` for the first-run password screen.
 
 ## Where things live
 
@@ -175,7 +184,7 @@ API response.
 | `src/content/devlog/` | Devlog entries, with tags and series |
 | `src/content/projects/` | Project entries and their honest statuses |
 | `src/styles/` | Tokens, theme, shared components and page layouts |
-| `server/` | The contact API and admin dashboard (Node, no dependencies) |
+| `server/` | The contact API and inbox: `worker.mjs` (deployed), `index.mjs` (Node host) |
 | `public/downloads/` | Generated PDFs, served as static files |
 | `public/og/` | Per-page Open Graph cards |
 | `scripts/` | Content guard, PDFs, cheatsheet, releases, share cards, snapshots |
@@ -202,10 +211,11 @@ The site's internal links are absolute, so it must be served from a domain root.
 That is why the repository is the organisation site repository
 (`Next-Step-Studios-Official.github.io`) rather than a project repository.
 
-The contact service is deployed separately, on a host that runs Node. Back up
-`DATA_DIR/messages.ndjson`; it is the only copy of the inbox. The file-backed
-store assumes a single instance — if you ever run several, move storage to a
-database first.
+The contact service is deployed separately. The live one is a Cloudflare Worker
+whose messages live in D1, so back it up by exporting the `messages` table
+rather than a file. If you run the Node version instead, back up
+`DATA_DIR/messages.ndjson`; it is the only copy of the inbox, and the
+file-backed store assumes a single instance.
 
 ## Invariants
 

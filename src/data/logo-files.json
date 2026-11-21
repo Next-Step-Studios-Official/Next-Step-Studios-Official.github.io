@@ -27,13 +27,13 @@
     "name": "logo-on-dark.jpg",
     "href": "/brand/press/logo-on-dark.jpg",
     "size": "63 KB",
-    "note": "undefined × undefined · JPG · flattened white"
+    "note": "1024 × 1024 · JPG · dark background"
   },
   {
     "name": "logo-on-light.jpg",
     "href": "/brand/press/logo-on-light.jpg",
     "size": "63 KB",
-    "note": "undefined × undefined · JPG · flattened white"
+    "note": "1024 × 1024 · JPG · white background"
   },
   {
     "name": "logo-128.jpg",
@@ -63,7 +63,7 @@
     "name": "logo-embedded.svg",
     "href": "/brand/press/logo-embedded.svg",
     "size": "249 KB",
-    "note": "undefined × undefined · SVG · embedded PNG, not vector"
+    "note": "Embedded PNG · SVG · not vector"
   },
   {
     "name": "logo-128.svg",

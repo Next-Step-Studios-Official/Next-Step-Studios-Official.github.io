@@ -54,6 +54,9 @@ for (const size of SIZES) {
 }
 
 const notes = (file) => {
+  if (file === 'logo-on-dark.jpg') return '1024 × 1024 · JPG · dark background';
+  if (file === 'logo-on-light.jpg') return '1024 × 1024 · JPG · white background';
+  if (file === 'logo-embedded.svg') return 'Embedded PNG · SVG · not vector';
   if (file.endsWith('.png')) {
     const size = file.match(/logo-(\d+)\.png/)?.[1];
     return `${size} × ${size} · PNG · white tile`;
@@ -67,8 +70,6 @@ const notes = (file) => {
     return `${size} × ${size} · SVG · embedded PNG, not vector`;
   }
   if (file === 'logo-512.webp') return '512 × 512 · WebP · web';
-  if (file === 'logo-on-dark.jpg') return '1024 × 1024 · JPG · dark background';
-  if (file === 'logo-on-light.jpg') return '1024 × 1024 · JPG · white background';
   return '';
 };
 

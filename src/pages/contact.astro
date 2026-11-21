@@ -4,6 +4,7 @@ import { Image } from 'astro:assets';
 import supportBanner from '../assets/banners/support.jpg';
 import { SITE } from '../lib/site';
 import { discordInvite, DISCORD } from '../lib/discord';
+import { CONTACT_ENDPOINT } from '../lib/contact';
 
 const mailto = `mailto:${SITE.contactEmail}`;
 /** Null until a usable invite is configured; the markup then degrades to /social. */
@@ -14,7 +15,7 @@ const invite = discordInvite();
  * still renders, explains that it is not connected, and points at email — the
  * build never pretends a message was sent somewhere it wasn't.
  */
-const endpoint = import.meta.env.PUBLIC_CONTACT_ENDPOINT ?? '';
+const endpoint = CONTACT_ENDPOINT;
 
 const subjects = [
   { value: 'general', label: 'General question' },
