@@ -8,6 +8,8 @@
 
 export type CommandGroupId = 'announcements' | 'fun' | 'tickets' | 'utilities';
 
+export type CommandStatus = 'tested' | 'testing' | 'planned';
+
 export type BotCommand = {
   /** The command as typed in Discord, without the slash. */
   name: string;
@@ -17,30 +19,46 @@ export type BotCommand = {
   note?: string;
 };
 
-export const COMMAND_GROUPS: { id: CommandGroupId; label: string; blurb: string; icon: string }[] = [
+export const COMMAND_STATUS_LABEL: Record<CommandStatus, string> = {
+  tested: 'Working · tested',
+  testing: 'Working · in testing',
+  planned: 'Planned',
+};
+
+export const COMMAND_GROUPS: {
+  id: CommandGroupId;
+  label: string;
+  blurb: string;
+  icon: string;
+  status: CommandStatus;
+}[] = [
   {
     id: 'announcements',
     label: 'Announcements',
     blurb: 'Composing and publishing staff announcements.',
     icon: '◈',
+    status: 'tested',
   },
   {
     id: 'fun',
     label: 'Community fun',
     blurb: 'Small, low-stakes commands for a server to play with.',
     icon: '◇',
+    status: 'tested',
   },
   {
     id: 'tickets',
     label: 'Support tickets',
     blurb: 'The full ticket lifecycle: creation, claiming, waiting, escalation and transcripts.',
     icon: '▣',
+    status: 'testing',
   },
   {
     id: 'utilities',
     label: 'Studio utilities',
     blurb: 'Applications, staff review, suggestions, links and the bot’s own documentation commands.',
     icon: '◆',
+    status: 'testing',
   },
 ];
 
@@ -130,6 +148,20 @@ export const COMMANDS: BotCommand[] = [
   { name: 'interview_publish_slot', group: 'utilities', description: 'Publish a proposed interview slot for an application.' },
   { name: 'staff_profile', group: 'utilities', description: 'Create, update, or view your staff profile.' },
   { name: 'staff_profile_delete', group: 'utilities', description: 'Delete your staff profile.' },
+];
+
+/**
+ * Commands the studio intends to add. Kept out of `COMMANDS` so the count of
+ * source commands stays honest: these do not exist in the cogs yet.
+ */
+export const PLANNED_COMMANDS: BotCommand[] = [
+  {
+    name: 'help',
+    group: 'utilities',
+    description:
+      'List the bot’s commands, with a pointer to the full reference on this website.',
+    note: 'Planned — not in source yet',
+  },
 ];
 
 export const commandsByGroup = (): { group: (typeof COMMAND_GROUPS)[number]; commands: BotCommand[] }[] =>

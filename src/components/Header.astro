@@ -1,6 +1,6 @@
 ---
 import { Image } from 'astro:assets';
-import logo from '../assets/brand/logo.png';
+import logo from '../assets/brand/logo-light.png';
 import { SITE } from '../lib/site';
 
 const { path } = Astro.props as { path: string };
@@ -30,13 +30,13 @@ const navMenus: NavGroup[] = [
       { href: '/glossary', label: 'Glossary' },
       { href: '/press', label: 'Press kit' },
       { href: '/brand', label: 'Brand' },
+      { href: '/archive', label: 'Archive' },
     ],
   },
   {
     id: 'community',
     label: 'Community',
     links: [
-      { href: '/social', label: 'Social' },
       { href: '/links', label: 'Official links' },
       { href: '/modules', label: 'Modules' },
       { href: '/trust', label: 'Trust centre' },

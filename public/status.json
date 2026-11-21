@@ -1,0 +1,10 @@
+{
+  "schema": 1,
+  "generatedAt": "2026-11-21T00:00:00.000Z",
+  "bot": {
+    "online": null,
+    "latencyMs": null,
+    "version": null
+  },
+  "checks": []
+}

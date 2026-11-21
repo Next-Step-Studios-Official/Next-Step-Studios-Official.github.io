@@ -10,7 +10,7 @@ const STATIC_ROUTES = [
   '/projects',
   '/devlog',
   '/commands',
-  '/social',
+  '/archive',
   '/links',
   '/about',
   '/team',

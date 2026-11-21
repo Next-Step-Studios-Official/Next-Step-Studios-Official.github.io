@@ -5,6 +5,8 @@ import {
   CONTRIBUTORS,
   CONTRIBUTORS_CONFIRMED,
   CONTRIBUTOR_WORD,
+  TEAM_SIZE,
+  TEAM_WORD,
   contributorName,
 } from '../lib/contributors';
 
@@ -26,7 +28,7 @@ const principles = [
 
 <Base
   title="About"
-  description="Next Step Studios is an independent creative and software studio run by Candler Shaw with a small group of contributors — currently building a private Discord bot."
+  description={`Next Step Studios is an independent creative and software studio run by Candler Shaw with a team of ${TEAM_WORD} people — currently building a private Discord bot.`}
   path="/about"
 >
   <section class="page-head">
@@ -35,10 +37,9 @@ const principles = [
         <p class="eyebrow">About</p>
         <h1 class="display display--page">A small studio, described accurately.</h1>
         <p class="lede">
-          Next Step Studios is the public-facing name {SITE.operator} works under, with
-          {CONTRIBUTOR_WORD} contributors helping across its projects. It is an independent
-          creative and software-development identity, currently focused on one project and
-          open to what comes next.
+          Next Step Studios is the public-facing name that {SITE.operator} and a team of
+          {TEAM_WORD} people work under. It is an independent creative and software-development
+          identity, currently focused on one project and open to what comes next.
         </p>
       </div>
     </div>
@@ -82,7 +83,7 @@ const principles = [
             <li>No employees and no paid staff — everyone who helps is a volunteer contributor.</li>
             <li>No published games or released products.</li>
             <li>No customers, clients, awards or partnerships to cite.</li>
-            <li>No social accounts are official unless they are listed on the <a href="/social">Social page</a>.</li>
+            <li>No account anywhere is official unless it is listed on the <a href="/links">official links page</a>.</li>
           </ul>
           <p>
             If that changes, this page changes with it.
@@ -101,8 +102,8 @@ const principles = [
               <dd>Next Step Studios</dd>
             </div>
             <div class="fact" style="border-left: 0; padding-left: 0; border-top: 1px solid var(--color-line-soft);">
-              <dt>Contributors</dt>
-              <dd>{CONTRIBUTOR_WORD} · all voluntary</dd>
+              <dt>Team</dt>
+              <dd>{TEAM_SIZE} people · {CONTRIBUTOR_WORD} contributors</dd>
             </div>
             <div class="fact" style="border-left: 0; padding-left: 0; border-top: 1px solid var(--color-line-soft);">
               <dt>Tools</dt>
@@ -119,6 +120,33 @@ const principles = [
               </dd>
             </div>
           </dl>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div
+        class="panel panel--pad"
+        style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1.5rem;"
+      >
+        <div style="max-width: 58ch;">
+          <p class="label">Contact</p>
+          <h2 style="font-size: clamp(1.3rem, 2.4vw, 1.7rem); margin-top: 0.6rem;">
+            Ask the studio directly.
+          </h2>
+          <p style="color: var(--color-muted); margin-top: 0.6rem; font-size: 0.9375rem;">
+            Use the contact form or email. Messages reach the same five-person studio, and the
+            person who runs it reads them. General questions, press, privacy requests and
+            security reports all start here.
+          </p>
+        </div>
+        <div class="hero-actions" style="margin: 0;">
+          <a class="btn btn-primary" href="/contact">Use the contact form</a>
+          <a class="btn" href={`mailto:${SITE.contactEmail}`} style="word-break: break-all;">
+            {SITE.contactEmail}
+          </a>
         </div>
       </div>
     </div>

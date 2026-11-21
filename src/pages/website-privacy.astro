@@ -89,6 +89,17 @@ import { SITE } from '../lib/site';
             operator signs in. Visitors never receive it.
           </p>
 
+          <h2>The status feed</h2>
+          <p>
+            The <a href="/status">status page</a> asks GitHub for a small JSON file that records
+            the bot's recent checks. That request goes to <span class="mono">raw.githubusercontent.com</span>,
+            not to this site, and it is the only request a page makes to another host on its own.
+            The contact form talks to the studio's contact service only when you submit it. GitHub
+            necessarily receives your network address, browser user agent and the time of the
+            request to serve it. The page sends no cookie and no identifier of its own. If the
+            request fails, the page falls back to the copy of the file built with the site.
+          </p>
+
           <h2>Hosting and technical logs</h2>
           <p>
             The site is served by a hosting provider, which necessarily processes network

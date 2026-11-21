@@ -42,7 +42,7 @@ const PAGES: IndexEntry[] = [
   { type: 'Page', title: 'Projects', url: '/projects', text: 'Every project at the stage it is actually at. Status, category, sorting and filtering.' },
   { type: 'Page', title: 'Devlog', url: '/devlog', text: 'Notes from the work. Short entries about what is being built and what is unfinished.' },
   { type: 'Page', title: 'Command reference', url: '/commands', text: 'Every slash command in the Next Step Bot, grouped by area of the server.' },
-  { type: 'Page', title: 'Social', url: '/social', text: 'Official accounts: YouTube, Instagram, TikTok, X, Facebook, Roblox, GitHub and the Discord invite.' },
+  { type: 'Page', title: 'Brand archive', url: '/archive', text: 'Every current and retired Next Step Studios mark, at four sizes in PNG, JPG and SVG, plus the complete brand kit ZIP.' },
   { type: 'Page', title: 'Official links', url: '/links', text: 'Every official link in one place, mirroring the bot links panel.' },
   { type: 'Page', title: 'About', url: '/about', text: 'The studio, the operator, the contributors, how it works and what it is for.' },
   { type: 'Page', title: 'Team', url: '/team', text: 'The people who contribute to Next Step Studios: the operator and the volunteer contributors, with what each one works on.' },

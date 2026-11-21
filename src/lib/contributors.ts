@@ -6,7 +6,8 @@
  * here reaches every mention.
  *
  * ── Before this goes live ─────────────────────────────────────────────
- * The five entries below are placeholders. Replace each handle with the
+ * The four entries below are placeholders, alongside Candler Shaw, who runs
+ * the studio and is not listed here. Replace each handle with the
  * person's real Discord username, write their role and what they work on,
  * then set CONTRIBUTORS_CONFIRMED to true. While it is false, every page
  * showing the list says the details are still being confirmed, so the
@@ -47,19 +48,23 @@ export const CONTRIBUTORS: Contributor[] = [
     role: 'Role to be confirmed',
     focus: 'What this person works on goes here.',
   },
-  {
-    handle: '@contributor-5',
-    role: 'Role to be confirmed',
-    focus: 'What this person works on goes here.',
-  },
 ];
 
 export const CONTRIBUTOR_COUNT = CONTRIBUTORS.length;
 
 const WORDS = ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'];
 
-/** Lowercase word for the count, e.g. "five"; digits above ten. */
+/** Lowercase word for the count, e.g. "four"; digits above ten. */
 export const CONTRIBUTOR_WORD = WORDS[CONTRIBUTOR_COUNT] ?? String(CONTRIBUTOR_COUNT);
+
+/**
+ * Everyone in the studio, including the operator, who is not listed as a
+ * contributor. The studio is five people in total: Candler plus four others.
+ */
+export const TEAM_SIZE = CONTRIBUTOR_COUNT + 1;
+
+/** Lowercase word for the team size, e.g. "five". */
+export const TEAM_WORD = WORDS[TEAM_SIZE] ?? String(TEAM_SIZE);
 
 /** The public credit for a person: a full name if given, otherwise the handle. */
 export const contributorName = (person: Contributor) => person.name ?? person.handle;

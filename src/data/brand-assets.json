@@ -1,0 +1,357 @@
+{
+  "generated": "2026-11-21",
+  "baseColour": "#07080B",
+  "sizes": [
+    1024,
+    512,
+    256,
+    128
+  ],
+  "formats": [
+    "png",
+    "jpg",
+    "svg"
+  ],
+  "marks": [
+    {
+      "id": "logo",
+      "name": "Current logo",
+      "note": "Transparent master cut from the original white-tile artwork. The light outline treatment is for dark surfaces, where the black ninja would otherwise disappear.",
+      "files": [
+        {
+          "mark": "logo",
+          "markName": "Next Step Studios logo",
+          "size": 1024,
+          "format": "png",
+          "variant": "standard",
+          "variantLabel": "Transparent",
+          "path": "/brand/press/logo-1024.png",
+          "bytes": 117837
+        },
+        {
+          "mark": "logo",
+          "markName": "Next Step Studios logo",
+          "size": 1024,
+          "format": "svg",
+          "variant": "standard",
+          "variantLabel": "Transparent",
+          "path": "/brand/press/logo-1024.svg",
+          "bytes": 157294
+        },
+        {
+          "mark": "logo",
+          "markName": "Next Step Studios logo",
+          "size": 1024,
+          "format": "jpg",
+          "variant": "light",
+          "variantLabel": "Flattened on #07080B",
+          "path": "/brand/press/logo-1024.jpg",
+          "bytes": 76563
+        },
+        {
+          "mark": "logo",
+          "markName": "Next Step Studios logo",
+          "size": 1024,
+          "format": "png",
+          "variant": "light",
+          "variantLabel": "Light outline for dark surfaces",
+          "path": "/brand/press/logo-light-1024.png",
+          "bytes": 153448
+        },
+        {
+          "mark": "logo",
+          "markName": "Next Step Studios logo",
+          "size": 1024,
+          "format": "svg",
+          "variant": "light",
+          "variantLabel": "Light outline for dark surfaces",
+          "path": "/brand/press/logo-light-1024.svg",
+          "bytes": 204778
+        },
+        {
+          "mark": "logo",
+          "markName": "Next Step Studios logo",
+          "size": 512,
+          "format": "png",
+          "variant": "standard",
+          "variantLabel": "Transparent",
+          "path": "/brand/press/logo-512.png",
+          "bytes": 41558
+        },
+        {
+          "mark": "logo",
+          "markName": "Next Step Studios logo",
+          "size": 512,
+          "format": "svg",
+          "variant": "standard",
+          "variantLabel": "Transparent",
+          "path": "/brand/press/logo-512.svg",
+          "bytes": 55584
+        },
+        {
+          "mark": "logo",
+          "markName": "Next Step Studios logo",
+          "size": 512,
+          "format": "jpg",
+          "variant": "light",
+          "variantLabel": "Flattened on #07080B",
+          "path": "/brand/press/logo-512.jpg",
+          "bytes": 33578
+        },
+        {
+          "mark": "logo",
+          "markName": "Next Step Studios logo",
+          "size": 512,
+          "format": "png",
+          "variant": "light",
+          "variantLabel": "Light outline for dark surfaces",
+          "path": "/brand/press/logo-light-512.png",
+          "bytes": 48075
+        },
+        {
+          "mark": "logo",
+          "markName": "Next Step Studios logo",
+          "size": 512,
+          "format": "svg",
+          "variant": "light",
+          "variantLabel": "Light outline for dark surfaces",
+          "path": "/brand/press/logo-light-512.svg",
+          "bytes": 64272
+        },
+        {
+          "mark": "logo",
+          "markName": "Next Step Studios logo",
+          "size": 256,
+          "format": "png",
+          "variant": "standard",
+          "variantLabel": "Transparent",
+          "path": "/brand/press/logo-256.png",
+          "bytes": 14924
+        },
+        {
+          "mark": "logo",
+          "markName": "Next Step Studios logo",
+          "size": 256,
+          "format": "svg",
+          "variant": "standard",
+          "variantLabel": "Transparent",
+          "path": "/brand/press/logo-256.svg",
+          "bytes": 20072
+        },
+        {
+          "mark": "logo",
+          "markName": "Next Step Studios logo",
+          "size": 256,
+          "format": "jpg",
+          "variant": "light",
+          "variantLabel": "Flattened on #07080B",
+          "path": "/brand/press/logo-256.jpg",
+          "bytes": 16111
+        },
+        {
+          "mark": "logo",
+          "markName": "Next Step Studios logo",
+          "size": 256,
+          "format": "png",
+          "variant": "light",
+          "variantLabel": "Light outline for dark surfaces",
+          "path": "/brand/press/logo-light-256.png",
+          "bytes": 15271
+        },
+        {
+          "mark": "logo",
+          "markName": "Next Step Studios logo",
+          "size": 256,
+          "format": "svg",
+          "variant": "light",
+          "variantLabel": "Light outline for dark surfaces",
+          "path": "/brand/press/logo-light-256.svg",
+          "bytes": 20536
+        },
+        {
+          "mark": "logo",
+          "markName": "Next Step Studios logo",
+          "size": 128,
+          "format": "png",
+          "variant": "standard",
+          "variantLabel": "Transparent",
+          "path": "/brand/press/logo-128.png",
+          "bytes": 5819
+        },
+        {
+          "mark": "logo",
+          "markName": "Next Step Studios logo",
+          "size": 128,
+          "format": "svg",
+          "variant": "standard",
+          "variantLabel": "Transparent",
+          "path": "/brand/press/logo-128.svg",
+          "bytes": 7932
+        },
+        {
+          "mark": "logo",
+          "markName": "Next Step Studios logo",
+          "size": 128,
+          "format": "jpg",
+          "variant": "light",
+          "variantLabel": "Flattened on #07080B",
+          "path": "/brand/press/logo-128.jpg",
+          "bytes": 6872
+        },
+        {
+          "mark": "logo",
+          "markName": "Next Step Studios logo",
+          "size": 128,
+          "format": "png",
+          "variant": "light",
+          "variantLabel": "Light outline for dark surfaces",
+          "path": "/brand/press/logo-light-128.png",
+          "bytes": 5853
+        },
+        {
+          "mark": "logo",
+          "markName": "Next Step Studios logo",
+          "size": 128,
+          "format": "svg",
+          "variant": "light",
+          "variantLabel": "Light outline for dark surfaces",
+          "path": "/brand/press/logo-light-128.svg",
+          "bytes": 7976
+        }
+      ]
+    },
+    {
+      "id": "neon-emblem-2026-07-25",
+      "name": "Retired neon orbit emblem",
+      "note": "Retired 25 July 2026. Kept at stable addresses because older posts and documents still use it.",
+      "files": [
+        {
+          "mark": "neon-emblem-2026-07-25",
+          "markName": "Neon orbit emblem (retired 25 July 2026)",
+          "size": 1024,
+          "format": "png",
+          "variant": "standard",
+          "variantLabel": "Transparent",
+          "path": "/brand/archive/neon-emblem-2026-07-25-1024.png",
+          "bytes": 313501
+        },
+        {
+          "mark": "neon-emblem-2026-07-25",
+          "markName": "Neon orbit emblem (retired 25 July 2026)",
+          "size": 1024,
+          "format": "svg",
+          "variant": "standard",
+          "variantLabel": "Transparent",
+          "path": "/brand/archive/neon-emblem-2026-07-25-1024.svg",
+          "bytes": 418182
+        },
+        {
+          "mark": "neon-emblem-2026-07-25",
+          "markName": "Neon orbit emblem (retired 25 July 2026)",
+          "size": 1024,
+          "format": "jpg",
+          "variant": "light",
+          "variantLabel": "Flattened on #07080B",
+          "path": "/brand/archive/neon-emblem-2026-07-25-1024.jpg",
+          "bytes": 390608
+        },
+        {
+          "mark": "neon-emblem-2026-07-25",
+          "markName": "Neon orbit emblem (retired 25 July 2026)",
+          "size": 512,
+          "format": "png",
+          "variant": "standard",
+          "variantLabel": "Transparent",
+          "path": "/brand/archive/neon-emblem-2026-07-25-512.png",
+          "bytes": 95648
+        },
+        {
+          "mark": "neon-emblem-2026-07-25",
+          "markName": "Neon orbit emblem (retired 25 July 2026)",
+          "size": 512,
+          "format": "svg",
+          "variant": "standard",
+          "variantLabel": "Transparent",
+          "path": "/brand/archive/neon-emblem-2026-07-25-512.svg",
+          "bytes": 127704
+        },
+        {
+          "mark": "neon-emblem-2026-07-25",
+          "markName": "Neon orbit emblem (retired 25 July 2026)",
+          "size": 512,
+          "format": "jpg",
+          "variant": "light",
+          "variantLabel": "Flattened on #07080B",
+          "path": "/brand/archive/neon-emblem-2026-07-25-512.jpg",
+          "bytes": 115017
+        },
+        {
+          "mark": "neon-emblem-2026-07-25",
+          "markName": "Neon orbit emblem (retired 25 July 2026)",
+          "size": 256,
+          "format": "png",
+          "variant": "standard",
+          "variantLabel": "Transparent",
+          "path": "/brand/archive/neon-emblem-2026-07-25-256.png",
+          "bytes": 28287
+        },
+        {
+          "mark": "neon-emblem-2026-07-25",
+          "markName": "Neon orbit emblem (retired 25 July 2026)",
+          "size": 256,
+          "format": "svg",
+          "variant": "standard",
+          "variantLabel": "Transparent",
+          "path": "/brand/archive/neon-emblem-2026-07-25-256.svg",
+          "bytes": 37888
+        },
+        {
+          "mark": "neon-emblem-2026-07-25",
+          "markName": "Neon orbit emblem (retired 25 July 2026)",
+          "size": 256,
+          "format": "jpg",
+          "variant": "light",
+          "variantLabel": "Flattened on #07080B",
+          "path": "/brand/archive/neon-emblem-2026-07-25-256.jpg",
+          "bytes": 35050
+        },
+        {
+          "mark": "neon-emblem-2026-07-25",
+          "markName": "Neon orbit emblem (retired 25 July 2026)",
+          "size": 128,
+          "format": "png",
+          "variant": "standard",
+          "variantLabel": "Transparent",
+          "path": "/brand/archive/neon-emblem-2026-07-25-128.png",
+          "bytes": 9417
+        },
+        {
+          "mark": "neon-emblem-2026-07-25",
+          "markName": "Neon orbit emblem (retired 25 July 2026)",
+          "size": 128,
+          "format": "svg",
+          "variant": "standard",
+          "variantLabel": "Transparent",
+          "path": "/brand/archive/neon-emblem-2026-07-25-128.svg",
+          "bytes": 12728
+        },
+        {
+          "mark": "neon-emblem-2026-07-25",
+          "markName": "Neon orbit emblem (retired 25 July 2026)",
+          "size": 128,
+          "format": "jpg",
+          "variant": "light",
+          "variantLabel": "Flattened on #07080B",
+          "path": "/brand/archive/neon-emblem-2026-07-25-128.jpg",
+          "bytes": 11278
+        }
+      ]
+    }
+  ],
+  "favourites": {
+    "favicon128": "/brand/favicon-128.png",
+    "favicon64": "/brand/favicon-64.png",
+    "favicon32": "/brand/favicon-32.png",
+    "appleTouch": "/brand/apple-touch-icon.png"
+  }
+}

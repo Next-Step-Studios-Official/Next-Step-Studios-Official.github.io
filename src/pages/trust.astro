@@ -44,7 +44,7 @@ const facts = [
   { label: 'Analytics', value: 'None' },
   { label: 'Cookies', value: 'None' },
   { label: 'Accounts', value: 'None' },
-  { label: 'Third-party requests', value: 'None' },
+  { label: 'Third-party requests', value: 'Status feed; form POST' },
   { label: 'Hosting', value: 'Static files + contact service' },
   { label: 'Contact form', value: 'Stores messages only' },
   { label: 'Bot data store', value: 'SQLite, one server' },
@@ -108,8 +108,9 @@ const facts = [
         </dl>
         <p class="muted trust-facts-note">
           These are properties of the build, not promises about a future service. You can check
-          them yourself: the site is static, the source is public, and the network tab stays empty
-          of third-party hosts.
+          them yourself: the site is static and the source is public. On load, the only request to
+          another host is the status page's read-only fetch of the bot's JSON feed from GitHub.
+          The contact form talks to the studio's own service only when you submit it.
         </p>
       </div>
     </div>

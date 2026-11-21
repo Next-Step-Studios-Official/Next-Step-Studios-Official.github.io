@@ -12,8 +12,8 @@ const sections = LINK_SECTIONS.map((section) => ({
 const total = sections.reduce((count, section) => count + section.entries.length, 0);
 
 /**
- * The bot's X brand colour is #000000, which would be invisible on this
- * background. Very dark accents are lifted to a readable neutral instead.
+ * A brand colour this dark would be invisible on the background, so very dark
+ * accents are lifted to a readable neutral instead.
  */
 const readableAccent = (hex?: string) => {
   if (!hex) return 'var(--color-accent)';
@@ -29,30 +29,30 @@ const readableAccent = (hex?: string) => {
 
 <Base
   title="Official links"
-  description="Every official Next Step Studios link in one place — the website, social accounts, the Discord community, the GitHub organization and the bot's policy documents."
+  description="Every official Next Step Studios link in one place — the website, the Discord community, the GitHub organization and the bot's policy documents."
   path="/links"
 >
   <section class="page-head">
     <div class="container">
       <div class="page-head-stack">
         <p class="eyebrow">
-          <a class="text-link" href="/social">Social</a> · Official links
+          Official links
         </p>
         <h1 class="display display--page">Every official link, in one place.</h1>
         <p class="lede">
           The same panel the Discord server's <span class="mono">/links</span> command publishes —
-          the website, the social accounts, the community spaces, the repositories and the
-          policies, each one attached to the place it belongs.
+          the website, the community spaces, the repositories and the policies, each one
+          attached to the place it belongs.
         </p>
         <div class="meta-bar">
           <span>{total} entries</span>
           <span>{sections.length} sections</span>
-          <span>Mirrors the bot's links config</span>
+          <span>Public subset of the bot's links config</span>
         </div>
         <figure class="page-banner">
           <Image
             src={linksBanner}
-            alt="Next Step Studios — connect with us. Find our official social links, community hubs and resources."
+            alt="Next Step Studios — connect with us. Find our official community hubs and resources."
             widths={[600, 900, 1200]}
             sizes="(max-width: 900px) 100vw, 1100px"
           />

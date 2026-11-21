@@ -4,7 +4,7 @@ import Base from '../layouts/Base.astro';
 
 <Base
   title="Brand guidelines"
-  description="How the Next Step Studios logo, colours and typefaces should be used."
+  description="How the Next Step Studios logo, colours and typefaces should be used, including the transparent master and the dark-surface treatment."
   path="/brand"
 >
   <section class="page-head">
@@ -17,8 +17,10 @@ import Base from '../layouts/Base.astro';
           studio looks like one thing wherever it appears — not to make anyone read a manual.
         </p>
         <div class="hero-actions">
-          <a class="btn btn-primary" href="/press">Download the assets</a>
-          <a class="btn" href="/press#archive">See the archive</a>
+          <a class="btn btn-primary" href="/downloads/next-step-studios-brand-kit.zip" download>
+            Download the assets (.zip)
+          </a>
+          <a class="btn" href="/archive">See the archive</a>
         </div>
       </div>
     </div>
@@ -30,9 +32,17 @@ import Base from '../layouts/Base.astro';
         <article class="prose brand-prose">
           <h2>The logo</h2>
           <p>
-            The mark is a detailed emblem, supplied as a raster master at 1024px. Use it at the size
-            it is supplied and let it scale down, never up: enlarging a raster mark is the fastest
-            way to make it look cheap.
+            The mark is a detailed emblem supplied as a transparent raster master at 1024px, with
+            smaller files at 512, 256 and 128. Use the largest size the placement allows and let it
+            scale down, never up: enlarging a raster mark is the fastest way to make it look cheap.
+          </p>
+
+          <h3>Two treatments, not two logos</h3>
+          <p>
+            The standard transparent file is for light surfaces. On a dark surface the black ninja
+            and the black “STUDIOS” line disappear, so a second treatment adds a light outline
+            grown from the artwork itself. Use the light-outline file on dark, and the standard
+            file on light. They are the same mark.
           </p>
 
           <h3>Clear space</h3>
@@ -49,9 +59,16 @@ import Base from '../layouts/Base.astro';
 
           <h3>Backgrounds</h3>
           <p>
-            The mark is drawn on a white tile, so it reads as a badge on the dark site. The PNG
-            keeps that tile; the dark JPG shows how it is flattened for a dark surface. Do not
-            assume transparency, and never place the mark on a busy photograph.
+            The PNGs are genuinely transparent, so the mark can sit on any flat colour. Use the
+            light treatment on dark backgrounds and the standard treatment on light ones. Never
+            place the mark on a busy photograph, and never add a plate behind it to make it work.
+          </p>
+
+          <h3>JPG files</h3>
+          <p>
+            JPG cannot store transparency. The JPGs in the kit are therefore flattened on the
+            studio's dark base <code>#07080B</code>, using the light-outline treatment. If you need
+            the mark on white, use the transparent PNG over white rather than a flattened JPG.
           </p>
 
           <h2>What not to do</h2>
@@ -61,6 +78,7 @@ import Base from '../layouts/Base.astro';
             <li>Do not add effects, shadows or glow.</li>
             <li>Do not crop the emblem or place text inside its clear space.</li>
             <li>Do not use it to suggest endorsement, partnership or sponsorship.</li>
+            <li>Do not use the transparent file on dark and call the black areas “subtle”.</li>
           </ul>
 
           <h2>Type</h2>
@@ -85,7 +103,10 @@ import Base from '../layouts/Base.astro';
 
           <div class="panel pad">
             <p class="label">Assets</p>
-            <p class="muted">PNG, JPG, WebP and an embedded-raster SVG, plus the retired emblem.</p>
+            <p class="muted">
+              PNG, JPG and SVG at 1024, 512, 256 and 128, in both treatments, plus the retired
+              emblem. One ZIP, no form.
+            </p>
             <a class="btn" href="/press">Press kit</a>
           </div>
         </aside>
@@ -98,9 +119,10 @@ import Base from '../layouts/Base.astro';
       <div class="notice notice--neutral">
         <span class="status status--info">Honest limitation</span>
         <p class="notice-body">
-          The current logo is not a vector redraw. The SVG in the press kit embeds the raster master
-          so layout scales cleanly, but a true vector is still to be produced. When it is, it will be
-          published alongside — not in place of — today's files.
+          The mark is not a vector redraw. The SVG files embed the transparent PNG at each size so
+          layout scales cleanly, but a true vector master is still to be produced. When it is, it
+          will be published alongside — not in place of — today's files. The original white-tile
+          edition is kept on the <a class="text-link" href="/archive">archive page</a>.
         </p>
       </div>
     </div>

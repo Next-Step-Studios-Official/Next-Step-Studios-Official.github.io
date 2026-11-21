@@ -8,17 +8,20 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "build": "node scripts/fetch-releases.mjs && node scripts/verify-content.mjs && node scripts/make-pdfs.mjs && node scripts/make-cheatsheet.mjs && node scripts/make-logo-sets.mjs && astro build",
+    "build": "node scripts/fetch-releases.mjs && node scripts/verify-content.mjs && node scripts/make-pdfs.mjs && node scripts/make-cheatsheet.mjs && node scripts/make-brand-zip.mjs && astro build",
     "preview": "astro preview",
     "pdfs": "node scripts/make-pdfs.mjs && node scripts/make-cheatsheet.mjs",
     "cheatsheet": "node scripts/make-cheatsheet.mjs",
     "snapshot": "node scripts/snapshot-policies.mjs",
     "og": "node scripts/make-og-pages.mjs",
     "releases": "node scripts/fetch-releases.mjs",
-    "logos": "node scripts/make-logo-sets.mjs",
+    "brand": "node scripts/make-brand-assets.mjs && node scripts/make-brand-zip.mjs",
+    "brand:zip": "node scripts/make-brand-zip.mjs",
+    "logos": "node scripts/make-brand-assets.mjs && node scripts/make-brand-zip.mjs",
+    "status": "node scripts/status-publish.mjs",
     "contact": "node server/index.mjs",
     "hash-password": "node server/hash-password.mjs",
-    "assets": "node scripts/brand-assets.mjs"
+    "assets": "node scripts/make-brand-assets.mjs && node scripts/make-brand-zip.mjs"
   },
   "dependencies": {
     "@fontsource-variable/inter": "^5.1.0",

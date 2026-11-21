@@ -1,19 +1,24 @@
 /**
- * The Discord bot's modules, read from its source tree.
+ * The Discord bot's modules, read from its source tree and updated from what
+ * the studio has actually confirmed about each one.
  *
- * Source: D:\NextStepStudios\DiscordBots\PrivateBots\NextStepStudioBot\bot\cogs
+ * Source: D:\\NextStepStudios\\DiscordBots\\PrivateBots\\NextStepStudioBot\\bot\\cogs
  *
  * Status vocabulary — deliberately separate from the project statuses on the
  * website, because a module existing as files is not the same as a feature
  * being verified in the server:
  *
- *   in-source  The module exists in the bot's source with commands defined.
- *              It has not been independently verified end to end on the server.
- *   partial    Part of the module is implemented; the rest is not.
- *   planned    The area is intended but is not a working feature yet.
+ *   tested            Working in the server, with behaviour confirmed.
+ *   testing           Working, but still being tested.
+ *   wip               Work in progress. It runs, but not well enough to call done.
+ *   planned           Intended, but not a working feature yet.
+ *   not-implemented   The files exist but there is nothing in them.
+ *
+ * Nothing is marked tested unless the studio has said so. Where a module was
+ * not discussed, it stays at `testing` rather than borrowing a stronger claim.
  */
 
-export type ModuleStatus = 'in-source' | 'partial' | 'planned';
+export type ModuleStatus = 'tested' | 'testing' | 'wip' | 'planned' | 'not-implemented';
 
 export type BotModule = {
   id: string;
@@ -23,12 +28,32 @@ export type BotModule = {
   status: ModuleStatus;
   /** Command names exactly as they appear in the source, where defined. */
   commands?: string[];
+  /** A caveat worth showing next to the status. */
+  note?: string;
 };
 
 export const MODULE_STATUS_LABEL: Record<ModuleStatus, string> = {
-  'in-source': 'In source · unverified',
-  partial: 'Partially implemented',
+  tested: 'Working · tested',
+  testing: 'Working · in testing',
+  wip: 'Work in progress',
   planned: 'Planned',
+  'not-implemented': 'Not implemented',
+};
+
+export const MODULE_STATUS_CLASS: Record<ModuleStatus, string> = {
+  tested: 'status status--testing',
+  testing: 'status status--dev',
+  wip: 'status status--draft',
+  planned: 'status status--planned',
+  'not-implemented': 'status status--planned',
+};
+
+export const MODULE_STATUS_NOTE: Record<ModuleStatus, string> = {
+  tested: 'Exercised in the server and confirmed working.',
+  testing: 'It works, but testing is not finished.',
+  wip: 'Built far enough to run, not far enough to call finished.',
+  planned: 'Intended. Not a working feature yet.',
+  'not-implemented': 'Files exist, but they contain nothing usable.',
 };
 
 export const MODULE_GROUPS = [
@@ -36,7 +61,6 @@ export const MODULE_GROUPS = [
   'Moderation and roles',
   'Utilities',
   'Entertainment',
-  'Platform',
 ] as const;
 
 export const BOT_MODULES: BotModule[] = [
@@ -46,28 +70,31 @@ export const BOT_MODULES: BotModule[] = [
     name: 'Support tickets',
     group: 'Community operations',
     summary:
-      'Turns support conversations into private ticket channels with claim, waiting, ready and close states, plus transcripts. Transcript generation exists but has not been verified end to end.',
-    status: 'in-source',
+      'Turns support conversations into private ticket channels with claim, waiting, ready and close states, reopening and escalation. Working in the server and still in testing; transcript generation has not been verified end to end.',
+    status: 'testing',
     commands: [
       '/ticket-panel',
+      '/create',
       '/ticket-claim',
       '/ticket-unclaim',
       '/ticket-waiting',
       '/ticket-ready',
       '/ticket-close',
       '/ticket-close-now',
+      '/ticket-reopen',
       '/ticket-transcript',
       '/escalate',
       '/reset-counter',
     ],
+    note: 'Transcripts unverified',
   },
   {
     id: 'applications',
     name: 'Applications and staff review',
     group: 'Community operations',
     summary:
-      'Application forms, review decisions, interview scheduling, staff profiles and an audit trail, with owner-confirmed clean-up and reset commands.',
-    status: 'in-source',
+      'Application forms, review decisions, interview scheduling, staff profiles and an audit trail, with owner-confirmed clean-up and reset commands. Working, and still in testing.',
+    status: 'testing',
     commands: [
       '/status',
       '/list',
@@ -86,25 +113,17 @@ export const BOT_MODULES: BotModule[] = [
     name: 'Announcements',
     group: 'Community operations',
     summary:
-      'A staff announcement composer with modals and a published embed. Described on the project page as partially implemented.',
-    status: 'partial',
+      'A staff announcement composer with modals and a published embed.',
+    status: 'tested',
     commands: ['/announce'],
-  },
-  {
-    id: 'welcome',
-    name: 'Welcome and onboarding',
-    group: 'Community operations',
-    summary:
-      'Member join events, onboarding flows and staff commands for adjusting how new members are greeted.',
-    status: 'in-source',
   },
   {
     id: 'loa',
     name: 'Leave of absence',
     group: 'Community operations',
     summary:
-      'Staff leave requests with eligibility rules, lifecycle handling, permissions and storage.',
-    status: 'in-source',
+      'Staff leave requests with eligibility rules, lifecycle handling, permissions and storage. The workflow runs, but the studio describes it as not great yet.',
+    status: 'wip',
   },
 
   // ------------------------------------------------------------- moderation
@@ -113,31 +132,31 @@ export const BOT_MODULES: BotModule[] = [
     name: 'Moderation and infractions',
     group: 'Moderation and roles',
     summary:
-      'The project page lists moderation and infractions as planned rather than working: the modules exist in the source, but no verification of behaviour is claimed here.',
+      'Moderation actions and infraction records. Planned, with no working behaviour claimed on this site.',
     status: 'planned',
   },
   {
     id: 'appeals',
     name: 'Ban appeals',
     group: 'Moderation and roles',
-    summary:
-      'Listed as planned on the project page. No working appeal flow is claimed.',
+    summary: 'An appeal route for moderation decisions. Planned.',
     status: 'planned',
   },
   {
     id: 'roles',
     name: 'Role management',
     group: 'Moderation and roles',
-    summary: 'Staff-facing role controls kept separate from day-to-day moderation.',
-    status: 'in-source',
+    summary:
+      'Role controls including reaction roles, kept separate from day-to-day moderation. Planned.',
+    status: 'planned',
   },
   {
     id: 'logging',
     name: 'Logging and diagnostics',
     group: 'Moderation and roles',
     summary:
-      'Log management plus a developer diagnostics module used while testing the bot locally.',
-    status: 'in-source',
+      'Server logging plus developer diagnostics used while testing the bot locally. Planned.',
+    status: 'planned',
   },
 
   // -------------------------------------------------------------- utilities
@@ -146,8 +165,8 @@ export const BOT_MODULES: BotModule[] = [
     name: 'Official links',
     group: 'Utilities',
     summary:
-      'The panel behind the website\'s /links page: one config file defines six sections and every entry, and the command publishes an embed plus a dropdown.',
-    status: 'in-source',
+      'The panel behind the website’s /links page: one config file defines every section and entry, and the command publishes an embed plus a dropdown.',
+    status: 'tested',
     commands: ['/links'],
   },
   {
@@ -155,15 +174,16 @@ export const BOT_MODULES: BotModule[] = [
     name: 'Rules',
     group: 'Utilities',
     summary: 'Publishes the server rules from configuration.',
-    status: 'in-source',
+    status: 'testing',
+    commands: ['/rules'],
   },
   {
     id: 'faq',
     name: 'FAQ',
     group: 'Utilities',
     summary:
-      'A configurable FAQ with its own data, views and error handling, so answers can be edited without touching command code.',
-    status: 'in-source',
+      'Questions for staff and members, with their own data, views and error handling. The studio reports it as done, and questions can be suggested.',
+    status: 'tested',
   },
   {
     id: 'suggestions',
@@ -171,7 +191,7 @@ export const BOT_MODULES: BotModule[] = [
     group: 'Utilities',
     summary:
       'Member suggestions with staff search, status changes and record clean-up.',
-    status: 'in-source',
+    status: 'tested',
     commands: ['/suggest', '/suggestion-search', '/suggestion-status', '/suggestion-cleanup'],
   },
   {
@@ -179,52 +199,70 @@ export const BOT_MODULES: BotModule[] = [
     name: 'Giveaways',
     group: 'Utilities',
     summary:
-      'Giveaway hosting with its own models, storage and views, including entry handling.',
-    status: 'in-source',
-  },
-  {
-    id: 'polls',
-    name: 'Polls',
-    group: 'Utilities',
-    summary: 'Simple polls posted by staff.',
-    status: 'in-source',
-  },
-  {
-    id: 'reminders',
-    name: 'Reminders',
-    group: 'Utilities',
-    summary: 'Personal reminders, stored per user.',
-    status: 'in-source',
+      'Giveaway hosting with its own models, storage and views, including entry handling. Nearly finished, and still a work in progress.',
+    status: 'wip',
   },
   {
     id: 'purge',
     name: 'Message purge',
     group: 'Utilities',
-    summary: 'Bulk message removal with configuration and its own error messages.',
-    status: 'in-source',
+    summary:
+      'Bulk message removal with configuration and its own error messages. It works, but the studio describes the behaviour as odd, so it stays in testing.',
+    status: 'testing',
+    commands: ['/purge'],
+    note: 'Behaviour is odd',
   },
   {
-    id: 'server-stats',
-    name: 'Server statistics',
+    id: 'about',
+    name: 'About Us',
     group: 'Utilities',
-    summary: 'Counter channels and server figures driven by a config file.',
-    status: 'in-source',
+    summary:
+      'Publishes and synchronises the official About Us message. A separate command from ping, with its own configuration and permissions.',
+    status: 'tested',
+    commands: ['/about-us'],
+  },
+  {
+    id: 'ping',
+    name: 'Ping',
+    group: 'Utilities',
+    summary:
+      'Reports the bot’s response time. Its own command, separate from About Us.',
+    status: 'tested',
+    commands: ['/ping'],
   },
   {
     id: 'versioning',
     name: 'Version reporting',
     group: 'Utilities',
-    summary: 'Reports which version of the bot is running.',
-    status: 'in-source',
+    summary: 'Publishes and checks the official NSS Versioning Standard.',
+    status: 'testing',
+    commands: ['/versioning'],
   },
   {
-    id: 'about',
-    name: 'About and ping',
+    id: 'polls',
+    name: 'Polls',
     group: 'Utilities',
     summary:
-      'Studio information and a latency check, including a general help entry point.',
-    status: 'in-source',
-    commands: ['/ping'],
+      'Simple polls posted by staff and server statistics counters. Not planned for the near future.',
+    status: 'planned',
+  },
+  {
+    id: 'server-stats',
+    name: 'Server statistics',
+    group: 'Utilities',
+    summary:
+      'Counter channels and server figures driven by a config file. Not planned for the near future.',
+    status: 'planned',
+  },
+  {
+    id: 'help',
+    name: 'Bot information and commands',
+    group: 'Utilities',
+    summary:
+      'A planned command that lists the bot’s commands and points at the website for the full reference. Not in source yet.',
+    status: 'planned',
+    commands: ['/help'],
+    note: 'Not in source yet',
   },
 
   // ------------------------------------------------------------ entertainment
@@ -233,54 +271,44 @@ export const BOT_MODULES: BotModule[] = [
     name: 'Fun commands',
     group: 'Entertainment',
     summary:
-      'Small social commands, each defined in one config file: eightball, coinflip, dice, choose, jokes and roasts.',
-    status: 'in-source',
+      'Small social commands: eightball, coinflip, dice, choose, jokes, roasts, trivia, GIFs and more. Mostly verified.',
+    status: 'tested',
+    commands: [
+      '/eightball',
+      '/coinflip',
+      '/dice',
+      '/choose',
+      '/joke',
+      '/roast',
+      '/compliment',
+      '/fortune',
+      '/fact',
+      '/quote',
+      '/riddle',
+      '/gif',
+      '/meme',
+      '/cat',
+      '/dog',
+      '/photo',
+      '/trivia',
+      '/wyr',
+    ],
   },
   {
     id: 'minigames',
     name: 'Minigames',
     group: 'Entertainment',
-    summary: 'Small in-Discord games kept apart from the utility modules.',
-    status: 'in-source',
+    summary:
+      'Small in-Discord games kept apart from the utility modules. Present in source and mostly verified.',
+    status: 'tested',
   },
   {
     id: 'economy',
     name: 'Economy',
     group: 'Entertainment',
     summary:
-      'Balances, an inventory and a shop — separated into three modules rather than one.',
-    status: 'in-source',
-  },
-
-  // ----------------------------------------------------------------- platform
-  {
-    id: 'administration',
-    name: 'Administration',
-    group: 'Platform',
-    summary:
-      'Channels, roles, permissions and configuration, split across modules so each concern has one home.',
-    status: 'in-source',
-  },
-  {
-    id: 'automation',
-    name: 'Automation',
-    group: 'Platform',
-    summary: 'Workflow commands for repeatable server tasks.',
-    status: 'in-source',
-  },
-  {
-    id: 'information',
-    name: 'Server and user information',
-    group: 'Platform',
-    summary: 'The information commands that describe the server and its members.',
-    status: 'in-source',
-  },
-  {
-    id: 'activity',
-    name: 'Member activity checks',
-    group: 'Platform',
-    summary: 'Membership checks used by other modules before acting on a member.',
-    status: 'in-source',
+      'Balances, an inventory and a shop. Planned; not verified.',
+    status: 'planned',
   },
 ];
 
@@ -292,3 +320,9 @@ export const modulesByGroup = () =>
 
 export const moduleCommandCount = () =>
   BOT_MODULES.reduce((total, module) => total + (module.commands?.length ?? 0), 0);
+
+export const moduleCountByStatus = () =>
+  (Object.keys(MODULE_STATUS_LABEL) as ModuleStatus[]).map((status) => ({
+    status,
+    count: BOT_MODULES.filter((module) => module.status === status).length,
+  }));

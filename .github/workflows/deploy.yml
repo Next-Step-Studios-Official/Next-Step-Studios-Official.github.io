@@ -10,6 +10,10 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [main]
+    # The bot updates the status feed every five minutes. The page reads the
+    # raw file from GitHub, so a status-only commit needs no rebuild.
+    paths-ignore:
+      - public/status.json
   workflow_dispatch:
 
 permissions:

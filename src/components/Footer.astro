@@ -1,8 +1,9 @@
 ---
 import { Image } from 'astro:assets';
-import logo from '../assets/brand/logo.png';
+import logo from '../assets/brand/logo-light.png';
 import { SITE } from '../lib/site';
 import { discordInvite, DISCORD } from '../lib/discord';
+import { TEAM_WORD } from '../lib/contributors';
 
 const year = new Date().getFullYear();
 const invite = discordInvite();
@@ -14,7 +15,7 @@ const studioLinks = [
   { href: '/modules', label: 'Modules' },
   { href: '/search', label: 'Search' },
   { href: '/team', label: 'Team' },
-  { href: '/social', label: 'Social' },
+  { href: '/archive', label: 'Archive' },
   { href: '/links', label: 'Official links' },
 ];
 
@@ -49,8 +50,8 @@ const policyLinks = [
           <span>Next Step <span class="wordmark-dim">Studios</span></span>
         </a>
         <p class="footer-note">
-          An independent creative and software studio run by {SITE.operator}, with a small
-          group of volunteer contributors. No accounts, no tracking, no advertising.
+          An independent creative and software studio run by {SITE.operator}, with a team of
+          {TEAM_WORD} people. No accounts, no tracking, no advertising.
         </p>
         <a class="footer-mail" href={`mailto:${SITE.contactEmail}`}>{SITE.contactEmail}</a>
         {invite && (

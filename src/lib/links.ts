@@ -18,7 +18,7 @@ import { DISCORD } from './discord';
 export const DOCS_REPO_URL = 'https://github.com/Next-Step-Studios-Official/bot-documentation';
 export const DOCS_POLICIES_URL = `${DOCS_REPO_URL}/tree/main/policies`;
 
-export type LinkSectionId = 'website' | 'social' | 'community' | 'development' | 'policies' | 'contact';
+export type LinkSectionId = 'website' | 'community' | 'development' | 'policies' | 'contact';
 
 export type LinkSection = {
   id: LinkSectionId;
@@ -33,11 +33,6 @@ export const LINK_SECTIONS: LinkSection[] = [
     id: 'website',
     title: 'Official Website',
     description: 'Our official website and online presence.',
-  },
-  {
-    id: 'social',
-    title: 'Social Media',
-    description: 'Follow Next Step Studios on our social platforms.',
   },
   {
     id: 'community',
@@ -90,56 +85,6 @@ export const LINKS: LinkEntry[] = [
     description: 'The official Next Step Studios website — the site you are reading now.',
     url: '/',
     accent: '#5865F2',
-    enabled: true,
-  },
-  {
-    id: 'tiktok',
-    name: 'TikTok',
-    section: 'social',
-    type: 'link',
-    description: 'Follow Next Step Studios on TikTok.',
-    url: 'https://www.tiktok.com/@next_step_studios',
-    accent: '#25F4EE',
-    enabled: true,
-  },
-  {
-    id: 'instagram',
-    name: 'Instagram',
-    section: 'social',
-    type: 'link',
-    description: 'Follow Next Step Studios on Instagram.',
-    url: 'https://www.instagram.com/nextstepstudiosofficial',
-    accent: '#E1306C',
-    enabled: true,
-  },
-  {
-    id: 'facebook',
-    name: 'Facebook',
-    section: 'social',
-    type: 'link',
-    description: 'Visit the official Next Step Studios Facebook page.',
-    url: 'https://www.facebook.com/share/151VGE88U9i/?mibextid=wwXIfr',
-    accent: '#0866FF',
-    enabled: true,
-  },
-  {
-    id: 'x',
-    name: 'X (formerly known as Twitter)',
-    section: 'social',
-    type: 'link',
-    description: 'Follow Next Step Studios on X.',
-    url: 'https://x.com/nextstepstudioo?s=11',
-    accent: '#000000',
-    enabled: true,
-  },
-  {
-    id: 'youtube',
-    name: 'YouTube',
-    section: 'social',
-    type: 'link',
-    description: 'Subscribe to Next Step Studios on YouTube.',
-    url: 'https://www.youtube.com/channel/UCaZNwC-pgVxTDk654m7I33A',
-    accent: '#FF0000',
     enabled: true,
   },
   {

@@ -6,13 +6,15 @@ import {
   CONTRIBUTORS_CONFIRMED,
   CONTRIBUTOR_COUNT,
   CONTRIBUTOR_WORD,
+  TEAM_SIZE,
+  TEAM_WORD,
   contributorName,
 } from '../lib/contributors';
 ---
 
 <Base
   title="Team"
-  description="The people who contribute to Next Step Studios: Candler Shaw, who runs the studio, and a small group of volunteer contributors."
+  description={`The five people behind Next Step Studios: Candler Shaw, who runs the studio, and ${CONTRIBUTOR_WORD} volunteer contributors.`}
   path="/team"
 >
   <section class="page-head">
@@ -22,10 +24,11 @@ import {
         <h1 class="display display--page">The people behind the work.</h1>
         <p class="lede">
           Next Step Studios is run by {SITE.operator}, with {CONTRIBUTOR_WORD} people
-          contributing across its projects. Everyone involved is a volunteer: nobody is
-          employed, contracted or paid.
+          contributing across its projects — {TEAM_WORD} people in total. Everyone involved is a
+          volunteer: nobody is employed, contracted or paid.
         </p>
         <div class="meta-bar">
+          <span>{TEAM_SIZE} people</span>
           <span>{CONTRIBUTOR_COUNT} contributors</span>
           <span>All voluntary</span>
           <span>Not a registered company</span>

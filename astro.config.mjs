@@ -16,6 +16,9 @@ export default defineConfig({
   base,
   output: 'static',
   trailingSlash: 'ignore',
+  redirects: {
+    '/social': '/links',
+  },
   build: {
     format: 'directory',
   },

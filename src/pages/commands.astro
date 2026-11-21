@@ -1,6 +1,13 @@
 ---
 import Base from '../layouts/Base.astro';
-import { COMMANDS, COMMAND_GROUPS, commandCountByGroup, commandsByGroup } from '../lib/commands';
+import {
+  COMMANDS,
+  COMMAND_GROUPS,
+  COMMAND_STATUS_LABEL,
+  PLANNED_COMMANDS,
+  commandCountByGroup,
+  commandsByGroup,
+} from '../lib/commands';
 
 const groups = commandsByGroup();
 const total = COMMANDS.length;
@@ -80,6 +87,7 @@ const total = COMMANDS.length;
                 <div>
                   <h2 id={`cmd-group-${group.id}`} class="cmd-group-title">{group.label}</h2>
                   <p class="cmd-group-blurb">{group.blurb}</p>
+                  <span class="cmd-group-status">{COMMAND_STATUS_LABEL[group.status]}</span>
                 </div>
                 <span class="label cmd-group-count">
                   {commands.length} {commands.length === 1 ? 'command' : 'commands'}
@@ -104,12 +112,37 @@ const total = COMMANDS.length;
         }
       </div>
 
+      <section class="panel cmd-group" aria-labelledby="cmd-group-planned">
+        <header class="cmd-group-head">
+          <span class="cmd-group-icon" aria-hidden="true">◌</span>
+          <div>
+            <h2 id="cmd-group-planned" class="cmd-group-title">Planned commands</h2>
+            <p class="cmd-group-blurb">Intended, but not in the source yet. Not counted above.</p>
+            <span class="cmd-group-status">Planned</span>
+          </div>
+          <span class="label cmd-group-count">
+            {PLANNED_COMMANDS.length} {PLANNED_COMMANDS.length === 1 ? 'command' : 'commands'}
+          </span>
+        </header>
+        <ul class="cmd-list">
+          {
+            PLANNED_COMMANDS.map((command) => (
+              <li class="cmd-row">
+                <code class="cmd-name">/{command.name}</code>
+                <span class="cmd-desc">{command.description}</span>
+                <span class="cmd-note">{command.note}</span>
+              </li>
+            ))
+          }
+        </ul>
+      </section>
+
       <div class="callout">
         <p class="callout-title">How to read this page</p>
         <p class="callout-body">
-          A command listed here is a command the source defines. It may still be unverified, staff-only, or
-          waiting on a configuration the server has not set. The project page carries the verification
-          status for each module; the policies describe what the commands may do with data.
+          A command listed here is a command the source defines. Each group carries the status the
+          studio has confirmed: tested, in testing, or planned. The module register carries the same
+          status per feature, and the policies describe what the commands may do with data.
         </p>
         <div class="callout-actions">
           <a class="btn" href="/modules">Module register <span class="btn-arrow" aria-hidden="true">→</span></a>
@@ -167,6 +200,18 @@ const total = COMMANDS.length;
       </div>
     </div>
   </section>
+
+  <style>
+    .cmd-group-status {
+      display: inline-block;
+      margin-top: 0.5rem;
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--color-accent-soft);
+    }
+  </style>
 
   <script>
     const toolbar = document.querySelector<HTMLElement>('[data-cmd-toolbar]');

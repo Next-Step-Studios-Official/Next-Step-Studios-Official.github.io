@@ -14,6 +14,22 @@ export type ChangelogEntry = {
 export const CHANGELOG: ChangelogEntry[] = [
   {
     date: '2026-11-21',
+    version: '3.0',
+    title: 'The live edition',
+    summary:
+      'The mark becomes transparent at four sizes in three formats, the archive gets its own page and a ZIP, the status page reads checks the bot publishes, and the studio is described as five people.',
+    changes: [
+      'Logo cut out from the outside in: transparent PNG and SVG at 1024, 512, 256 and 128, plus JPG and a light treatment for dark surfaces.',
+      'Transparent favicons and Apple touch icon; the old white-tile artwork is kept only as a labelled archive copy.',
+      'A standalone /archive page with every current and retired mark, and one ZIP containing the whole brand kit.',
+      'A live /status page: current state, response time, version, a 24-hour strip and incidents, read from a JSON feed the bot publishes.',
+      'The studio is described as five people; four contributor placeholders sit alongside Candler Shaw, and the About page has a contact block under its facts.',
+      'The social page is removed. Official links is the single list, and /social redirects there.',
+      'Module register corrected to 23 modules and 51 commands, with Platform, Reminders and Welcome removed; /help is listed as planned.',
+    ],
+  },
+  {
+    date: '2026-11-21',
     version: '2.1',
     title: 'The archive edition',
     summary:

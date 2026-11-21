@@ -45,13 +45,26 @@ export const ROADMAP: RoadmapItem[] = [
     title: 'This website',
     status: 'Live',
     summary:
-      'A static site with no accounts, no analytics and no third-party requests. It is the stable address for the studio, its work and its documents.',
+      'A static site with no accounts and no analytics. Its one third-party request is the status page reading the bot\u2019s feed from GitHub. It is the stable address for the studio, its work and its documents.',
     points: [
       'Done: full-text search, command reference, document exports, devlog and policy tooling.',
       'Done: every document readable, printable, downloadable and mirrored to GitHub.',
+      'Done: transparent marks, a permanent brand archive, a ZIP of every asset and a live status page.',
       'Next: keep it current as the bot changes.',
     ],
     link: { href: '/changelog', label: 'What changed, and when' },
+  },
+  {
+    title: 'Live status',
+    status: 'Live',
+    summary:
+      'The bot publishes a small JSON file after each check, and the status page reads it in the browser. No monitoring service, account or analytics is involved.',
+    points: [
+      'The page shows the current state, response time, version and a 24-hour strip of five-minute checks.',
+      'If the feed cannot be read, the page says so and falls back to the copy built with the site.',
+      'The publisher needs a GitHub token; until it runs, the page shows an empty history rather than inventing one.',
+    ],
+    link: { href: '/status', label: 'The live status board' },
   },
   {
     title: 'Games',
@@ -77,12 +90,12 @@ export const ROADMAP: RoadmapItem[] = [
   },
   {
     title: 'A light theme',
-    status: 'Not planned',
+    status: 'Live',
     summary:
-      'Tested and rejected. The site is art-directed dark, with one palette and no toggle to get out of sync.',
+      'Shipped: a light palette with a manual toggle. Dark remains the default, and the choice is stored in the browser only.',
     points: [
-      'A second palette would double the contrast surface to maintain.',
-      'The dark design is not a default — it is the design.',
+      'The toggle writes one local value, nss-theme; no account or server is involved.',
+      'Both palettes share the same contrast, type and layout rules.',
     ],
   },
   {

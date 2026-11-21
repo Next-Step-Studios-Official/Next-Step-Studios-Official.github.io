@@ -1,11 +1,23 @@
 ---
 import Base from '../../layouts/Base.astro';
-import { BOT_MODULES, MODULE_GROUPS, MODULE_STATUS_LABEL, modulesByGroup, moduleCommandCount } from '../../lib/modules';
+import {
+  BOT_MODULES,
+  MODULE_GROUPS,
+  MODULE_STATUS_CLASS,
+  MODULE_STATUS_LABEL,
+  modulesByGroup,
+  moduleCommandCount,
+} from '../../lib/modules';
 import { COMMANDS } from '../../lib/commands';
 
 const groups = modulesByGroup();
 const statusCount = (status: string) => BOT_MODULES.filter((module) => module.status === status).length;
-const commandsInModules = moduleCommandCount();
+const documentedCommands = new Set(COMMANDS.map((command) => `/${command.name}`));
+const commandsInModules = new Set(
+  BOT_MODULES.flatMap((module) => module.commands ?? []).filter((command) =>
+    documentedCommands.has(command),
+  ),
+).size;
 ---
 
 <Base
@@ -20,14 +32,15 @@ const commandsInModules = moduleCommandCount();
         <p class="eyebrow">Next Step Bot · Module register</p>
         <h1 class="display display--page">The bot, module by module.</h1>
         <p class="lede">
-          {BOT_MODULES.length} modules exist in the bot's source across {MODULE_GROUPS.length} areas.
-          A module being present is not proof that it works: each entry carries the status it has
-          actually reached, and links the policy that governs the data it touches.
+          {BOT_MODULES.length} modules across {MODULE_GROUPS.length} areas.
+          A module being present is not proof that it works: each entry carries the status the
+          studio has confirmed, and links the policy that governs the data it touches.
         </p>
         <div class="meta-bar">
           <span>{BOT_MODULES.length} modules</span>
-          <span>{statusCount('in-source')} in source · unverified</span>
-          <span>{statusCount('partial')} partial</span>
+          <span>{statusCount('tested')} tested</span>
+          <span>{statusCount('testing')} in testing</span>
+          <span>{statusCount('wip')} in progress</span>
           <span>{statusCount('planned')} planned</span>
           <span>{commandsInModules} of {COMMANDS.length} commands mapped</span>
         </div>
@@ -46,7 +59,7 @@ const commandsInModules = moduleCommandCount();
           {group.modules.map((module) => (
             <a class="panel panel-link module-card" href={`/modules/${module.id}`}>
               <div class="module-card-top">
-                <span class={`status status--${module.status}`}>{MODULE_STATUS_LABEL[module.status]}</span>
+                <span class={MODULE_STATUS_CLASS[module.status]}>{MODULE_STATUS_LABEL[module.status]}</span>
               </div>
               <h3>{module.name}</h3>
               <p>{module.summary}</p>
@@ -66,9 +79,10 @@ const commandsInModules = moduleCommandCount();
       <div class="notice notice--neutral">
         <span class="status status--info">How to read this</span>
         <p class="notice-body">
-          "In source · unverified" means the files and command definitions exist, not that the
-          behaviour has been confirmed end to end. "Partial" means part of the area is implemented.
-          "Planned" means it does not exist as a working feature. The
+          <strong>Working · tested</strong> means the behaviour has been confirmed in the server.
+          <strong>Working · in testing</strong> means it works but testing is not finished.
+          <strong>Work in progress</strong> means it runs, but not well enough to call done.
+          <strong>Planned</strong> means it does not exist as a working feature. The
           <a class="text-link" href="/projects/next-step-bot">project page</a> is the authority on
           overall status; the <a class="text-link" href="/policies">policies</a> are the authority on
           what the bot may do with data.

@@ -3,7 +3,7 @@
  * Where the honest answer is "not yet", the answer says so.
  */
 
-import { CONTRIBUTOR_WORD } from './contributors';
+import { CONTRIBUTOR_WORD, TEAM_WORD } from './contributors';
 
 export type FaqEntry = {
   question: string;
@@ -23,7 +23,7 @@ export const FAQ: FaqEntry[] = [
     question: 'Can I join the Discord server?',
     answer:
       'Yes. The server has a public invite, and it is the same one the bot publishes through its links panel. This site links to it rather than restating the rules, so there is only one authoritative copy.',
-    link: { href: '/social', label: 'Community links' },
+    link: { href: '/links', label: 'Official links' },
   },
   {
     question: 'What data does the bot store about me?',
@@ -82,7 +82,7 @@ export const FAQ: FaqEntry[] = [
   {
     question: 'Who runs Next Step Studios?',
     answer:
-      `Candler Shaw runs the studio and is its only legal operator. A small group of ${CONTRIBUTOR_WORD} contributors helps with specific projects, all voluntarily — nobody is employed, contracted or paid. It is still a public-facing name rather than a registered company, and the team page lists everyone involved and what they work on.`,
+      `Candler Shaw runs the studio and is its only legal operator, with ${CONTRIBUTOR_WORD} contributors helping across specific projects — ${TEAM_WORD} people in total, all voluntarily. Nobody is employed, contracted or paid. It is still a public-facing name rather than a registered company, and the team page lists everyone involved and what they work on.`,
     link: { href: '/team', label: 'The team' },
   },
 ];
