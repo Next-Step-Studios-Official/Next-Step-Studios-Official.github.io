@@ -38,6 +38,7 @@ npm run hash-password # hash the dashboard password
 npm run pdfs          # policy PDFs + the command cheatsheet
 npm run cheatsheet    # the printable command cheatsheet only
 npm run og            # regenerate the per-page share cards
+npm run logos         # rebuild PNG/JPG/SVG logo files and their sizes
 npm run snapshot      # record the current policy bodies as version snapshots
 npm run assets        # re-derive logo, favicons and banners from the bot repo
 ```

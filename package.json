@@ -15,6 +15,7 @@
     "snapshot": "node scripts/snapshot-policies.mjs",
     "og": "node scripts/make-og-pages.mjs",
     "releases": "node scripts/fetch-releases.mjs",
+    "logos": "node scripts/make-logo-sets.mjs",
     "contact": "node server/index.mjs",
     "hash-password": "node server/hash-password.mjs",
     "assets": "node scripts/brand-assets.mjs"
