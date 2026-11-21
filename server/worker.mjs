@@ -24,9 +24,9 @@
  *   ALLOWED_ORIGINS       extra comma-separated origins allowed to post
  *   CONTACT_WEBHOOK_URL   optional Discord/Slack webhook for new messages
  *   CONTACT_RATE_LIMIT    messages per IP per 15 minutes (default 5)
- *   BREVO_API_KEY         Brevo API key; free plan is 300 emails a day
+ *   RESEND_API_KEY        Resend API key; free plan is 3,000 emails a month
  *   NOTIFY_EMAIL          inbox that receives a copy of each message
- *   MAIL_FROM             Brevo-verified sender; defaults to NOTIFY_EMAIL
+ *   MAIL_FROM             sender address; defaults to onboarding@resend.dev
  *
  * Email is best effort: a message is stored first, so a failed send never
  * loses it and never turns a successful submission into an error.
@@ -253,11 +253,12 @@ async function readJson(request, limit = 64 * 1024) {
 /* ── email notification ─────────────────────────────────────────────── */
 
 /**
- * Brevo's transactional endpoint. The free plan sends 300 emails a day, needs
- * no custom domain and no card: verify one sender address in Brevo, put its API
- * key in BREVO_API_KEY, and contact messages arrive in NOTIFY_EMAIL.
+ * Resend's transactional endpoint. The free plan sends 3,000 emails a month
+ * (100 a day) with no card and no postal address. Until a domain is verified,
+ * Resend accepts onboarding@resend.dev as the sender and delivers only to the
+ * account's own address — which is exactly the contact-notification case.
  */
-const BREVO_ENDPOINT = 'https://api.brevo.com/v3/smtp/email';
+const RESEND_ENDPOINT = 'https://api.resend.com/emails';
 
 const escapeHtml = (value) =>
   String(value).replace(
@@ -270,15 +271,15 @@ const escapeHtml = (value) =>
  * The email settings, resolved from the environment.
  *
  * NOTIFY_EMAIL falls back to the address already published on the contact page
- * and in the policies, so setting only BREVO_API_KEY is enough to start
- * receiving copies. MAIL_FROM must be a sender Brevo has verified; it is the
- * address the notification appears to come from, and replies go to the visitor
- * because replyTo is set per message.
+ * and in the policies, so setting only RESEND_API_KEY is enough to start
+ * receiving copies. MAIL_FROM is the sender Resend accepts; without a verified
+ * domain that is onboarding@resend.dev, which can deliver only to the account's
+ * own address. Replies go to the visitor because reply_to is set per message.
  */
 const emailConfig = (env) => {
-  const apiKey = String(env.BREVO_API_KEY ?? '').trim();
+  const apiKey = String(env.RESEND_API_KEY ?? '').trim();
   const to = String(env.NOTIFY_EMAIL ?? 'nextstepstudiosofficial.contact@gmail.com').trim();
-  const from = String(env.MAIL_FROM ?? '').trim() || to;
+  const from = String(env.MAIL_FROM ?? '').trim() || 'onboarding@resend.dev';
   return { apiKey, to, from, ready: Boolean(apiKey && to && from) };
 };
 
@@ -310,16 +311,16 @@ async function sendEmail(env, record) {
     '</div>',
   ].join('');
 
-  const response = await fetch(BREVO_ENDPOINT, {
+  const response = await fetch(RESEND_ENDPOINT, {
     method: 'POST',
-    headers: { 'api-key': apiKey, 'Content-Type': 'application/json', Accept: 'application/json' },
+    headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      sender: { email: from, name: 'Next Step Studios website' },
-      to: [{ email: to }],
-      replyTo: { email: record.email, name: record.name },
+      from: `Next Step Studios <${from}>`,
+      to: [to],
+      reply_to: record.email,
       subject: `New ${record.subject} message from ${record.name}`,
-      textContent: text,
-      htmlContent: html,
+      text,
+      html,
     }),
     signal: AbortSignal.timeout(10_000),
   });

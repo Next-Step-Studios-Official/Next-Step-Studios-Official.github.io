@@ -57,7 +57,7 @@ that only you can supply. Nothing in this list is invented in the code.
 
 | Placeholder | Where it lives | What to put there |
 | --- | --- | --- |
-| `BREVO_API_KEY`, `NOTIFY_EMAIL`, `MAIL_FROM` | Worker secrets, and `.env` for the Node host | Brevo API key, the inbox that receives copies, the verified sender |
+| `RESEND_API_KEY`, `NOTIFY_EMAIL`, `MAIL_FROM` | Worker secrets, and `.env` for the Node host | Resend API key, the inbox that receives copies, the sender (optional) |
 | `BOT_STATUS_URL` | Actions **repository variable** | The bot's public health URL |
 | `@contributor-1` … `@contributor-4` | `src/lib/contributors.ts` | Real handles, roles and focus |
 | `PUBLIC_CONTACT_ENDPOINT` | `.env` (optional) | Another contact service URL |
@@ -93,32 +93,40 @@ Optional settings, set as secrets on the worker:
 | `CONTACT_WEBHOOK_URL` | Discord/Slack webhook notified on each message (`{content, text}`). |
 | `CONTACT_RATE_LIMIT` | Messages per IP per 15 minutes (default 5). |
 | `ALLOWED_ORIGINS` | Extra comma-separated origins allowed to post, beyond the GitHub Pages origin. |
-| `BREVO_API_KEY` | Brevo API key; the free plan sends 300 emails a day. Empty means no email. |
-| `NOTIFY_EMAIL` | Inbox that receives each message. Defaults to the published contact address. |
-| `MAIL_FROM` | A sender Brevo has verified. Defaults to `NOTIFY_EMAIL`. |
+| `RESEND_API_KEY` | Resend API key; the free plan sends 3,000 emails a month. Empty means no email. |
+| `NOTIFY_EMAIL` | Inbox that receives each message. Until a domain is verified, this must be the address the Resend account was created with. |
+| `MAIL_FROM` | Sender address. Defaults to `onboarding@resend.dev`. |
 
 #### Email copies (free)
 
 Messages are stored first, so email is optional and best effort: if a send
 fails, the message is still in the inbox and the visitor still sees success.
 
-Brevo's free plan sends 300 emails a day with no card and no custom domain:
+Resend's free plan sends 3,000 emails a month (100 a day) with no card and no
+company or postal address — signup asks only for an email and a password. It can
+send before you own a domain: from `onboarding@resend.dev` to the address on the
+Resend account. That is the contact-notification case, because the copy goes to
+the studio's own inbox.
 
-1. Create an account at <https://app.brevo.com>, then open **SMTP & API → API
-   keys** and create a key.
-2. Add and verify the address you want copies sent to under **Senders**.
+1. Create an account at <https://resend.com> (Google, GitHub, or an email and
+   password) and confirm the address you signed up with.
+2. Open **API Keys → Create API Key**, give it **Sending access**, and copy the
+   key (it starts with `re_`).
 3. Set these on the deployed Worker (and in `.env` for the Node version):
 
    | Name | Value |
    | --- | --- |
-   | `BREVO_API_KEY` | the key from step 1 |
-   | `NOTIFY_EMAIL` | the inbox from step 2 — defaults to the published contact address |
-   | `MAIL_FROM` | the verified sender — defaults to `NOTIFY_EMAIL` |
+   | `RESEND_API_KEY` | the key from step 2 |
+   | `NOTIFY_EMAIL` | the inbox from step 1 — the same address you signed up with |
+   | `MAIL_FROM` | the sender; leave empty to use `onboarding@resend.dev` |
 
-The notification is sent from `MAIL_FROM` with `Reply-To` set to the visitor, so
-replying answers them directly. Until a key is set, `GET /healthz` reports
-`"email": "not configured"` and the form works as before. The deployed Worker
-must be redeployed after adding the key for the change to take effect.
+The notification is sent from `Next Step Studios <MAIL_FROM>` with `Reply-To`
+set to the visitor, so replying answers them directly. Resend only allows the
+`onboarding@resend.dev` sender to deliver to the account's own address; to send
+anywhere else later, verify a domain and set `MAIL_FROM` to an address on it.
+Until a key is set, `GET /healthz` reports `"email": "not configured"` and the
+form works as before. The deployed Worker must be redeployed after adding the
+key for the change to take effect.
 
 Building the site with an empty `PUBLIC_CONTACT_ENDPOINT` puts the form back in
 its "not connected" state: it renders, says it cannot send, and points at the
@@ -299,7 +307,7 @@ contents anywhere: set the values yourself, and tell me only that they are set.
 
 | Value | Local `.env`? | Where it has to go for the live site |
 | --- | --- | --- |
-| `BREVO_API_KEY`, `NOTIFY_EMAIL`, `MAIL_FROM` | yes, for `npm run contact` | Sites → **Next Step Studios Contact** → Secrets |
+| `RESEND_API_KEY`, `NOTIFY_EMAIL`, `MAIL_FROM` | yes, for `npm run contact` | Sites → **Next Step Studios Contact** → Secrets |
 | `CONTACT_WEBHOOK_URL` | yes, for `npm run contact` | the same Sites → Secrets screen |
 | `SESSION_SECRET`, `ADMIN_PASSWORD_HASH` | yes, for a Node host | already set on the deployed Worker |
 | `DISCORD_WEBHOOK_URL` | not read by the site | GitHub → Settings → Secrets and variables → Actions → **Secrets** |
@@ -308,15 +316,16 @@ contents anywhere: set the values yourself, and tell me only that they are set.
 
 GitHub Pages does not read `.env`: `.github/workflows/deploy.yml` supplies
 `SITE_URL` and `BASE_PATH`, and the contact service reads its secrets from the
-Worker runtime. A `BREVO_API_KEY` in `.env` alone will not make the deployed
+Worker runtime. A `RESEND_API_KEY` in `.env` alone will not make the deployed
 form send email.
 
 The websites used above:
 
 - Discord webhooks — no developer app and no API key: sign in at
   <https://discord.com/channels/@me> and follow the channel steps in section 4.
-- Brevo API key — <https://app.brevo.com> → **SMTP & API → API keys**, then
-  verify the sender under **Senders**.
+- Resend API key — <https://resend.com/api-keys> → **Create API Key** with
+  **Sending access**. No domain, card or postal address is needed for the
+  own-inbox setup above.
 - GitHub Actions secrets and variables —
   <https://github.com/Next-Step-Studios-Official/Next-Step-Studios-Official.github.io/settings/secrets/actions>.
 - Freebuff Sites — open **Sites → Next Step Studios Contact → Secrets** in the

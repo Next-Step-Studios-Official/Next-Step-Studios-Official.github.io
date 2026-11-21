@@ -22,7 +22,7 @@
  * Optional:
  *   PORT (default 8787), DATA_DIR, CONTACT_ALLOWED_ORIGIN,
  *   CONTACT_WEBHOOK_URL, CONTACT_RATE_LIMIT (default 5 per 15 minutes),
- *   BREVO_API_KEY, NOTIFY_EMAIL, MAIL_FROM (email copies, free plan)
+ *   RESEND_API_KEY, NOTIFY_EMAIL, MAIL_FROM (email copies, free plan)
  */
 import { createServer } from 'node:http';
 import { createHmac, randomBytes, randomUUID, scryptSync, timingSafeEqual } from 'node:crypto';
@@ -36,11 +36,11 @@ const ALLOWED_ORIGIN = (process.env.CONTACT_ALLOWED_ORIGIN ?? '').replace(/\/$/,
 const SESSION_SECRET = process.env.SESSION_SECRET ?? '';
 const ADMIN_PASSWORD_HASH = process.env.ADMIN_PASSWORD_HASH ?? '';
 const WEBHOOK_URL = process.env.CONTACT_WEBHOOK_URL ?? '';
-const BREVO_API_KEY = (process.env.BREVO_API_KEY ?? '').trim();
+const RESEND_API_KEY = (process.env.RESEND_API_KEY ?? '').trim();
 const NOTIFY_EMAIL = (
   process.env.NOTIFY_EMAIL ?? 'nextstepstudiosofficial.contact@gmail.com'
 ).trim();
-const MAIL_FROM = (process.env.MAIL_FROM ?? '').trim() || NOTIFY_EMAIL;
+const MAIL_FROM = (process.env.MAIL_FROM ?? '').trim() || 'onboarding@resend.dev';
 const RATE_LIMIT = Number(process.env.CONTACT_RATE_LIMIT ?? 5);
 const WINDOW_MS = 15 * 60 * 1000;
 const SESSION_MS = 8 * 60 * 60 * 1000;
@@ -205,9 +205,9 @@ const escapeHtml = (value) =>
   );
 
 /** True when an API key and a destination are configured. */
-const emailReady = Boolean(BREVO_API_KEY && NOTIFY_EMAIL && MAIL_FROM);
+const emailReady = Boolean(RESEND_API_KEY && NOTIFY_EMAIL && MAIL_FROM);
 
-/** Brevo transaction email. Best effort: never throws into the request path. */
+/** Resend transaction email. Best effort: never throws into the request path. */
 const sendEmail = async (record) => {
   if (!emailReady) return false;
   const text = [
@@ -231,16 +231,16 @@ const sendEmail = async (record) => {
     '<p style="margin:1.25rem 0 0;color:#5a6678;font-size:13px">Reply to this email to answer directly.</p>',
     '</div>',
   ].join('');
-  const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+  const response = await fetch('https://api.resend.com/emails', {
     method: 'POST',
-    headers: { 'api-key': BREVO_API_KEY, 'Content-Type': 'application/json', Accept: 'application/json' },
+    headers: { Authorization: `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      sender: { email: MAIL_FROM, name: 'Next Step Studios website' },
-      to: [{ email: NOTIFY_EMAIL }],
-      replyTo: { email: record.email, name: record.name },
+      from: `Next Step Studios <${MAIL_FROM}>`,
+      to: [NOTIFY_EMAIL],
+      reply_to: record.email,
       subject: `New ${record.subject} message from ${record.name}`,
-      textContent: text,
-      htmlContent: html,
+      text,
+      html,
     }),
     signal: AbortSignal.timeout(10_000),
   });

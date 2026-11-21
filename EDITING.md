@@ -59,12 +59,14 @@ The default is the deployed service:
 - health: `https://next-step-studios-contact-wqep7k.freebuff.site/healthz`
 
 Messages are stored in the service's D1 database and read in the private inbox. An email copy
-is optional and already wired: set `BREVO_API_KEY`, `NOTIFY_EMAIL` and, if you want a
-specific sender, `MAIL_FROM` in the Worker's secrets. Brevo's free plan is 300 emails a day
-with no card and no custom domain; the `MAIL_FROM` address must be verified in Brevo. The
-notification sets `Reply-To` to the visitor, so replying answers them. Until a key is set no
-email is sent, `/healthz` reports `"email": "not configured"`, and the form still works.
-Redeploy the Worker after adding the key.
+is optional and already wired: set `RESEND_API_KEY`, `NOTIFY_EMAIL` and, if you want a
+specific sender, `MAIL_FROM` in the Worker's secrets. Resend's free plan is 3,000 emails a
+month (100 a day) with no card and no postal address. Until a domain is verified, leave
+`MAIL_FROM` empty to send from `onboarding@resend.dev` to the account's own address — so
+`NOTIFY_EMAIL` must be the address the Resend account was created with. The notification
+sets `Reply-To` to the visitor, so replying answers them. Until a key is set no email is
+sent, `/healthz` reports `"email": "not configured"`, and the form still works. Redeploy the
+Worker after adding the key.
 
 Set the inbox password on the first visit to the dashboard. Optional Worker secrets are
 listed in the README: `ADMIN_PASSWORD_HASH`, `CONTACT_WEBHOOK_URL`, `CONTACT_RATE_LIMIT`
