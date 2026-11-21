@@ -20,7 +20,7 @@ npm run build     # releases → content guard → PDFs → static build into di
 npm run preview   # serve the built dist/
 ```
 
-`npm run build` runs four things:
+`npm run build` runs five things:
 
 1. `scripts/fetch-releases.mjs` — records GitHub Releases (skipped when no
    repositories are configured).
@@ -28,7 +28,10 @@ npm run preview   # serve the built dist/
    leaked into `src/content`.
 3. `scripts/make-pdfs.mjs` and `scripts/make-cheatsheet.mjs` — regenerate the
    PDF editions.
-4. `astro build` — the pages, the search index, sitemap, RSS and robots.
+4. `scripts/make-logo-sets.mjs` — regenerates the press-kit PNG, JPG and SVG
+   files and the sizes recorded in `src/data/logo-files.json`, so the downloads
+   on the press page always exist.
+5. `astro build` — the pages, the search index, sitemap, RSS and robots.
 
 Other commands:
 
