@@ -71,3 +71,32 @@ jobs:
       - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v4
+
+      # Optional, no bot code: post the live URL to a Discord channel webhook.
+      # Add DISCORD_WEBHOOK_URL under Settings → Secrets and variables →
+      # Actions → Secrets. While it is empty this step prints and exits green.
+      - name: Announce in Discord
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          if [ -z "$DISCORD_WEBHOOK_URL" ]; then
+            echo "DISCORD_WEBHOOK_URL is not set; skipping the announcement."
+            exit 0
+          fi
+          node --input-type=module -e '
+            const message = [
+              "**Next Step Studios — site deployed**",
+              `Live: ${{ steps.deployment.outputs.page_url }}`,
+              `Commit: ${process.env.GITHUB_SHA.slice(0, 7)}`,
+              `Run: https://github.com/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`,
+            ].join("\n");
+            const response = await fetch(process.env.DISCORD_WEBHOOK_URL, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ content: message }),
+            });
+            if (!response.ok) {
+              console.error("Discord webhook failed", response.status, await response.text());
+              process.exit(1);
+            }
+          '

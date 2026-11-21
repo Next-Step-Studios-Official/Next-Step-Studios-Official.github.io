@@ -177,7 +177,7 @@ const routes = [
           <p class="eyebrow">Start here</p>
           <h2 class="section-title" style="margin-top: 0.75rem;">Five ways into the studio</h2>
           <p class="section-sub">
-            The site is small on purpose. Everything published lives behind one of these three doors.
+            The site is small on purpose. Everything published lives behind one of these doors.
           </p>
         </div>
       </div>
@@ -258,7 +258,7 @@ const routes = [
 
       <div class="split">
         <div class="panel panel--pad">
-          <p class="label" style="margin-bottom: 0.9rem;">Discord bot policies · v0.2.0 drafts</p>
+          <p class="label" style="margin-bottom: 0.9rem;">Discord bot policies · v{policies[0]?.data.version ?? '—'} drafts</p>
           <ul class="link-list">
             {policies.map((policy) => (
               <li>

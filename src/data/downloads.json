@@ -2,7 +2,7 @@
   {
     "slug": "brand-kit",
     "title": "Brand kit",
-    "summary": "Every logo format in one zip — transparent and light sets at 1024, 512, 256 and 128 in PNG and SVG, JPGs, the archive and a README of the usage rules.",
+    "summary": "Every logo format in one zip — transparent and light sets at 1024, 512, 256 and 128 in PNG and SVG, JPGs, the archive, the site favicons and a README of the usage rules.",
     "category": "files",
     "platforms": ["any"],
     "kinds": ["archive"],

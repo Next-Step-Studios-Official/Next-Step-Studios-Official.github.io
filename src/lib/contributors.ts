@@ -13,6 +13,8 @@
  * showing the list says the details are still being confirmed, so the
  * placeholder text never reads as a claim about a real person.
  */
+import { numberWord } from './words';
+
 export type Contributor = {
   /** Discord username, shown as the public credit. */
   handle: string;
@@ -52,10 +54,8 @@ export const CONTRIBUTORS: Contributor[] = [
 
 export const CONTRIBUTOR_COUNT = CONTRIBUTORS.length;
 
-const WORDS = ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'];
-
 /** Lowercase word for the count, e.g. "four"; digits above ten. */
-export const CONTRIBUTOR_WORD = WORDS[CONTRIBUTOR_COUNT] ?? String(CONTRIBUTOR_COUNT);
+export const CONTRIBUTOR_WORD = numberWord(CONTRIBUTOR_COUNT);
 
 /**
  * Everyone in the studio, including the operator, who is not listed as a
@@ -64,7 +64,7 @@ export const CONTRIBUTOR_WORD = WORDS[CONTRIBUTOR_COUNT] ?? String(CONTRIBUTOR_C
 export const TEAM_SIZE = CONTRIBUTOR_COUNT + 1;
 
 /** Lowercase word for the team size, e.g. "five". */
-export const TEAM_WORD = WORDS[TEAM_SIZE] ?? String(TEAM_SIZE);
+export const TEAM_WORD = numberWord(TEAM_SIZE);
 
 /** The public credit for a person: a full name if given, otherwise the handle. */
 export const contributorName = (person: Contributor) => person.name ?? person.handle;

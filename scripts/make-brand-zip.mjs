@@ -39,6 +39,25 @@ const fileDate = (file) => {
 
 const generatedDate = new Date(`${manifest.generated}T12:00:00Z`);
 
+/**
+ * Files outside the logo matrix that belong in the kit anyway: the favicons the
+ * site actually serves, and the superseded white-tile artwork kept in the
+ * archive. They follow the same folder rule as the marks.
+ */
+const extraFiles = Object.values(manifest.favourites ?? {}).map((file) => ({
+  zipPath: `current/${path.basename(file)}`,
+  source: path.join('public', file.replace(/^\//, '')),
+  zipDate: generatedDate,
+}));
+const whiteTile = 'public/brand/archive/logo-white-tile-2026-11-21.png';
+if (fs.existsSync(whiteTile)) {
+  extraFiles.push({
+    zipPath: `archive/${path.basename(whiteTile)}`,
+    source: whiteTile,
+    zipDate: fileDate({ path: whiteTile }) ?? generatedDate,
+  });
+}
+
 const files = manifest.marks.flatMap((mark) =>
   mark.files.map((file) => {
     const folder = zipFolder(file);
@@ -148,7 +167,8 @@ Generated ${manifest.generated}
 WHAT IS IN HERE
 
   README.txt    This file.
-  current/      The live mark. Use these unless you specifically need an old one.
+  current/      The live mark and the site's four favicons. Use the mark files
+                unless you specifically need an old one.
   archive/      Retired marks, kept because old posts and documents still use
                 them. Each filename carries its retirement date, and the ZIP
                 stores that date as the file's metadata too.
@@ -174,9 +194,10 @@ WHICH FILE IS WHICH
   current/logo-<size>.png / .svg          Live logo, transparent, standard treatment.
   current/logo-<size>.jpg                 Live logo on ${manifest.baseColour}, light outline.
   current/logo-light-<size>.png / .svg    Live logo, transparent, light outline.
+  archive/logo-white-tile-2026-11-21.png  Superseded white-tile artwork, kept as a record.
   archive/neon-emblem-2026-07-25-<size>.* Retired mark, kept for old posts and documents.
 
-FAVICONS (in the site, not repeated in this ZIP's logo folders)
+FAVICONS (included in current/)
 
   ${manifest.favourites.favicon128}
   ${manifest.favourites.favicon64}
@@ -202,7 +223,9 @@ lasts until the next build. To change it:
   npm run brand:zip   rebuild only the ZIP from the files already in the repo
 
 The folder comes from the file's home in the repository: public/brand/press
-ships as current/, public/brand/archive ships as archive/. The step-by-step
+ships as current/, public/brand/archive ships as archive/. The favicons and the
+white-tile edition are added from src/data/brand-assets.json and
+public/brand/archive. The step-by-step
 instructions are in README.md, under "The brand kit ZIP".
 `;
 
@@ -217,13 +240,21 @@ for (const file of files) {
   addFile(file.zipPath, fs.readFileSync(source), file.zipDate);
 }
 
+for (const file of extraFiles) {
+  if (!fs.existsSync(file.source)) {
+    console.error(`Missing asset: ${file.source}`);
+    process.exit(1);
+  }
+  addFile(file.zipPath, fs.readFileSync(file.source), file.zipDate);
+}
+
 const central = Buffer.concat(centralParts);
 const end = Buffer.alloc(22);
 end.writeUInt32LE(0x06054b50, 0);
 end.writeUInt16LE(0, 4);
 end.writeUInt16LE(0, 6);
-end.writeUInt16LE(files.length + 1, 8);
-end.writeUInt16LE(files.length + 1, 10);
+end.writeUInt16LE(files.length + extraFiles.length + 1, 8);
+end.writeUInt16LE(files.length + extraFiles.length + 1, 10);
 end.writeUInt32LE(central.length, 12);
 end.writeUInt32LE(offset, 16);
 end.writeUInt16LE(0, 20);
@@ -232,4 +263,4 @@ fs.mkdirSync(path.dirname(OUTPUT), { recursive: true });
 fs.writeFileSync(OUTPUT, Buffer.concat([...localParts, central, end]));
 
 const bytes = fs.statSync(OUTPUT).size;
-console.log(`${OUTPUT} — ${files.length + 1} files, ${(bytes / 1024 / 1024).toFixed(2)} MB`);
+console.log(`${OUTPUT} — ${files.length + extraFiles.length + 1} files, ${(bytes / 1024 / 1024).toFixed(2)} MB`);

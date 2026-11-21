@@ -3,9 +3,12 @@ import Base from '../../layouts/Base.astro';
 import { getCollection } from 'astro:content';
 import { githubUrlForSlug, slugOf } from '../../lib/documents';
 import { readingLabel } from '../../lib/reading';
+import { numberWord } from '../../lib/words';
 
 const policies = (await getCollection('policies')).sort((a, b) => a.data.order - b.data.order);
 const version = policies[0]?.data.version ?? '—';
+const countWord = numberWord(policies.length);
+const CountWord = countWord.charAt(0).toUpperCase() + countWord.slice(1);
 ---
 
 <Base
@@ -19,7 +22,7 @@ const version = policies[0]?.data.version ?? '—';
         <p class="eyebrow">Policies</p>
         <h1 class="display display--page">The bot's public documents.</h1>
         <p class="lede">
-          Seven documents govern the Next Step Studios Discord bot. They are their own set,
+          {CountWord} documents govern the Next Step Studios Discord bot. They are their own set,
           separate from anything on this website, and every one of them is currently a draft
           awaiting review.
         </p>
@@ -32,7 +35,7 @@ const version = policies[0]?.data.version ?? '—';
       <div class="notice" role="note">
         <span class="status status--draft">Draft · v{version}</span>
         <p class="notice-body">
-          All seven documents below are marked <strong>draft for review</strong> and
+          All {countWord} documents below are marked <strong>draft for review</strong> and
           <strong>not yet effective</strong>. They are published here so they have stable
           addresses and can be read without the bot being online. They do not yet represent
           operative policies, and nothing here claims legal compliance.
@@ -49,7 +52,7 @@ const version = policies[0]?.data.version ?? '—';
             <input
               type="search"
               data-doc-search
-              placeholder="Search the seven documents…"
+              placeholder={`Search the ${countWord} documents…`}
               aria-label="Search documents by title or summary"
               autocomplete="off"
             />

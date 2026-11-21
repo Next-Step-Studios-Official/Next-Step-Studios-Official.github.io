@@ -13,6 +13,8 @@
  *   POST   /api/login  /api/logout  signed HttpOnly session cookie
  *   GET    /api/messages            list messages (session required)
  *   PATCH  /api/messages/:id        { status: "new" | "read" | "done" }
+ *   DELETE /api/messages/:id        delete one message permanently
+ *   GET    /api/messages/export     download every stored message as JSON
  *   GET    /healthz                 liveness and configuration report
  *
  * Configuration (all optional except the D1 binding)
@@ -403,7 +405,10 @@ const dashboardHtml = `<!doctype html>
   <section id="app" hidden>
     <div style="display:flex; align-items:center; justify-content:space-between; gap:1rem; margin-bottom:1rem;">
       <p class="label" id="count">Messages</p>
-      <button class="ghost" id="refresh" type="button">Refresh</button>
+      <div style="display:flex; flex-wrap:wrap; gap:.5rem;">
+        <a href="/api/messages/export" download style="padding:.6rem 1rem;border:1px solid #5c6675;border-radius:.45rem;color:inherit;text-decoration:none;">Export JSON</a>
+        <button class="ghost" id="refresh" type="button">Refresh</button>
+      </div>
     </div>
     <div id="list"></div>
     <p id="empty" class="hint" hidden>No messages yet.</p>
@@ -475,6 +480,22 @@ const dashboardHtml = `<!doctype html>
         });
         actions.append(button);
       });
+
+      const remove = document.createElement('button');
+      remove.type = 'button';
+      remove.className = 'ghost';
+      remove.style.borderColor = '#7a2f2f';
+      remove.style.color = '#ff9b9b';
+      remove.textContent = 'Delete';
+      remove.addEventListener('click', async () => {
+        if (!window.confirm('Delete this message permanently? This cannot be undone.')) return;
+        const result = await api('/api/messages/' + encodeURIComponent(message.id), {
+          method: 'DELETE',
+        });
+        if (!result.ok) window.alert(result.body.error ?? 'The message could not be deleted.');
+        load();
+      });
+      actions.append(remove);
 
       article.append(head, meta, body, actions);
       list.append(article);
@@ -768,6 +789,49 @@ export default {
             status: row.status,
           })),
         });
+      }
+
+      if (path === '/api/messages/export' && method === 'GET') {
+        if (!(await signedIn(env, request))) {
+          return json({ ok: false, error: 'Sign in required.' }, 401);
+        }
+        const { results } = await env.DB.prepare(
+          'SELECT id, received_at, name, email, subject, body, status FROM messages ORDER BY received_at DESC',
+        ).all();
+        const messages = (results ?? []).map((row) => ({
+          id: row.id,
+          receivedAt: row.received_at,
+          name: row.name,
+          email: row.email,
+          subject: row.subject,
+          message: row.body,
+          status: row.status,
+        }));
+        return json(
+          { exportedAt: new Date().toISOString(), count: messages.length, messages },
+          200,
+          {
+            'Content-Disposition': `attachment; filename="next-step-studios-messages-${new Date().toISOString().slice(0, 10)}.json"`,
+          },
+        );
+      }
+
+      const remove = path.match(/^\/api\/messages\/([^/]+)$/);
+      if (remove && method === 'DELETE') {
+        if (!(await signedIn(env, request))) {
+          return json({ ok: false, error: 'Sign in required.' }, 401);
+        }
+        const { origin, allowed } = originAllowed(env, request);
+        if (origin && (!allowed || origin !== url.origin)) {
+          return json({ ok: false, error: 'Cross-origin request refused.' }, 403);
+        }
+        const result = await env.DB.prepare('DELETE FROM messages WHERE id = ?')
+          .bind(decodeURIComponent(remove[1]))
+          .run();
+        if (!result.meta || result.meta.changes === 0) {
+          return json({ ok: false, error: 'Message not found.' }, 404);
+        }
+        return json({ ok: true });
       }
 
       const patch = path.match(/^\/api\/messages\/([^/]+)$/);

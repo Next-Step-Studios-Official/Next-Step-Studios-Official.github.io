@@ -8,6 +8,8 @@
  *   POST /api/contact      receive a validated message, rate-limited, stored
  *   /dashboard             password-protected inbox, server-side authorised
  *   GET  /api/messages     read messages (session cookie required)
+ *   DELETE /api/messages/:id   delete one message permanently
+ *   GET  /api/messages/export  download every stored message as JSON
  *
  * It uses only the Node standard library: no framework, no database package,
  * no third-party service. Messages are appended to a newline-delimited JSON
@@ -308,7 +310,10 @@ const dashboardHtml = `<!doctype html>
   <section id="app" hidden>
     <div style="display:flex; align-items:center; justify-content:space-between; gap:1rem; margin-bottom:1rem;">
       <p class="label" id="count">Messages</p>
-      <button class="ghost" id="refresh" type="button">Refresh</button>
+      <div style="display:flex; flex-wrap:wrap; gap:.5rem;">
+        <a href="/api/messages/export" download style="padding:.6rem 1rem;border:1px solid #5c6675;border-radius:.45rem;color:inherit;text-decoration:none;">Export JSON</a>
+        <button class="ghost" id="refresh" type="button">Refresh</button>
+      </div>
     </div>
     <div id="list"></div>
     <p id="empty" class="meta" hidden>No messages yet.</p>
@@ -387,6 +392,22 @@ const dashboardHtml = `<!doctype html>
         });
         actions.append(button);
       });
+
+      const remove = document.createElement('button');
+      remove.type = 'button';
+      remove.className = 'ghost';
+      remove.style.borderColor = '#7a2f2f';
+      remove.style.color = '#ff9b9b';
+      remove.textContent = 'Delete';
+      remove.addEventListener('click', async () => {
+        if (!window.confirm('Delete this message permanently? This cannot be undone.')) return;
+        const result = await api('/api/messages/' + encodeURIComponent(message.id), {
+          method: 'DELETE',
+        });
+        if (!result.ok) window.alert(result.body.error ?? 'The message could not be deleted.');
+        load();
+      });
+      actions.append(remove);
 
       article.append(head, meta, body, actions);
       list.append(article);
@@ -576,6 +597,46 @@ const server = createServer(async (req, res) => {
       return;
     }
 
+    if (path === '/api/messages/export' && method === 'GET') {
+      if (!authorised(req)) {
+        send(res, 401, { ok: false, error: 'Sign in required.' });
+        return;
+      }
+      const messages = await readMessages();
+      send(
+        res,
+        200,
+        JSON.stringify({ exportedAt: new Date().toISOString(), count: messages.length, messages }, null, 2),
+        {
+          'Content-Type': 'application/json; charset=utf-8',
+          'Content-Disposition': `attachment; filename="next-step-studios-messages-${new Date().toISOString().slice(0, 10)}.json"`,
+        },
+      );
+      return;
+    }
+
+    const remove = path.match(/^\/api\/messages\/([^/]+)$/);
+    if (remove && method === 'DELETE') {
+      if (!authorised(req)) {
+        send(res, 401, { ok: false, error: 'Sign in required.' });
+        return;
+      }
+      if (crossOrigin(req)) {
+        send(res, 403, { ok: false, error: 'Cross-origin request refused.' });
+        return;
+      }
+      const messages = await readMessages();
+      const remaining = messages.filter((entry) => entry.id !== decodeURIComponent(remove[1]));
+      if (remaining.length === messages.length) {
+        send(res, 404, { ok: false, error: 'Message not found.' });
+        return;
+      }
+      // Stored oldest-first; readMessages reverses for display, so put it back.
+      await rewriteMessages(remaining.reverse());
+      send(res, 200, { ok: true });
+      return;
+    }
+
     const patch = path.match(/^\/api\/messages\/([^/]+)$/);
     if (patch && method === 'PATCH') {
       if (!authorised(req)) {
@@ -598,7 +659,8 @@ const server = createServer(async (req, res) => {
         return;
       }
       target.status = status;
-      await rewriteMessages(messages);
+      // readMessages returns newest-first; the file on disk stays oldest-first.
+      await rewriteMessages(messages.reverse());
       send(res, 200, { ok: true });
       return;
     }

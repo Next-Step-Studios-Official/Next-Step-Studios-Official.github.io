@@ -70,6 +70,15 @@ Set the inbox password on the first visit to the dashboard. Optional Worker secr
 listed in the README: `ADMIN_PASSWORD_HASH`, `CONTACT_WEBHOOK_URL`, `CONTACT_RATE_LIMIT`
 and `ALLOWED_ORIGINS`.
 
+The inbox can delete a message permanently (with a confirmation) and export every stored
+message as JSON for a backup: `DELETE /api/messages/:id` and `GET /api/messages/export`.
+Neither touches an email copy already delivered, so remove those separately.
+
+`CONTACT_WEBHOOK_URL` takes a Discord incoming webhook URL, which needs no bot code:
+channel → Edit Channel → Integrations → Webhooks → New Webhook → Copy Webhook URL. The
+same URL can go in the `DISCORD_WEBHOOK_URL` Actions secret to announce deploys. The
+exact paths and sign-in pages are in README.md, "Discord without writing a bot".
+
 Building with `PUBLIC_CONTACT_ENDPOINT=` (empty) puts the form in its not-connected state:
 it renders, explains that it cannot send, and offers the email address instead.
 
@@ -127,7 +136,9 @@ path if it is not at the default location. It writes:
 - `public/brand/favicon-{128,64,32}.png`, `public/favicon.svg`,
   `public/brand/apple-touch-icon.png`;
 - `src/data/brand-assets.json` — the file list the press kit and archive read;
-- `public/downloads/next-step-studios-brand-kit.zip` — via the ZIP step.
+- `public/downloads/next-step-studios-brand-kit.zip` — via the ZIP step. It contains
+  `README.txt`, `current/` with the live mark and four favicons, and `archive/` with the
+  retired marks and the white-tile edition.
 
 When the logo changes, add the old mark to the `RETIRED` list in
 `scripts/make-brand-assets.mjs` instead of deleting it, and link it from

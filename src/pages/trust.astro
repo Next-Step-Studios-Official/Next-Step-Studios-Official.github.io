@@ -1,12 +1,20 @@
 ---
 import Base from '../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+import { numberWord } from '../lib/words';
+
+const policies = (await getCollection('policies')).sort((a, b) => a.data.order - b.data.order);
+const policyCount = policies.length;
+const policyVersion = policies[0]?.data.version ?? '—';
+const policyCountWord = numberWord(policyCount);
+const PolicyCountWord = policyCountWord.charAt(0).toUpperCase() + policyCountWord.slice(1);
 
 const cards = [
   {
     href: '/policies',
     label: 'Policy documents',
     title: 'The rules, in writing',
-    body: 'Seven documents covering terms, privacy, acceptable use, community rules, moderation, retention and security. All drafts, all versioned.',
+    body: `${PolicyCountWord} documents covering terms, privacy, acceptable use, community rules, moderation, retention and security. All drafts, all versioned.`,
   },
   {
     href: '/policies/bot/privacy',
@@ -48,7 +56,7 @@ const facts = [
   { label: 'Hosting', value: 'Static files + contact service' },
   { label: 'Contact form', value: 'Stores messages only' },
   { label: 'Bot data store', value: 'SQLite, one server' },
-  { label: 'Documents', value: '7 · v0.2.0 drafts' },
+  { label: 'Documents', value: `${policyCount} · v${policyVersion} drafts` },
   { label: 'Policy mirror', value: 'GitHub' },
 ];
 ---
