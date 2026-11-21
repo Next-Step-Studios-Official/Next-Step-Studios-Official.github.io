@@ -167,7 +167,7 @@ Generated ${manifest.generated}
 WHAT IS IN HERE
 
   README.txt    This file.
-  current/      The live mark and the site's four favicons. Use the mark files
+  current/      The live mark and the site's favicons. Use the mark files
                 unless you specifically need an old one.
   archive/      Retired marks, kept because old posts and documents still use
                 them. Each filename carries its retirement date, and the ZIP
@@ -202,6 +202,7 @@ FAVICONS (included in current/)
   ${manifest.favourites.favicon128}
   ${manifest.favourites.favicon64}
   ${manifest.favourites.favicon32}
+  ${manifest.favourites.favicon16}
   ${manifest.favourites.appleTouch}
 
 USAGE

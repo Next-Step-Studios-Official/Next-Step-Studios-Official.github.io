@@ -59,7 +59,8 @@ export const CONTRIBUTOR_WORD = numberWord(CONTRIBUTOR_COUNT);
 
 /**
  * Everyone in the studio, including the operator, who is not listed as a
- * contributor. The studio is five people in total: Candler plus four others.
+ * contributor. The total follows the list, so the copy never has to be edited
+ * when a contributor joins or leaves.
  */
 export const TEAM_SIZE = CONTRIBUTOR_COUNT + 1;
 

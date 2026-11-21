@@ -352,6 +352,7 @@
     "favicon128": "/brand/favicon-128.png",
     "favicon64": "/brand/favicon-64.png",
     "favicon32": "/brand/favicon-32.png",
+    "favicon16": "/brand/favicon-16.png",
     "appleTouch": "/brand/apple-touch-icon.png"
   }
 }

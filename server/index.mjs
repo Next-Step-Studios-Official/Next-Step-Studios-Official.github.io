@@ -28,6 +28,16 @@ import { createServer } from 'node:http';
 import { createHmac, randomBytes, randomUUID, scryptSync, timingSafeEqual } from 'node:crypto';
 import { appendFile, mkdir, readFile, rename, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
+import { loadEnvFile } from 'node:process';
+
+// `npm run contact` should read the project's .env automatically. A missing
+// .env is normal (the service can run from real environment variables); any
+// other error, such as a malformed line, is surfaced instead of hidden.
+try {
+  loadEnvFile();
+} catch (error) {
+  if (error.code !== 'ENOENT') throw error;
+}
 
 const PORT = Number(process.env.PORT ?? 8787);
 const DATA_DIR = process.env.DATA_DIR ?? 'server-data';
@@ -38,8 +48,8 @@ const ADMIN_PASSWORD_HASH = process.env.ADMIN_PASSWORD_HASH ?? '';
 const WEBHOOK_URL = process.env.CONTACT_WEBHOOK_URL ?? '';
 const RESEND_API_KEY = (process.env.RESEND_API_KEY ?? '').trim();
 const NOTIFY_EMAIL = (
-  process.env.NOTIFY_EMAIL ?? 'nextstepstudiosofficial.contact@gmail.com'
-).trim();
+  process.env.NOTIFY_EMAIL ?? ''
+).trim() || 'nextstepstudiosofficial.contact@gmail.com';
 const MAIL_FROM = (process.env.MAIL_FROM ?? '').trim() || 'onboarding@resend.dev';
 const RATE_LIMIT = Number(process.env.CONTACT_RATE_LIMIT ?? 5);
 const WINDOW_MS = 15 * 60 * 1000;
@@ -284,6 +294,7 @@ const dashboardHtml = `<!doctype html>
   .actions { display:flex; gap:.5rem; margin-top:.75rem; }
   .status { font:600 .7rem/1 ui-monospace, monospace; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); }
   .error { color:#ff8f8f; }
+  .hint { color:var(--muted); font-size:.8125rem; }
   [hidden] { display:none !important; }
 </style>
 </head>
@@ -299,6 +310,7 @@ const dashboardHtml = `<!doctype html>
   <section class="panel" id="login">
     <p class="label">Staff only</p>
     <p>Sign in with the dashboard password. Sessions last eight hours and are held in an HttpOnly cookie.</p>
+    <p class="hint">This inbox manages contact messages only. Website pages are edited in the repository, not here.</p>
     <form id="login-form">
       <label class="label" for="password">Password</label>
       <input id="password" type="password" autocomplete="current-password" required />

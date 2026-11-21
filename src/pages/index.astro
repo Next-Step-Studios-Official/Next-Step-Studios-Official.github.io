@@ -5,8 +5,9 @@ import { getCollection } from 'astro:content';
 import { SITE } from '../lib/site';
 import { enabledLinks, LINK_SECTIONS } from '../lib/links';
 import { BOT_MODULES } from '../lib/modules';
-import { COMMANDS } from '../lib/commands';
+import { COMMANDS, COMMAND_GROUPS } from '../lib/commands';
 import { TEAM_SIZE, TEAM_WORD } from '../lib/contributors';
+import { numberWord } from '../lib/words';
 
 const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
 const featured = projects.find((project) => project.data.featured) ?? projects[0];
@@ -16,6 +17,8 @@ const posts = (await getCollection('devlog'))
   .slice(0, 3);
 
 const policies = (await getCollection('policies')).sort((a, b) => a.data.order - b.data.order);
+const policyWord = numberWord(policies.length);
+const PolicyWord = policyWord.charAt(0).toUpperCase() + policyWord.slice(1);
 
 const formatDate = (date: Date) =>
   new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }).format(date);
@@ -48,14 +51,14 @@ const routes = [
     href: '/commands',
     title: 'Commands',
     body: 'Every slash command the Discord bot defines, grouped by what it does and marked with what is verified.',
-    meta: `${COMMANDS.length} commands · 4 groups`,
+    meta: `${COMMANDS.length} commands · ${COMMAND_GROUPS.length} groups`,
     cta: 'Open the reference',
   },
   {
     index: '03',
     href: '/policies',
     title: 'Documents',
-    body: 'Seven policy documents for the Discord bot — readable here, downloadable four ways, mirrored on GitHub.',
+    body: `${PolicyWord} policy documents for the Discord bot — readable here, downloadable four ways, mirrored on GitHub.`,
     meta: `v${policies[0]?.data.version ?? '0.2.0'} · all drafts`,
     cta: 'Read the documents',
   },
@@ -84,7 +87,7 @@ const routes = [
 >
   <section class="hero">
     <div class="hero-art" aria-hidden="true">
-      <img src="/images/hero.webp" alt="" width="1680" height="752" fetchpriority="high" decoding="async" />
+      <img src="/images/hero.webp" alt="" width="1392" height="752" fetchpriority="high" decoding="async" />
     </div>
     <div class="container">
       <div class="hero-grid">
@@ -216,7 +219,7 @@ const routes = [
 
                       <a class="panel panel-link panel--pad featured-project" href={`/projects/${featured.id}`}>
             {featured.data.cover && (
-              <img class="featured-project-cover" src={featured.data.cover} alt="" width={1100} height={619} loading="lazy" />
+              <img class="featured-project-cover" src={featured.data.cover} alt="" width={1100} height={594} loading="lazy" />
             )}
             <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.75rem 1.5rem;">
               <span class="project-card-cat">{featured.data.category}</span>

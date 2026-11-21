@@ -29,7 +29,7 @@ const readableAccent = (hex?: string) => {
 
 <Base
   title="Official links"
-  description="Every official Next Step Studios link in one place — the website, the Discord community, the GitHub organization and the bot's policy documents."
+  description="Every official Next Step Studios link in one place — the website, social media, the Discord community, the GitHub organization and the policy documents."
   path="/links"
 >
   <section class="page-head">
@@ -47,13 +47,13 @@ const readableAccent = (hex?: string) => {
         <div class="meta-bar">
           <span>{total} entries</span>
           <span>{sections.length} sections</span>
-          <span>Public subset of the bot's links config</span>
+          <span>Mirrors the bot's /links command</span>
         </div>
         <figure class="page-banner">
           <Image
             src={linksBanner}
-            alt="Next Step Studios — connect with us. Find our official community hubs and resources."
-            widths={[600, 900, 1200]}
+            alt="Next Step Studios mark on a dark blue background of connected nodes."
+            widths={[600, 900, 1200, 1600]}
             sizes="(max-width: 900px) 100vw, 1100px"
           />
         </figure>
@@ -113,7 +113,7 @@ const readableAccent = (hex?: string) => {
                       <p class="link-name">
                         {entry.name}
                         {entry.id === 'official_policies' && (
-                          <span class="link-kind">GitHub</span>
+                          <span class="link-kind">On this site</span>
                         )}
                       </p>
                       <p class="link-desc">{entry.description}</p>
@@ -128,6 +128,7 @@ const readableAccent = (hex?: string) => {
                         <a
                           class="btn"
                           href={entry.url}
+                          aria-label={`Open ${entry.name}`}
                           rel={entry.url?.startsWith('http') ? 'me noopener' : undefined}
                         >
                           Open
@@ -154,9 +155,9 @@ const readableAccent = (hex?: string) => {
 
       <p class="links-note">
         Every entry above comes from one configuration file, the same structure the bot reads.
-        The policy documents themselves live in
-        <a class="text-link" href={DOCS_REPO_URL} rel="noopener">the bot-documentation repository</a>
-        and can also be read here, at <a class="text-link" href="/policies">/policies</a>.
+        The policy documents are published here at <a class="text-link" href="/policies">/policies</a>;
+        the <a class="text-link" href={DOCS_REPO_URL} rel="noopener">bot-documentation repository</a>
+        is the public mirror, not the main destination.
       </p>
     </div>
   </section>

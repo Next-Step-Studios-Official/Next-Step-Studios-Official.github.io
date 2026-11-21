@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "engines": {
-    "node": ">=20"
+    "node": ">=20.12"
   },
   "scripts": {
     "dev": "astro dev",
@@ -16,6 +16,7 @@
     "og": "node scripts/make-og-pages.mjs",
     "releases": "node scripts/fetch-releases.mjs",
     "brand": "node scripts/make-brand-assets.mjs && node scripts/make-brand-zip.mjs",
+    "banners": "node scripts/make-banners.mjs",
     "brand:zip": "node scripts/make-brand-zip.mjs",
     "logos": "node scripts/make-brand-assets.mjs && node scripts/make-brand-zip.mjs",
     "status": "node scripts/status-publish.mjs",

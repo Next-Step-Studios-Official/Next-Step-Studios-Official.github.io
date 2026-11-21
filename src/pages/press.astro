@@ -2,7 +2,7 @@
 import Base from '../layouts/Base.astro';
 import brandAssets from '../data/brand-assets.json';
 import { SITE } from '../lib/site';
-import { TEAM_SIZE } from '../lib/contributors';
+import { TEAM_SIZE, TEAM_WORD } from '../lib/contributors';
 
 const current = brandAssets.marks.find((mark) => mark.id === 'logo')!;
 const retired = brandAssets.marks.find((mark) => mark.id === 'neon-emblem-2026-07-25')!;
@@ -81,9 +81,9 @@ const facts = [
         <div>
           <h2>Boilerplate</h2>
           <p class="press-quote">
-            “Next Step Studios is an independent creative and software studio made up of five
-            people. It builds a private Discord bot for one community server, and games and tools
-            are the direction it is working toward.”
+            “Next Step Studios is an independent creative and software studio made up of
+            {TEAM_WORD} people. It builds a private Discord bot for one community server, and
+            games and tools are the direction it is working toward.”
           </p>
           <p class="muted">Use it whole; it is written to be accurate rather than flattering.</p>
 

@@ -328,7 +328,7 @@ const ogCard = `<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="htt
   <text x="86" y="300" font-family="Segoe UI, DejaVu Sans, Arial, sans-serif" font-size="58" font-weight="650" letter-spacing="-1.5" fill="#f2f5fb">Games and software,</text>
   <text x="86" y="372" font-family="Segoe UI, DejaVu Sans, Arial, sans-serif" font-size="58" font-weight="650" letter-spacing="-1.5" fill="#f2f5fb">built one careful step</text>
   <text x="86" y="444" font-family="Segoe UI, DejaVu Sans, Arial, sans-serif" font-size="58" font-weight="650" letter-spacing="-1.5" fill="#f2f5fb">at a time.</text>
-  <text x="86" y="560" font-family="Segoe UI, DejaVu Sans, Arial, sans-serif" font-size="22" fill="#b7c1d1">A five-person independent studio</text>
+  <text x="86" y="560" font-family="Segoe UI, DejaVu Sans, Arial, sans-serif" font-size="22" fill="#b7c1d1">An independent creative and software studio</text>
 </svg>`;
 
 await sharp(Buffer.from(ogCard))
@@ -341,36 +341,76 @@ await sharp(Buffer.from(ogCard))
 const master = await sharp(current.cutBuffer).resize(1024, 1024).png().toBuffer();
 const box = await alphaBox(master);
 
-// The tab icon is the head of the mark, not the wordmark: the words are
-// illegible at 32px. A square is taken from the top of the artwork, from the
-// light-outline treatment so the tab stays visible in a dark browser.
-const side = Math.min(box.width, Math.round(box.width * 0.56));
-const centreX = box.left + box.width / 2;
-const headLeft = Math.max(0, Math.min(1024 - side, Math.round(centreX - side / 2)));
-const headTop = Math.max(0, Math.min(1024 - side, box.top - Math.round(side * 0.03)));
+// The header mark is the head, not the wordmark: the words are illegible at
+// 32px. The head is wider than it is tall because of the bandana tails, so a
+// naive square crop cuts the right tail off. Take the full head band and fit it
+// inside a square transparent canvas. The crop stops above the wordmark.
+const headLeft = Math.round(box.left + box.width * 0.26);
+const headTop = Math.round(box.top - 26);
+const headWidth = Math.round(box.width * 0.76);
+const headHeight = Math.round(box.height * 0.484);
 
-const head = await sharp(current.lightBuffer)
-  .extract({ left: headLeft, top: headTop, width: side, height: side })
-  .resize(128, 128)
+const headSquare = await sharp(current.lightBuffer)
+  .extract({ left: headLeft, top: headTop, width: headWidth, height: headHeight })
+  .resize(512, 512, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
   .png()
   .toBuffer();
 
-const favicon128 = await sharp(head).resize(128, 128).png({ palette: true, quality: 96 }).toBuffer();
-const favicon64 = await sharp(head).resize(64, 64).png({ palette: true, quality: 96 }).toBuffer();
-const favicon32 = await sharp(head).resize(32, 32).png({ palette: true, quality: 96 }).toBuffer();
+// The head meets the wordmark at the bottom of the crop. Fade the lower edge
+// into transparency so the icon does not look sliced off on a light header.
+const headFade = Buffer.from(`<svg width="512" height="512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="fade" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0.56" stop-color="#fff" stop-opacity="1"/>
+      <stop offset="0.78" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" fill="url(#fade)"/>
+</svg>`);
+
+const head = await sharp(headSquare)
+  .composite([{ input: headFade, blend: 'dest-in' }])
+  .png()
+  .toBuffer();
+
+// The header uses the head alone; the full lockup's lettering is not legible at
+// 30px. Keeping a 512px source in src/assets lets Astro serve the right size.
+await fs.writeFile('src/assets/brand/logo-mark.png', head);
+
+// The tab icon needs a tighter crop than the header. The full head is much
+// wider than it is tall, so shrinking it to 16px leaves the face too small to
+// read. Crop the face and bandana, fill the square, and flatten on the dark
+// base so the black mask still separates from a dark browser tab. The crop is
+// expressed as proportions of the 1024px light-outline source.
+const lightMeta = await sharp(current.lightBuffer).metadata();
+const scaleX = (lightMeta.width ?? 1024) / 1024;
+const scaleY = (lightMeta.height ?? 1024) / 1024;
+const tabTile = await sharp(current.lightBuffer)
+  .extract({
+    left: Math.round(400 * scaleX),
+    top: Math.round(178 * scaleY),
+    width: Math.round(440 * scaleX),
+    height: Math.round(302 * scaleY),
+  })
+  .resize(512, 512, { fit: 'cover', position: 'centre' })
+  .flatten({ background: DARK })
+  .png()
+  .toBuffer();
+
+const favicon128 = await sharp(tabTile).resize(128, 128).png({ palette: true, quality: 96 }).toBuffer();
+const favicon64 = await sharp(tabTile).resize(64, 64).png({ palette: true, quality: 96 }).toBuffer();
+const favicon32 = await sharp(tabTile).resize(32, 32).png({ palette: true, quality: 96 }).toBuffer();
+const favicon16 = await sharp(tabTile).resize(16, 16).png({ palette: true, quality: 96 }).toBuffer();
 
 await fs.writeFile('public/brand/favicon-128.png', favicon128);
 await fs.writeFile('public/brand/favicon-64.png', favicon64);
 await fs.writeFile('public/brand/favicon-32.png', favicon32);
+await fs.writeFile('public/brand/favicon-16.png', favicon16);
 await fs.writeFile('public/favicon.svg', svgFor(favicon128, 128));
 
-// iOS composites a transparent touch icon onto black, so this one is
-// deliberately flattened on the studio's dark base rather than left clear.
-const appleTouch = await sharp(master)
-  .resize(148, 148, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
-  .extend({ top: 16, bottom: 16, left: 16, right: 16, background: DARK })
-  .png()
-  .toBuffer();
+// iOS composites a transparent touch icon onto black, so the tab tile is
+// already flattened and can be resized directly.
+const appleTouch = await sharp(tabTile).resize(180, 180).png({ compressionLevel: 9 }).toBuffer();
 await fs.writeFile('public/brand/apple-touch-icon.png', appleTouch);
 
 /* --------------------------------------------------------------- manifest */
@@ -399,6 +439,7 @@ const manifest = {
     favicon128: '/brand/favicon-128.png',
     favicon64: '/brand/favicon-64.png',
     favicon32: '/brand/favicon-32.png',
+    favicon16: '/brand/favicon-16.png',
     appleTouch: '/brand/apple-touch-icon.png',
   },
 };

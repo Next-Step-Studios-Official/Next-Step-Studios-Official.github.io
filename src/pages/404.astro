@@ -1,12 +1,13 @@
 ---
 import Base from '../layouts/Base.astro';
 import { getCollection } from 'astro:content';
+import { COMMANDS } from '../lib/commands';
 
 const policyCount = (await getCollection('policies')).length;
 
 const suggestions = [
   { href: '/projects', label: 'Projects', note: 'What exists, and at what stage' },
-  { href: '/commands', label: 'Command reference', note: 'All 51 slash commands' },
+  { href: '/commands', label: 'Command reference', note: `All ${COMMANDS.length} slash commands` },
   { href: '/policies', label: 'Policies', note: `${policyCount} bot documents` },
   { href: '/trust', label: 'Trust centre', note: 'Data, security and requests' },
   { href: '/modules', label: 'Module register', note: 'The bot, module by module' },

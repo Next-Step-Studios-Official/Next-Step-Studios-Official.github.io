@@ -278,7 +278,8 @@ const escapeHtml = (value) =>
  */
 const emailConfig = (env) => {
   const apiKey = String(env.RESEND_API_KEY ?? '').trim();
-  const to = String(env.NOTIFY_EMAIL ?? 'nextstepstudiosofficial.contact@gmail.com').trim();
+  const to =
+    String(env.NOTIFY_EMAIL ?? '').trim() || 'nextstepstudiosofficial.contact@gmail.com';
   const from = String(env.MAIL_FROM ?? '').trim() || 'onboarding@resend.dev';
   return { apiKey, to, from, ready: Boolean(apiKey && to && from) };
 };
@@ -395,6 +396,7 @@ const dashboardHtml = `<!doctype html>
   <section class="panel" id="login" hidden>
     <p class="label">Staff only</p>
     <p>Sign in with the dashboard password. Sessions last eight hours and are held in an HttpOnly cookie.</p>
+    <p class="hint">This inbox manages contact messages only. Website pages are edited in the repository, not here.</p>
     <form id="login-form">
       <label class="label" for="password">Password</label>
       <input id="password" type="password" maxlength="200" autocomplete="current-password" required />

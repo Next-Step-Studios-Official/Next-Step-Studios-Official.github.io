@@ -1,3 +1,5 @@
+import { COMMANDS } from './commands';
+
 export type GlossaryTerm = {
   term: string;
   definition: string;
@@ -174,7 +176,7 @@ export const GLOSSARY: GlossaryGroup[] = [
       {
         term: 'Slash command',
         definition:
-          'A command invoked in Discord with a leading slash, such as /ticket-panel. The bot defines 51 of them.',
+          `A command invoked in Discord with a leading slash, such as /ticket-panel. The bot defines ${COMMANDS.length} of them.`,
         see: '/commands',
       },
       {
