@@ -91,7 +91,7 @@ export const ROADMAP: RoadmapItem[] = [
     summary:
       'Not now, and not quietly later. The privacy notice says none of this exists, and that has to stay true.',
     points: [
-      'No analytics, no cookies, no accounts, no contact form.',
+      'No analytics, no cookies, no accounts, no advertising.',
       'If that ever changes, the notice changes first and the claim is removed before the feature ships.',
     ],
     link: { href: '/website-privacy', label: 'Website privacy notice' },

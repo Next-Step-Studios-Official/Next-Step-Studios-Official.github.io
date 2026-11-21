@@ -15,3 +15,5 @@ documentation-source/
 .freebuff/
 docs/
 COPY_DRAFTS.md
+.env.local
+server-data/

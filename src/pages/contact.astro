@@ -3,23 +3,42 @@ import Base from '../layouts/Base.astro';
 import { Image } from 'astro:assets';
 import supportBanner from '../assets/banners/support.jpg';
 import { SITE } from '../lib/site';
+import { discordInvite, DISCORD } from '../lib/discord';
 
 const mailto = `mailto:${SITE.contactEmail}`;
+/** Null until a usable invite is configured; the markup then degrades to /social. */
+const invite = discordInvite();
+
+/**
+ * The contact service is optional at build time. Without an endpoint the form
+ * still renders, explains that it is not connected, and points at email — the
+ * build never pretends a message was sent somewhere it wasn't.
+ */
+const endpoint = import.meta.env.PUBLIC_CONTACT_ENDPOINT ?? '';
+
+const subjects = [
+  { value: 'general', label: 'General question' },
+  { value: 'privacy', label: 'Privacy or data request' },
+  { value: 'security', label: 'Security report' },
+  { value: 'bug', label: 'Bug or broken link' },
+  { value: 'partnership', label: 'Partnership or press' },
+  { value: 'other', label: 'Something else' },
+];
 ---
 
 <Base
   title="Contact"
-  description="How to contact Next Step Studios — email only, including how to submit a privacy request."
+  description="Contact Next Step Studios by form or email, including how to submit a privacy request."
   path="/contact"
 >
   <section class="page-head">
     <div class="container">
       <div class="page-head-stack">
         <p class="eyebrow">Contact</p>
-        <h1 class="display display--page">One address. One person reading it.</h1>
+        <h1 class="display display--page">One address. Read by a person.</h1>
         <p class="lede">
-          Email is the only public contact route. There is no contact form on this site,
-          because a form would mean collecting and storing what you write.
+          Use the form below or email directly. Both reach the same inbox, and both are
+          read by the studio operator rather than a ticket queue.
         </p>
         <figure class="page-banner">
           <Image
@@ -37,21 +56,76 @@ const mailto = `mailto:${SITE.contactEmail}`;
     <div class="container">
       <div class="split" style="align-items: start;">
         <div class="panel panel--pad">
-          <p class="label">Email</p>
-          <a
-            href={mailto}
-            style="display: block; font-family: var(--font-mono); font-size: clamp(0.95rem, 2vw, 1.15rem); color: var(--color-accent-soft); margin-top: 0.85rem; word-break: break-all;"
-          >
-            {SITE.contactEmail}
-          </a>
-          <p style="color: var(--color-muted); font-size: 0.875rem; margin-top: 1.1rem;">
-            This is a temporary address and may later be replaced with one on the studio's
-            own domain. This page will always show the current one.
-          </p>
-          <p style="color: var(--color-muted); font-size: 0.875rem; margin-top: 0.85rem;">
-            There is no ticketing system and no response-time guarantee. Messages are read
-            and answered by one person.
-          </p>
+          <p class="label">Send a message</p>
+          {
+            endpoint ? (
+              <p class="form-intro">
+                Goes to the studio inbox. Name and email are only used to reply.
+              </p>
+            ) : (
+              <p class="form-intro form-intro--offline">
+                The form is not connected on this build yet, so it cannot send anything.
+                Email <a class="text-link" href={mailto}>{SITE.contactEmail}</a> instead — that
+                route always works.
+              </p>
+            )
+          }
+
+          <form class="contact-form" data-contact-form data-endpoint={endpoint} novalidate>
+            <div class="contact-hp" aria-hidden="true">
+              <label>
+                Website
+                <input type="text" name="website" tabindex="-1" autocomplete="off" />
+              </label>
+            </div>
+
+            <div class="contact-row">
+              <label class="contact-field">
+                <span class="label">Name</span>
+                <input type="text" name="name" autocomplete="name" maxlength="80" required />
+              </label>
+              <label class="contact-field">
+                <span class="label">Email</span>
+                <input type="email" name="email" autocomplete="email" maxlength="254" required />
+              </label>
+            </div>
+
+            <label class="contact-field">
+              <span class="label">What is this about?</span>
+              <select name="subject" required>
+                {subjects.map((subject) => (
+                  <option value={subject.value}>{subject.label}</option>
+                ))}
+              </select>
+            </label>
+
+            <label class="contact-field">
+              <span class="label">Message</span>
+              <textarea name="message" rows="6" maxlength="5000" minlength="10" required></textarea>
+            </label>
+
+            <p class="contact-note">
+              Never send passwords, bot tokens, API keys or Discord account credentials.
+              Nothing legitimate requires them. What happens to a message is described in
+              the <a class="text-link" href="/website-privacy">website privacy notice</a>.
+            </p>
+
+            <div class="contact-actions">
+              <button class="btn btn-primary" type="submit" data-contact-submit>
+                Send message <span class="btn-arrow" aria-hidden="true">→</span>
+              </button>
+              <a class="text-link" href={mailto}>Or email directly</a>
+            </div>
+
+            <p class="contact-status" role="status" aria-live="polite" data-contact-status></p>
+          </form>
+
+          <noscript>
+            <p class="contact-note">
+              This form needs JavaScript to send. Email
+              <a class="text-link" href={mailto}>{SITE.contactEmail}</a> instead.
+            </p>
+          </noscript>
         </div>
 
         <div>
@@ -60,11 +134,11 @@ const mailto = `mailto:${SITE.contactEmail}`;
           </h2>
           <div class="prose" style="margin-top: 1rem;">
             <p>
-              Requests for access to, correction of, or deletion of personal information are
-              handled by email. Nothing about the request is submitted automatically, and no
-              portal or form exists.
+              Requests for access to, correction of, or deletion of personal information can
+              be sent through the form or by email — choose the privacy subject if you use
+              the form. No separate portal exists.
             </p>
-            <p>To make a request, email the address above and include:</p>
+            <p>To make a request, include:</p>
             <ul>
               <li>the subject line <strong>Privacy Request</strong>;</li>
               <li>your Discord user ID, so the right records can be identified;</li>
@@ -95,7 +169,11 @@ const mailto = `mailto:${SITE.contactEmail}`;
           <p class="label">In the Discord server</p>
           <h2 class="section-title" style="margin-top: 0.5rem;">Support tickets.</h2>
         </div>
-        <a class="text-link" href="/social">Get the invite →</a>
+        {invite ? (
+          <a class="text-link" href={invite} rel="noopener">Join the Discord →</a>
+        ) : (
+          <a class="text-link" href="/social">Where to find the invite →</a>
+        )}
       </div>
 
       <div class="split" style="align-items: start;">
@@ -115,7 +193,7 @@ const mailto = `mailto:${SITE.contactEmail}`;
         </div>
 
         <div class="panel panel--pad">
-          <p class="label">When email is the better route</p>
+          <p class="label">When the form or email is the better route</p>
           <ul class="ticket-alt">
             <li>You no longer have access to the server.</li>
             <li>The request is about data, privacy or deletion.</li>
@@ -125,10 +203,15 @@ const mailto = `mailto:${SITE.contactEmail}`;
           <p class="ticket-note">
             Ticket conversations are visible to staff and are retained as described in the
             <a class="text-link" href="/policies/bot/data-retention">Data Retention Policy</a>.
-            Email is read by one person.
+            Form and email messages are read by the studio operator.
           </p>
           <div class="doc-actions" style="margin-top: 1rem;">
-            <a class="btn" href={`mailto:${SITE.contactEmail}`}>Email the studio</a>
+            {invite && (
+              <a class="btn" href={invite} rel="noopener">
+                Open {DISCORD.serverName} in Discord
+              </a>
+            )}
+            <a class="btn" href={mailto}>Email the studio</a>
             <a class="text-link doc-action-link" href="/commands">Ticket commands →</a>
           </div>
         </div>
@@ -140,11 +223,155 @@ const mailto = `mailto:${SITE.contactEmail}`;
     <div class="container">
       <div class="notice notice--neutral">
         <p class="notice-body">
-          This website itself collects nothing — no accounts, no forms, no cookies, no
-          analytics. See the <a class="text-link" href="/website-privacy">website privacy notice</a>
-          for the details, including what the hosting layer may log.
+          This website has no analytics, no advertising and no tracking cookies. The contact
+          form stores the message you send so it can be answered; the
+          <a class="text-link" href="/website-privacy">website privacy notice</a> lists exactly
+          what is kept, where, and how to have it deleted.
         </p>
       </div>
     </div>
   </section>
 </Base>
+
+<style>
+  .contact-form {
+    display: grid;
+    gap: 1rem;
+    margin-top: 1.1rem;
+  }
+  .contact-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+    gap: 1rem;
+  }
+  .contact-field {
+    display: grid;
+    gap: 0.4rem;
+  }
+  .contact-field input,
+  .contact-field select,
+  .contact-field textarea {
+    width: 100%;
+    padding: 0.6rem 0.7rem;
+    border: 1px solid var(--color-line);
+    border-radius: 0.4rem;
+    background: var(--color-surface);
+    color: var(--color-ink);
+    font: inherit;
+    font-size: 0.9375rem;
+  }
+  .contact-field textarea { resize: vertical; min-height: 8rem; }
+  .contact-field input:focus-visible,
+  .contact-field select:focus-visible,
+  .contact-field textarea:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 1px;
+  }
+  .contact-hp {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+  .contact-note {
+    color: var(--color-muted);
+    font-size: 0.8125rem;
+    margin: 0;
+  }
+  .contact-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem 1rem;
+  }
+  .contact-status {
+    margin: 0;
+    font-size: 0.875rem;
+    min-height: 1.4em;
+  }
+  .contact-status[data-state='ok'] { color: var(--color-ink); }
+  .contact-status[data-state='error'] { color: #ff9b9b; }
+  .form-intro {
+    color: var(--color-ink-dim);
+    font-size: 0.9375rem;
+    margin: 0.6rem 0 0;
+  }
+  .form-intro--offline {
+    color: var(--color-muted);
+    border-left: 2px solid var(--color-line);
+    padding-left: 0.75rem;
+  }
+</style>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>('[data-contact-form]');
+  const status = document.querySelector<HTMLElement>('[data-contact-status]');
+
+  if (form) {
+    const endpoint = form.dataset.endpoint ?? '';
+    const submit = form.querySelector<HTMLButtonElement>('[data-contact-submit]');
+    const startedAt = Date.now();
+
+    const setStatus = (message: string, state: 'ok' | 'error' | 'pending') => {
+      if (!status) return;
+      status.textContent = message;
+      status.dataset.state = state;
+    };
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      if (!endpoint) {
+        setStatus(
+          'This form is not connected on this build. Please email instead — the address is above.',
+          'error',
+        );
+        return;
+      }
+
+      if (!form.reportValidity()) return;
+
+      const data = new FormData(form);
+      const payload = {
+        name: String(data.get('name') ?? ''),
+        email: String(data.get('email') ?? ''),
+        subject: String(data.get('subject') ?? ''),
+        message: String(data.get('message') ?? ''),
+        website: String(data.get('website') ?? ''),
+        elapsedMs: Date.now() - startedAt,
+      };
+
+      submit?.setAttribute('disabled', '');
+      setStatus('Sending…', 'pending');
+
+      try {
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        const body = await response.json().catch(() => ({}));
+
+        if (response.ok) {
+          form.reset();
+          setStatus(
+            'Message sent. It will be read at the address you gave.',
+            'ok',
+          );
+        } else if (response.status === 429) {
+          setStatus(
+            'Too many messages have been sent from this connection. Please try again later, or email instead.',
+            'error',
+          );
+        } else {
+          setStatus(body.error ?? 'That did not send. Please try again, or email instead.', 'error');
+        }
+      } catch {
+        setStatus('That did not send — the connection failed. Please email instead.', 'error');
+      } finally {
+        submit?.removeAttribute('disabled');
+      }
+    });
+  }
+</script>

@@ -6,7 +6,7 @@
 
 .trust-card p {
   color: var(--color-muted);
-  font-size: 0.9rem;
+  font-size: 0.9375rem;
   line-height: 1.6;
 }
 
@@ -41,10 +41,10 @@
 .fact dd {
   margin-top: 0.35rem;
   color: var(--color-ink);
-  font-size: 0.9375rem;
+  font-size: 1rem;
 }
 
-.trust-facts-note { margin-top: 1rem; font-size: 0.875rem; }
+.trust-facts-note { margin-top: 1rem; font-size: 0.9375rem; }
 
 .split-grid {
   display: grid;
@@ -249,7 +249,7 @@
 .term dd {
   margin-top: 0.35rem;
   color: var(--color-muted);
-  font-size: 0.9375rem;
+  font-size: 1rem;
   line-height: 1.7;
 }
 
@@ -285,7 +285,7 @@
 
 .module-card p {
   color: var(--color-muted);
-  font-size: 0.9rem;
+  font-size: 0.9375rem;
   line-height: 1.6;
 }
 
@@ -338,7 +338,7 @@
 .touchpoint p:last-child {
   margin-top: 0.35rem;
   color: var(--color-muted);
-  font-size: 0.9rem;
+  font-size: 0.9375rem;
 }
 
 .command-inline {
@@ -364,7 +364,7 @@
   margin-top: 2.5rem;
   padding-top: 1.5rem;
   border-top: 1px solid var(--color-line-soft);
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
 }
 
 @media (max-width: 900px) {
@@ -452,7 +452,7 @@
   font-size: 1.1rem;
 }
 
-.suggestion-card p { color: var(--color-muted); font-size: 0.875rem; }
+.suggestion-card p { color: var(--color-muted); font-size: 0.9375rem; }
 .suggestion-card .card-arrow { margin-top: auto; }
 
 /* High contrast ----------------------------------------------------------- */

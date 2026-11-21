@@ -13,6 +13,8 @@
  *  - `accent` is the brand colour used by the bot's selection embed.
  */
 
+import { DISCORD } from './discord';
+
 export const DOCS_REPO_URL = 'https://github.com/Next-Step-Studios-Official/bot-documentation';
 export const DOCS_POLICIES_URL = `${DOCS_REPO_URL}/tree/main/policies`;
 
@@ -156,7 +158,8 @@ export const LINKS: LinkEntry[] = [
     section: 'community',
     type: 'link',
     description: 'Join the official Next Step Studios Discord server.',
-    url: 'https://discord.gg/KVnnEnsN3N',
+    /** Reads the single configured invite; never a hard-coded copy. */
+    url: DISCORD.inviteUrl,
     accent: '#5865F2',
     enabled: true,
   },

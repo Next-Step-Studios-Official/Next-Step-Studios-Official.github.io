@@ -8,12 +8,15 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "build": "node scripts/verify-content.mjs && node scripts/make-pdfs.mjs && node scripts/make-cheatsheet.mjs && astro build",
+    "build": "node scripts/fetch-releases.mjs && node scripts/verify-content.mjs && node scripts/make-pdfs.mjs && node scripts/make-cheatsheet.mjs && astro build",
     "preview": "astro preview",
     "pdfs": "node scripts/make-pdfs.mjs && node scripts/make-cheatsheet.mjs",
     "cheatsheet": "node scripts/make-cheatsheet.mjs",
     "snapshot": "node scripts/snapshot-policies.mjs",
     "og": "node scripts/make-og-pages.mjs",
+    "releases": "node scripts/fetch-releases.mjs",
+    "contact": "node server/index.mjs",
+    "hash-password": "node server/hash-password.mjs",
     "assets": "node scripts/brand-assets.mjs"
   },
   "dependencies": {

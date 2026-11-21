@@ -2,8 +2,10 @@
 import { Image } from 'astro:assets';
 import logo from '../assets/brand/logo.png';
 import { SITE } from '../lib/site';
+import { discordInvite, DISCORD } from '../lib/discord';
 
 const year = new Date().getFullYear();
+const invite = discordInvite();
 
 const studioLinks = [
   { href: '/projects', label: 'Projects' },
@@ -11,6 +13,7 @@ const studioLinks = [
   { href: '/commands', label: 'Commands' },
   { href: '/modules', label: 'Modules' },
   { href: '/search', label: 'Search' },
+  { href: '/team', label: 'Team' },
   { href: '/social', label: 'Social' },
   { href: '/links', label: 'Official links' },
 ];
@@ -46,10 +49,15 @@ const policyLinks = [
           <span>Next Step <span class="wordmark-dim">Studios</span></span>
         </a>
         <p class="footer-note">
-          An independent creative and software studio operated by {SITE.operator}.
-          No accounts, no tracking, nothing collected.
+          An independent creative and software studio run by {SITE.operator}, with a small
+          group of volunteer contributors. No accounts, no tracking, no advertising.
         </p>
         <a class="footer-mail" href={`mailto:${SITE.contactEmail}`}>{SITE.contactEmail}</a>
+        {invite && (
+          <a class="footer-mail" href={invite} rel="noopener">
+            Join the {DISCORD.serverName} Discord →
+          </a>
+        )}
       </div>
 
       <nav class="footer-col" aria-label="Studio">
@@ -83,7 +91,7 @@ const policyLinks = [
 
     <div class="footer-base">
       <p>© {year} <span class="wordmark-dim">{SITE.name}</span> · {SITE.operator}</p>
-      <p>Public-facing name of a solo practice. Not a registered company.</p>
+      <p>Public-facing name of an independent studio. Not a registered company.</p>
     </div>
   </div>
 </footer>

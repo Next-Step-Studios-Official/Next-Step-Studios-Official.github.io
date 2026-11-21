@@ -1,6 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import { SITE } from '../lib/site';
+import { CONTRIBUTOR_COUNT } from '../lib/contributors';
 
 const files = [
   { name: 'logo-1024.png', href: '/brand/press/logo-1024.png', size: '577 KB', note: '1024 × 1024 · white tile' },
@@ -24,6 +25,7 @@ const colours = [
 const facts = [
   { label: 'Studio', value: SITE.name },
   { label: 'Operator', value: SITE.operator },
+  { label: 'Contributors', value: `${CONTRIBUTOR_COUNT} · all voluntary` },
   { label: 'Focus', value: 'A private Discord bot; games and tools next' },
   { label: 'Contact', value: SITE.contactEmail },
 ];
@@ -60,9 +62,9 @@ const facts = [
         <div>
           <h2>Boilerplate</h2>
           <p class="press-quote">
-            “Next Step Studios is the independent creative and software practice of Candler Shaw.
-            It builds a private Discord bot for one community server, and games and tools are the
-            direction it is working toward.”
+            “Next Step Studios is an independent creative and software studio run by Candler Shaw,
+            with a small group of volunteer contributors. It builds a private Discord bot for one
+            community server, and games and tools are the direction it is working toward.”
           </p>
           <p class="muted">Use it whole; it is written to be accurate rather than flattering.</p>
 

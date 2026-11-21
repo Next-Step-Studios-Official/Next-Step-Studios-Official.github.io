@@ -70,7 +70,7 @@ const overlay = Buffer.from(`
   <circle cx="448" cy="516" r="4.5" fill="#7ee0c0"/>
   <text x="468" y="522" font-family="Consolas, ui-monospace, monospace" font-size="14" letter-spacing="3.4" fill="#b7c1d1">NEXT STEP STUDIOS  ·  COMMANDS, POLICIES, DEVLOG</text>
   <rect x="80" y="494" width="300" height="1" fill="rgba(255,255,255,0.1)"/>
-  <text x="80" y="520" font-family="Consolas, ui-monospace, monospace" font-size="13" letter-spacing="3" fill="#8b97a9">INDEPENDENT  ·  SOLO</text>
+  <text x="80" y="520" font-family="Consolas, ui-monospace, monospace" font-size="13" letter-spacing="3" fill="#8b97a9">INDEPENDENT  ·  SMALL STUDIO</text>
 </svg>`);
 
 await sharp(background)

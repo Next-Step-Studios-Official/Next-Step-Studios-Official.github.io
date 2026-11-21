@@ -1,0 +1,131 @@
+---
+import Base from '../layouts/Base.astro';
+import { SITE } from '../lib/site';
+import {
+  CONTRIBUTORS,
+  CONTRIBUTORS_CONFIRMED,
+  CONTRIBUTOR_COUNT,
+  CONTRIBUTOR_WORD,
+  contributorName,
+} from '../lib/contributors';
+---
+
+<Base
+  title="Team"
+  description="The people who contribute to Next Step Studios: Candler Shaw, who runs the studio, and a small group of volunteer contributors."
+  path="/team"
+>
+  <section class="page-head">
+    <div class="container">
+      <div class="page-head-stack">
+        <p class="eyebrow"><a class="text-link" href="/about">About</a> · Team</p>
+        <h1 class="display display--page">The people behind the work.</h1>
+        <p class="lede">
+          Next Step Studios is run by {SITE.operator}, with {CONTRIBUTOR_WORD} people
+          contributing across its projects. Everyone involved is a volunteer: nobody is
+          employed, contracted or paid.
+        </p>
+        <div class="meta-bar">
+          <span>{CONTRIBUTOR_COUNT} contributors</span>
+          <span>All voluntary</span>
+          <span>Not a registered company</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--flush">
+    <div class="container">
+      {
+        !CONTRIBUTORS_CONFIRMED && (
+          <div class="notice notice--neutral" role="note">
+            <span class="status status--draft">Being confirmed</span>
+            <p class="notice-body">
+              The names, handles and roles below are placeholders until each person confirms
+              how they want to be credited. This page will show the real list once they have.
+            </p>
+          </div>
+        )
+      }
+
+      <div class="card-grid" style="margin-top: 1.5rem;">
+        {
+          CONTRIBUTORS.map((person) => (
+            <article class="panel panel--pad">
+              <span class="label">{person.role}</span>
+              <h2 style="font-size: 1.15rem; margin-top: 0.75rem;">{contributorName(person)}</h2>
+              {person.name && (
+                <p class="mono" style="font-size: 0.8125rem; color: var(--color-muted); margin-top: 0.35rem;">
+                  {person.handle}
+                </p>
+              )}
+              <p style="color: var(--color-muted); font-size: 0.9375rem; margin-top: 0.6rem;">
+                {person.focus}
+              </p>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="split" style="align-items: start;">
+        <div class="prose">
+          <h2 style="margin-top: 0; padding-top: 0; border-top: 0;">Who does what</h2>
+          <p>
+            {SITE.operator} runs the studio and is its only legal operator. Studio direction,
+            the Discord bot, this website and the policy documents are all handled there.
+          </p>
+          <p>
+            The people listed above contribute to specific parts of the work, set out on
+            each entry. Contributions are voluntary and unpaid, and being a contributor does
+            not make someone an employee, a contractor or a legal operator of the studio.
+          </p>
+
+          <h2>How credits work</h2>
+          <p>
+            People are credited the way they asked to be. A Discord username is used unless
+            someone prefers their full name, and nobody is listed without agreeing to it.
+          </p>
+          <p>
+            If you contribute and are missing from this list, or want your entry changed,
+            email <a href={`mailto:${SITE.contactEmail}`}>{SITE.contactEmail}</a>.
+          </p>
+
+          <h2>Where else this appears</h2>
+          <p>
+            The <a href="/about">About page</a> carries a short version of this list, and the
+            <a href="/press">press kit</a> has the studio's boilerplate description for
+            anyone writing about it.
+          </p>
+        </div>
+
+        <div class="panel panel--pad">
+          <p class="label">Studio facts</p>
+          <dl class="fact-grid" style="grid-template-columns: 1fr; margin: 0; border-top: 0;">
+            <div class="fact" style="border-left: 0; padding-left: 0;">
+              <dt>Operator</dt>
+              <dd>{SITE.operator}</dd>
+            </div>
+            <div class="fact" style="border-left: 0; padding-left: 0;">
+              <dt>Contributors</dt>
+              <dd>{CONTRIBUTOR_COUNT} · all voluntary</dd>
+            </div>
+            <div class="fact" style="border-left: 0; padding-left: 0;">
+              <dt>Company status</dt>
+              <dd>Not a registered company</dd>
+            </div>
+            <div class="fact" style="border-left: 0; padding-left: 0;">
+              <dt>Contact</dt>
+              <dd style="word-break: break-word;">
+                <a class="text-link" href={`mailto:${SITE.contactEmail}`}>{SITE.contactEmail}</a>
+              </dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+    </div>
+  </section>
+</Base>
