@@ -1,0 +1,108 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base
+  title="Brand guidelines"
+  description="How the Next Step Studios logo, colours and typefaces should be used."
+  path="/brand"
+>
+  <section class="page-head">
+    <div class="container">
+      <div class="page-head-stack">
+        <p class="eyebrow">Brand guidelines</p>
+        <h1 class="display display--page">Use the mark without breaking it.</h1>
+        <p class="lede">
+          A short, practical set of rules for the logo, the palette and the type. They exist so the
+          studio looks like one thing wherever it appears — not to make anyone read a manual.
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="/press">Download the assets</a>
+          <a class="btn" href="/press#archive">See the archive</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--flush">
+    <div class="container">
+      <div class="brand-grid">
+        <article class="prose brand-prose">
+          <h2>The logo</h2>
+          <p>
+            The mark is a detailed emblem, supplied as a raster master at 1024px. Use it at the size
+            it is supplied and let it scale down, never up: enlarging a raster mark is the fastest
+            way to make it look cheap.
+          </p>
+
+          <h3>Clear space</h3>
+          <p>
+            Leave clear space around the mark equal to at least one quarter of its height on every
+            side. Nothing — text, other logos, a border — enters that space.
+          </p>
+
+          <h3>Minimum size</h3>
+          <p>
+            24px high on screen, 10mm high in print. Below that the detail inside the emblem stops
+            resolving and the mark becomes a smudge.
+          </p>
+
+          <h3>Backgrounds</h3>
+          <p>
+            The mark is drawn on a white tile, so it reads as a badge on the dark site. The PNG
+            keeps that tile; the dark JPG shows how it is flattened for a dark surface. Do not
+            assume transparency, and never place the mark on a busy photograph.
+          </p>
+
+          <h2>What not to do</h2>
+          <ul>
+            <li>Do not recolour, gradient or outline the mark.</li>
+            <li>Do not stretch, squash or rotate it.</li>
+            <li>Do not add effects, shadows or glow.</li>
+            <li>Do not crop the emblem or place text inside its clear space.</li>
+            <li>Do not use it to suggest endorsement, partnership or sponsorship.</li>
+          </ul>
+
+          <h2>Type</h2>
+          <p>
+            <strong>Space Grotesk</strong> for display headings, <strong>Inter</strong> for body text
+            and <strong>JetBrains Mono</strong> for code, labels and figures. All three are open
+            licence and loaded from the site itself, never a third-party font host.
+          </p>
+        </article>
+
+        <aside class="brand-aside">
+          <div class="panel pad">
+            <p class="label">Palette</p>
+            <ul class="palette-list">
+              <li><span class="swatch-chip" style="background:#07080B" aria-hidden="true"></span><span>Base</span><code>#07080B</code></li>
+              <li><span class="swatch-chip" style="background:#E9EEF7" aria-hidden="true"></span><span>Ink</span><code>#E9EEF7</code></li>
+              <li><span class="swatch-chip" style="background:#4D8DFF" aria-hidden="true"></span><span>Accent</span><code>#4D8DFF</code></li>
+              <li><span class="swatch-chip" style="background:#A78BFA" aria-hidden="true"></span><span>Violet</span><code>#A78BFA</code></li>
+              <li><span class="swatch-chip" style="background:#FF64D8" aria-hidden="true"></span><span>Magenta</span><code>#FF64D8</code></li>
+            </ul>
+          </div>
+
+          <div class="panel pad">
+            <p class="label">Assets</p>
+            <p class="muted">PNG, JPG, WebP and an embedded-raster SVG, plus the retired emblem.</p>
+            <a class="btn" href="/press">Press kit</a>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="notice notice--neutral">
+        <span class="status status--info">Honest limitation</span>
+        <p class="notice-body">
+          The current logo is not a vector redraw. The SVG in the press kit embeds the raster master
+          so layout scales cleanly, but a true vector is still to be produced. When it is, it will be
+          published alongside — not in place of — today's files.
+        </p>
+      </div>
+    </div>
+  </section>
+</Base>

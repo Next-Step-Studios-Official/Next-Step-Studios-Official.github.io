@@ -25,9 +25,12 @@ npm run preview   # serve the built dist/
 Other authoring commands:
 
 ```bash
-npm run pdfs      # PDFs only
-npm run assets    # re-derive logo, favicons and banners from the bot repo
-node scripts/make-og.mjs   # regenerate the 1200×630 share card
+npm run pdfs        # policy PDFs + the command cheatsheet
+npm run cheatsheet  # the printable command cheatsheet only
+npm run og          # regenerate the per-page share cards
+npm run snapshot    # record the current policy bodies as version snapshots
+npm run assets      # re-derive logo, favicons and banners from the bot repo
+node scripts/make-og.mjs   # regenerate the site-wide 1200×630 share card
 ```
 
 `npm run assets` expects the bot repository at the path in
@@ -45,7 +48,11 @@ node scripts/make-og.mjs   # regenerate the 1200×630 share card
 | `src/styles/global.css` | Tokens and shared components |
 | `src/styles/pages.css` | Page-level layouts added with the reference edition |
 | `public/downloads/` | Generated PDFs, served as static files |
-| `scripts/` | Content guard, PDF generator, brand and share-card tools |
+| `public/og/` | Per-page Open Graph cards |
+| `src/data/policy-snapshots/` | Recorded policy versions used for history and diffs |
+| `public/brand/press/` | Press-kit logo files in every supplied format |
+| `public/brand/archive/` | Retired marks, kept at stable URLs |
+| `scripts/` | Content guard, PDF and cheatsheet generators, share cards, snapshots |
 
 ## Editing content
 

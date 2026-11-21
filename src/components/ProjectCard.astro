@@ -6,14 +6,18 @@ interface Props {
   status: string;
   category: string;
   href?: string;
+  cover?: string;
 }
 
-const { title, tagline, summary, status, category, href } = Astro.props;
+const { title, tagline, summary, status, category, href, cover } = Astro.props;
 import StatusBadge from './StatusBadge.astro';
 ---
 
 { href ? (
-  <a class="panel panel-link project-card" href={href}>
+  <a class="panel panel-link project-card project-card--covered" href={href}>
+    {cover && (
+      <img class="project-card-cover" src={cover} alt="" width={1100} height={619} loading="lazy" />
+    )}
     <div class="project-card-top">
       <span class="project-card-cat">{category}</span>
       <StatusBadge status={status} />
@@ -24,6 +28,9 @@ import StatusBadge from './StatusBadge.astro';
   </a>
 ) : (
   <div class="panel project-card">
+    {cover && (
+      <img class="project-card-cover" src={cover} alt="" width={1100} height={619} loading="lazy" />
+    )}
     <div class="project-card-top">
       <span class="project-card-cat">{category}</span>
       <StatusBadge status={status} />

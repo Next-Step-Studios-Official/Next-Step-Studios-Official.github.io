@@ -3,6 +3,8 @@ import { getCollection } from 'astro:content';
 import { COMMANDS, COMMAND_GROUPS } from '../lib/commands';
 import { FAQ } from '../lib/faq';
 import { ROADMAP } from '../lib/roadmap';
+import { BOT_MODULES, MODULE_STATUS_LABEL } from '../lib/modules';
+import { GLOSSARY } from '../lib/glossary';
 
 export const prerender = true;
 
@@ -52,6 +54,11 @@ const PAGES: IndexEntry[] = [
   { type: 'Page', title: 'Stack', url: '/stack', text: 'What the website and the bot are built with, and what is deliberately absent.' },
   { type: 'Page', title: 'Contact', url: '/contact', text: 'Email, privacy requests and support ticket guidance.' },
   { type: 'Page', title: 'Website privacy', url: '/website-privacy', text: 'What this website does and does not collect.' },
+  { type: 'Page', title: 'Module register', url: '/modules', text: 'Every module in the Next Step Bot source with its commands, status and data touchpoints.' },
+  { type: 'Page', title: 'Trust centre', url: '/trust', text: 'Policies, security, retention, data requests, status and how to verify the claims.' },
+  { type: 'Page', title: 'Press kit', url: '/press', text: 'Logos in PNG, JPG, WebP and SVG, colours, typefaces, boilerplate and retired marks.' },
+  { type: 'Page', title: 'Brand guidelines', url: '/brand', text: 'Clear space, minimum size, backgrounds, misuse and the palette.' },
+  { type: 'Page', title: 'Glossary', url: '/glossary', text: 'Plain-language definitions of ticket, escalation, retention, transcript, infraction and more.' },
 ];
 
 export const GET: APIRoute = async () => {
@@ -104,6 +111,22 @@ export const GET: APIRoute = async () => {
       section: item.status,
       text: `${item.summary} ${item.points.join(' ')}`,
     })),
+    ...BOT_MODULES.map((module) => ({
+      type: 'Module',
+      title: module.name,
+      url: `/modules/${module.id}`,
+      section: MODULE_STATUS_LABEL[module.status],
+      text: `${module.summary} ${(module.commands ?? []).join(' ')}`,
+    })),
+    ...GLOSSARY.flatMap((group) =>
+      group.terms.map((term) => ({
+        type: 'Glossary',
+        title: term.term,
+        url: `/glossary#${term.term.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`,
+        section: `Glossary · ${group.letter}`,
+        text: term.definition,
+      })),
+    ),
   ];
 
   return new Response(JSON.stringify(entries), {

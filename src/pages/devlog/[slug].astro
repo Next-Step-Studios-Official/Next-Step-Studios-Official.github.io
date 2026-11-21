@@ -25,9 +25,19 @@ const seriesIndex = seriesPosts.findIndex((post) => post.id === entry.id);
 
 const formatDate = (date: Date) =>
   new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }).format(date);
+
+const articleSchema = {
+  '@type': 'Article',
+  headline: entry.data.title,
+  description: entry.data.summary,
+  datePublished: entry.data.date.toISOString(),
+  inLanguage: 'en-GB',
+  author: { '@type': 'Person', name: 'Candler Shaw' },
+  publisher: { '@id': `${(Astro.site ?? new URL('https://next-step-studios-official.github.io')).origin}#organization` },
+};
 ---
 
-<Base title={entry.data.title} description={entry.data.summary} path="/devlog">
+<Base title={entry.data.title} description={entry.data.summary} path="/devlog" schema={articleSchema}>
   <section class="page-head">
     <div class="container">
       <div class="page-head-stack">

@@ -6,6 +6,7 @@ docStatus: "Draft for review. Not yet effective."
 appliesTo: "The private Next Step Studios Discord server and moderation-related Bot workflows"
 order: 5
 summary: "How moderation decisions are made and enforced."
+updated: 2026-11-21
 ---
 
 ## 1. Purpose

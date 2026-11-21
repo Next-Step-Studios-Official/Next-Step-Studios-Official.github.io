@@ -14,6 +14,24 @@ export type ChangelogEntry = {
 export const CHANGELOG: ChangelogEntry[] = [
   {
     date: '2026-11-21',
+    version: '2.1',
+    title: 'The archive edition',
+    summary:
+      'The reference becomes an archive: 27 module pages, recorded policy versions with diffs, a press kit that keeps retired marks, and a trust centre to hold it together.',
+    changes: [
+      'A page for each of the 27 bot modules, with commands, data touchpoints and governing policies.',
+      'Policy version history: every document now records a snapshot and shows a diff when the text moves.',
+      'Trust centre, glossary, press kit and brand guidelines.',
+      'Logos supplied as PNG, JPG, WebP and an embedded-raster SVG, with a permanent archive for retired marks.',
+      'Per-page Open Graph cards, FAQ and Article structured data, and a human sitemap.',
+      'Reading controls, copy-link headings, a keyboard shortcut reference and site-wide print styles.',
+      'Public JSON for commands, policies, projects and modules; a policy RSS feed.',
+      'Latin-only font subsets, generated hero artwork and project covers.',
+      'A printable command cheatsheet PDF.',
+    ],
+  },
+  {
+    date: '2026-11-21',
     version: '2.0',
     title: 'The reference edition',
     summary:

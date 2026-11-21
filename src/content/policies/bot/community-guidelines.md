@@ -6,6 +6,7 @@ docStatus: "Draft for review. Not yet effective."
 appliesTo: "The private Next Step Studios Discord server and conduct connected to its community activities"
 order: 4
 summary: "Expected conduct in the Next Step Studios Discord server."
+updated: 2026-11-21
 ---
 
 ## 1. Our Community

@@ -1,0 +1,142 @@
+---
+import Base from '../layouts/Base.astro';
+
+const cards = [
+  {
+    href: '/policies',
+    label: 'Policy documents',
+    title: 'The rules, in writing',
+    body: 'Seven documents covering terms, privacy, acceptable use, community rules, moderation, retention and security. All drafts, all versioned.',
+  },
+  {
+    href: '/policies/bot/privacy',
+    label: 'Privacy',
+    title: 'What the bot stores',
+    body: 'The privacy policy lists each record type and why it exists. Nothing is collected for advertising or resale.',
+  },
+  {
+    href: '/policies/bot/data-retention',
+    label: 'Retention',
+    title: 'How long it is kept',
+    body: 'Retention is defined per record type, not as one blanket period. The deletion policy explains how a request is handled.',
+  },
+  {
+    href: '/policies/bot/security',
+    label: 'Security',
+    title: 'How it is protected',
+    body: 'Least privilege, restricted access, secrets kept out of source, and an honest list of what is not yet claimed.',
+  },
+  {
+    href: '/contact#privacy-requests',
+    label: 'Requests',
+    title: 'Ask for your data',
+    body: 'Access, correction and deletion requests go to one address. Identity is confirmed before anything changes.',
+  },
+  {
+    href: '/status',
+    label: 'Status',
+    title: 'What is actually live',
+    body: 'The current state of the website, the documents and the bot — including what is unfinished.',
+  },
+];
+
+const facts = [
+  { label: 'Analytics', value: 'None' },
+  { label: 'Cookies', value: 'None' },
+  { label: 'Accounts', value: 'None' },
+  { label: 'Third-party requests', value: 'None' },
+  { label: 'Hosting', value: 'Static files' },
+  { label: 'Bot data store', value: 'SQLite, one server' },
+  { label: 'Documents', value: '7 · v0.2.0 drafts' },
+  { label: 'Policy mirror', value: 'GitHub' },
+];
+---
+
+<Base
+  title="Trust centre"
+  description="Everything that explains how Next Step Studios handles data, security and moderation, in one place."
+  path="/trust"
+  ogImage="og/trust.png"
+>
+  <section class="page-head">
+    <div class="container">
+      <div class="page-head-stack">
+        <p class="eyebrow">Trust centre</p>
+        <h1 class="display display--page">Everything that answers “is this safe?”</h1>
+        <p class="lede">
+          The policies, the security overview, the retention rules, the request route and the
+          honest status of the bot — collected here so nobody has to hunt for them.
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="/policies">Read the policies</a>
+          <a class="btn" href="/contact#privacy-requests">Make a request</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--flush">
+    <div class="container">
+      <div class="trust-grid">
+        {cards.map((card) => (
+          <a class="panel panel-link trust-card" href={card.href}>
+            <span class="label">{card.label}</span>
+            <h2>{card.title}</h2>
+            <p>{card.body}</p>
+            <span class="project-card-foot">Open <span class="card-arrow" aria-hidden="true">↗</span></span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="trust-facts panel">
+        <div class="section-head">
+          <h2>The short version</h2>
+          <span class="label">Verified in the build</span>
+        </div>
+        <dl class="fact-grid">
+          {facts.map((fact) => (
+            <div class="fact">
+              <dt>{fact.label}</dt>
+              <dd>{fact.value}</dd>
+            </div>
+          ))}
+        </dl>
+        <p class="muted trust-facts-note">
+          These are properties of the build, not promises about a future service. You can check
+          them yourself: the site is static, the source is public, and the network tab stays empty
+          of third-party hosts.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="split-grid">
+        <div class="panel pad">
+          <p class="label">If something is wrong</p>
+          <h2>Report a security issue</h2>
+          <p class="muted">
+            Email the studio with enough detail to reproduce the issue. Please do not post it
+            publicly before it has been reviewed. There is no bounty programme, and none is implied.
+          </p>
+          <a class="btn" href="/contact">Contact the studio</a>
+        </div>
+        <div class="panel pad">
+          <p class="label">If you want to verify</p>
+          <h2>Read the source</h2>
+          <p class="muted">
+            The policy documents are mirrored in a public repository, and every page here can be
+            downloaded as Markdown or plain text. Nothing about the claims requires trust in a
+            screenshot.
+          </p>
+          <a class="btn" href="/downloads">Downloads</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</Base>

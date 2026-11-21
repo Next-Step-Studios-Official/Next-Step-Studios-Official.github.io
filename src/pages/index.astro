@@ -39,7 +39,7 @@ const routes = [
     href: '/projects',
     title: 'Projects',
     body: 'What the studio is building, each one carrying the status it has actually reached.',
-    meta: `${projects.length} listed · ${BOT_MODULES.length} bot modules documented`,
+    meta: `${projects.length} listed · ${BOT_MODULES.length} modules documented`,
     cta: 'See the work',
   },
   {
@@ -82,6 +82,9 @@ const routes = [
   path="/"
 >
   <section class="hero">
+    <div class="hero-art" aria-hidden="true">
+      <img src="/images/hero.webp" alt="" width="1680" height="752" fetchpriority="high" decoding="async" />
+    </div>
     <div class="container">
       <div class="hero-grid">
         <div class="hero-stack">
@@ -130,7 +133,7 @@ const routes = [
       <div class="stat-strip">
         <a class="stat" href="/projects">
           <span class="stat-value">{pad(projects.length)}</span>
-          <span class="stat-label">Project in development</span>
+          <span class="stat-label">Projects listed</span>
         </a>
         <a class="stat" href="/policies">
           <span class="stat-value">{pad(policies.length)}</span>
@@ -210,7 +213,10 @@ const routes = [
             </a>
           </div>
 
-          <a class="panel panel-link panel--pad" href={`/projects/${featured.id}`} style="display: block;">
+                      <a class="panel panel-link panel--pad featured-project" href={`/projects/${featured.id}`}>
+            {featured.data.cover && (
+              <img class="featured-project-cover" src={featured.data.cover} alt="" width={1100} height={619} loading="lazy" />
+            )}
             <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.75rem 1.5rem;">
               <span class="project-card-cat">{featured.data.category}</span>
               <StatusBadge status={featured.data.status} />

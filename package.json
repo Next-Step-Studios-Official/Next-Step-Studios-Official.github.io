@@ -8,9 +8,12 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "build": "node scripts/verify-content.mjs && node scripts/make-pdfs.mjs && astro build",
+    "build": "node scripts/verify-content.mjs && node scripts/make-pdfs.mjs && node scripts/make-cheatsheet.mjs && astro build",
     "preview": "astro preview",
-    "pdfs": "node scripts/make-pdfs.mjs",
+    "pdfs": "node scripts/make-pdfs.mjs && node scripts/make-cheatsheet.mjs",
+    "cheatsheet": "node scripts/make-cheatsheet.mjs",
+    "snapshot": "node scripts/snapshot-policies.mjs",
+    "og": "node scripts/make-og-pages.mjs",
     "assets": "node scripts/brand-assets.mjs"
   },
   "dependencies": {

@@ -111,6 +111,7 @@ const plural = (count: number) => (count === 1 ? 'project' : 'projects');
               status={project.data.status}
               category={project.data.category}
               href={`/projects/${project.id}`}
+              cover={project.data.cover}
             />
           </div>
         ))}
@@ -122,11 +123,12 @@ const plural = (count: number) => (count === 1 ? 'project' : 'projects');
       </p>
 
       <div class="notice notice--neutral" style="margin-top: 1.5rem;">
-        <span class="status status--planned">Nothing else yet</span>
+        <span class="status status--planned">Planned means planned</span>
         <p class="notice-body">
-          Games, tools and other projects are the direction, not yet existing work. When
-          another project begins it will be listed here from its first honest status — a
-          project's absence is more accurate than a placeholder.
+          Two entries are listed as Planned: a first game and a set of studio tools. Neither has
+          a title, a build or a date, and both say so on their own page. A status only moves when
+          something real exists — see the <a class="text-link" href="/roadmap">roadmap</a> for what
+          that means.
         </p>
       </div>
     </div>

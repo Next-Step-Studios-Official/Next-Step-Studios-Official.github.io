@@ -1,12 +1,13 @@
 ---
-import '@fontsource-variable/inter';
-import '@fontsource-variable/space-grotesk';
-import '@fontsource-variable/jetbrains-mono';
 import '../styles/global.css';
 import '../styles/pages.css';
+import '../styles/editorial.css';
+import '../styles/print.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import CommandPalette from '../components/CommandPalette.astro';
+import Shortcuts from '../components/Shortcuts.astro';
+import { BOT_MODULES } from '../lib/modules';
 import { SITE } from '../lib/site';
 import { COMMANDS, COMMAND_GROUPS } from '../lib/commands';
 import { getCollection, render } from 'astro:content';
@@ -15,15 +16,23 @@ interface Props {
   title?: string;
   description: string;
   path: string;
+  /** Optional share image path, e.g. /og/commands.png. */
+  ogImage?: string;
+  ogAlt?: string;
+  /** Extra schema.org nodes appended to the page graph. */
+  schema?: Record<string, unknown> | Record<string, unknown>[];
 }
 
-const { title, description, path } = Astro.props;
+const { title, description, path, ogImage: ogImageProp, ogAlt, schema } = Astro.props;
 const pageTitle = title ? `${title} — ${SITE.name}` : `${SITE.name} — Independent creative and software studio`;
 
 const base = import.meta.env.BASE_URL;
 const origin = Astro.site ?? new URL(SITE.url);
 const canonical = new URL(path, origin).toString();
-const ogImage = new URL(`${base}og-image.png`, origin).toString();
+const ogImage = new URL(
+  `${base}${(ogImageProp ?? 'og-image.png').replace(/^\/+/, '')}`,
+  origin,
+).toString();
 
 const formatDate = (date: Date) =>
   new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }).format(date);
@@ -66,6 +75,12 @@ const searchItems = [
   { title: 'Status', href: '/status', kind: 'Page', meta: 'Current state' },
   { title: 'Stack', href: '/stack', kind: 'Page', meta: 'What it runs on' },
   { title: 'FAQ', href: '/faq', kind: 'Page', meta: 'Straight answers' },
+  { title: 'Bot modules', href: '/modules', kind: 'Page', meta: `${BOT_MODULES.length} modules` },
+  { title: 'Trust centre', href: '/trust', kind: 'Page', meta: 'Data, security, requests' },
+  { title: 'Glossary', href: '/glossary', kind: 'Page', meta: 'Terms defined' },
+  { title: 'Press kit', href: '/press', kind: 'Page', meta: 'Logos and facts' },
+  { title: 'Brand guidelines', href: '/brand', kind: 'Page', meta: 'Logo usage' },
+  { title: 'Sitemap', href: '/sitemap', kind: 'Page', meta: 'Every page' },
   { title: 'Policies', href: '/policies', kind: 'Page', meta: 'Discord bot documents' },
   { title: 'Downloads', href: '/downloads', kind: 'Page', meta: 'Every document as a file' },
   { title: 'Contact', href: '/contact', kind: 'Page', meta: 'Email and privacy requests' },
@@ -142,6 +157,7 @@ const structuredData = {
       description,
       isPartOf: { '@id': `${origin.origin}#website` },
     },
+    ...(Array.isArray(schema) ? schema : schema ? [schema] : []),
   ],
 };
 ---
@@ -155,12 +171,15 @@ const structuredData = {
     <meta name="description" content={description} />
     <meta name="color-scheme" content="dark" />
     <meta name="theme-color" content="#07080b" />
+    <link rel="preload" href={`${base}fonts/inter-latin.woff2`} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={`${base}fonts/space-grotesk-latin.woff2`} as="font" type="font/woff2" crossorigin />
     <link rel="canonical" href={canonical} />
 
     <link rel="icon" href={`${base}brand/favicon-64.png`} sizes="64x64" type="image/png" />
     <link rel="icon" href={`${base}favicon.svg`} type="image/svg+xml" />
     <link rel="apple-touch-icon" href={`${base}brand/apple-touch-icon.png`} />
     <link rel="alternate" type="application/rss+xml" title="Next Step Studios — Devlog" href={`${base}rss.xml`} />
+    <link rel="alternate" type="application/rss+xml" title="Next Step Studios — Bot policies" href={`${base}policies/rss.xml`} />
     <link rel="sitemap" href={`${base}sitemap.xml`} type="application/xml" />
 
     <meta property="og:type" content="website" />
@@ -171,7 +190,7 @@ const structuredData = {
     <meta property="og:image" content={ogImage} />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="Next Step Studios — games and software, built one careful step at a time." />
+    <meta property="og:image:alt" content={ogAlt ?? 'Next Step Studios — games and software, built one careful step at a time.'} />
     <meta property="og:locale" content="en_GB" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={pageTitle} />
@@ -188,6 +207,7 @@ const structuredData = {
     </main>
     <Footer />
     <CommandPalette items={searchItems} />
+    <Shortcuts />
 
     <script>
       const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -221,6 +241,30 @@ const structuredData = {
           element.style.setProperty('--mx', `${Math.round(event.clientX - rect.left)}px`);
           element.style.setProperty('--my', `${Math.round(event.clientY - rect.top)}px`);
         });
+      });
+
+      // A copy-link button on every policy and devlog heading that has an id.
+      // The URL is the visible address, so something copied on a local preview
+      // is still useful when the site is published.
+      const copyLabel = 'Copy link to this section';
+      document.querySelectorAll<HTMLElement>('.prose h2[id], .prose h3[id]').forEach((heading) => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'heading-link';
+        button.setAttribute('aria-label', `${copyLabel}: ${heading.textContent ?? ''}`.trim());
+        button.title = copyLabel;
+        button.innerHTML = '<span aria-hidden="true">#</span>';
+        button.addEventListener('click', async () => {
+          const url = `${location.origin}${location.pathname}#${heading.id}`;
+          try {
+            await navigator.clipboard.writeText(url);
+            button.dataset.copied = 'true';
+            window.setTimeout(() => delete button.dataset.copied, 1600);
+          } catch {
+            location.hash = heading.id;
+          }
+        });
+        heading.append(button);
       });
     </script>
   </body>

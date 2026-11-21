@@ -1,0 +1,172 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+import { BOT_MODULES } from '../../lib/modules';
+import { GLOSSARY } from '../../lib/glossary';
+import { COMMANDS, COMMAND_GROUPS } from '../../lib/commands';
+
+const policies = (await getCollection('policies')).sort((a, b) => a.data.order - b.data.order);
+const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
+const posts = (await getCollection('devlog')).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+const tags = [...new Set(posts.flatMap((post) => post.data.tags))];
+
+const sections = [
+  {
+    title: 'Studio',
+    links: [
+      { href: '/', label: 'Home' },
+      { href: '/about', label: 'About' },
+      { href: '/projects', label: 'Projects' },
+      { href: '/devlog', label: 'Devlog' },
+      { href: '/roadmap', label: 'Roadmap' },
+      { href: '/changelog', label: 'Changelog' },
+      { href: '/status', label: 'Status' },
+      { href: '/stack', label: 'Stack' },
+      { href: '/faq', label: 'FAQ' },
+      { href: '/press', label: 'Press kit' },
+      { href: '/brand', label: 'Brand guidelines' },
+    ],
+  },
+  {
+    title: 'Discord bot',
+    links: [
+      { href: '/commands', label: 'Command reference' },
+      { href: '/modules', label: 'Module register' },
+      { href: '/glossary', label: 'Glossary' },
+      { href: '/trust', label: 'Trust centre' },
+      { href: '/policies', label: 'Policies' },
+      { href: '/downloads', label: 'Downloads' },
+    ],
+  },
+  {
+    title: 'Community',
+    links: [
+      { href: '/social', label: 'Social' },
+      { href: '/links', label: 'Official links' },
+      { href: '/contact', label: 'Contact' },
+    ],
+  },
+  {
+    title: 'Site',
+    links: [
+      { href: '/search', label: 'Search' },
+      { href: '/sitemap', label: 'Sitemap' },
+      { href: '/website-privacy', label: 'Website privacy' },
+      { href: '/rss.xml', label: 'Devlog RSS' },
+      { href: '/policies/rss.xml', label: 'Policy RSS' },
+      { href: '/sitemap.xml', label: 'XML sitemap' },
+      { href: '/data/commands.json', label: 'Commands JSON' },
+      { href: '/data/policies.json', label: 'Policies JSON' },
+      { href: '/data/projects.json', label: 'Projects JSON' },
+      { href: '/data/modules.json', label: 'Modules JSON' },
+    ],
+  },
+];
+---
+
+<Base
+  title="Sitemap"
+  description="Every page on the Next Step Studios website, in one list."
+  path="/sitemap"
+>
+  <section class="page-head">
+    <div class="container">
+      <div class="page-head-stack">
+        <p class="eyebrow">Sitemap</p>
+        <h1 class="display display--page">Every page, in one place.</h1>
+        <p class="lede">
+          A human-readable index of the site. The XML version for crawlers is at
+          <a class="text-link" href="/sitemap.xml">/sitemap.xml</a>.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--flush">
+    <div class="container">
+      <div class="sitemap-grid">
+        {sections.map((section) => (
+          <div class="sitemap-col">
+            <p class="label">{section.title}</p>
+            <ul class="link-list">
+              {section.links.map((link) => (
+                <li><a class="text-link" href={link.href}>{link.label}</a></li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <h2>Projects</h2>
+        <span class="label">{projects.length}</span>
+      </div>
+      <ul class="link-list link-list--inline">
+        {projects.map((project) => (
+          <li><a class="text-link" href={`/projects/${project.id}`}>{project.data.title}</a></li>
+        ))}
+      </ul>
+
+      <div class="section-head" style="margin-top: 2.5rem;">
+        <h2>Policy documents</h2>
+        <span class="label">{policies.length}</span>
+      </div>
+      <ul class="link-list link-list--inline">
+        {policies.map((policy) => (
+          <li>
+            <a class="text-link" href={`/policies/bot/${policy.id.replace(/^bot\//, '')}`}>
+              {policy.data.shortTitle}
+            </a>
+          </li>
+        ))}
+      </ul>
+
+      <div class="section-head" style="margin-top: 2.5rem;">
+        <h2>Bot modules</h2>
+        <span class="label">{BOT_MODULES.length}</span>
+      </div>
+      <ul class="link-list link-list--inline">
+        {BOT_MODULES.map((module) => (
+          <li><a class="text-link" href={`/modules/${module.id}`}>{module.name}</a></li>
+        ))}
+      </ul>
+
+      <div class="section-head" style="margin-top: 2.5rem;">
+        <h2>Devlog</h2>
+        <span class="label">{posts.length} entries · {tags.length} tags</span>
+      </div>
+      <ul class="link-list link-list--inline">
+        {posts.map((post) => (
+          <li><a class="text-link" href={`/devlog/${post.id}`}>{post.data.title}</a></li>
+        ))}
+        {tags.map((tag) => (
+          <li><a class="text-link" href={`/devlog/tag/${tag}`}>#{tag}</a></li>
+        ))}
+      </ul>
+
+      <div class="section-head" style="margin-top: 2.5rem;">
+        <h2>Glossary</h2>
+        <span class="label">{GLOSSARY.length} letters</span>
+      </div>
+      <ul class="link-list link-list--inline">
+        {GLOSSARY.map((group) => (
+          <li><a class="text-link" href={`/glossary#letter-${group.letter}`}>{group.letter}</a></li>
+        ))}
+      </ul>
+
+      <div class="section-head" style="margin-top: 2.5rem;">
+        <h2>Commands</h2>
+        <span class="label">{COMMANDS.length} across {COMMAND_GROUPS.length} groups</span>
+      </div>
+      <p class="muted">
+        All {COMMANDS.length} commands are documented on the
+        <a class="text-link" href="/commands">command reference</a>; each is also indexed by the
+        site search.
+      </p>
+    </div>
+  </section>
+</Base>

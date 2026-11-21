@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
 import { getCollection } from 'astro:content';
 import { SITE } from '../lib/site';
+import { BOT_MODULES } from '../lib/modules';
 
 export const prerender = true;
 
@@ -22,6 +23,12 @@ const STATIC_ROUTES = [
   '/search',
   '/contact',
   '/website-privacy',
+  '/modules',
+  '/trust',
+  '/press',
+  '/brand',
+  '/glossary',
+  '/sitemap',
 ];
 
 export const GET: APIRoute = async ({ site }) => {
@@ -35,6 +42,8 @@ export const GET: APIRoute = async ({ site }) => {
   const routes = [
     ...STATIC_ROUTES,
     ...projects.map((project) => `/projects/${project.id}`),
+    ...BOT_MODULES.map((module) => `/modules/${module.id}`),
+    ...policies.map((policy) => `/policies/versions/${policy.id.replace(/^bot\//, '')}`),
     ...policies.map((policy) => `/policies/bot/${policy.id.replace(/^bot\//, '')}`),
     ...posts.map((post) => `/devlog/${post.id}`),
     ...tags.map((tag) => `/devlog/tag/${encodeURIComponent(tag)}`),

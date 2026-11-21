@@ -5,6 +5,7 @@ import { getCollection, render } from 'astro:content';
 import { SITE } from '../../../lib/site';
 import { githubUrlForSlug } from '../../../lib/documents';
 import { readingLabel } from '../../../lib/reading';
+import { snapshotsFor } from '../../../lib/policyVersions';
 
 export async function getStaticPaths() {
   const policies = await getCollection('policies');
@@ -24,9 +25,42 @@ const next = index < all.length - 1 ? all[index + 1] : undefined;
 
 const slugOf = (id: string) => id.replace(/^bot\//, '');
 const toc = headings.filter((heading) => heading.depth === 2);
+const versions = snapshotsFor(slugOf(entry.id));
+
+const formatDate = (date: Date) =>
+  new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }).format(date);
+
+const articleSchema = {
+  '@type': 'Article',
+  '@id': `${new URL(`/policies/bot/${slugOf(entry.id)}`, Astro.site ?? SITE.url).toString()}#article`,
+  headline: entry.data.title,
+  description: entry.data.summary,
+  dateModified: entry.data.updated.toISOString(),
+  version: entry.data.version,
+  inLanguage: 'en-GB',
+  isPartOf: { '@id': `${(Astro.site ?? SITE.url).origin}#website` },
+  author: { '@type': 'Organization', name: SITE.name },
+  publisher: { '@id': `${(Astro.site ?? SITE.url).origin}#organization` },
+};
+
+const breadcrumbSchema = {
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: new URL('/', Astro.site ?? SITE.url).toString() },
+    { '@type': 'ListItem', position: 2, name: 'Policies', item: new URL('/policies', Astro.site ?? SITE.url).toString() },
+    { '@type': 'ListItem', position: 3, name: entry.data.shortTitle, item: new URL(`/policies/bot/${slugOf(entry.id)}`, Astro.site ?? SITE.url).toString() },
+  ],
+};
 ---
 
-<Base title={entry.data.shortTitle} description={entry.data.summary} path="/policies">
+<Base
+  title={entry.data.shortTitle}
+  description={entry.data.summary}
+  path="/policies"
+  schema={[articleSchema, breadcrumbSchema]}
+  ogImage={`og/policy-${slugOf(entry.id)}.png`}
+  ogAlt={`${entry.data.shortTitle} — Next Step Studios`}
+>
   <section class="page-head">
     <div class="container">
       <div class="page-head-stack" style="max-width: 62rem;">
@@ -39,8 +73,22 @@ const toc = headings.filter((heading) => heading.depth === 2);
           <span>{entry.data.docStatus}</span>
           <span>Applies to · Discord bot</span>
           <span>{readingLabel(entry.body)}</span>
+          <span>Updated {formatDate(entry.data.updated)}</span>
         </div>
         <DraftNotice docStatus={entry.data.docStatus} version={entry.data.version} />
+        <div class="reading-controls" data-reading-controls aria-label="Reading options">
+          <span class="label">Reading</span>
+          <div class="reading-group" role="group" aria-label="Text size">
+            <button type="button" data-reading-size="sm" aria-pressed="false">A−</button>
+            <button type="button" data-reading-size="md" aria-pressed="true">A</button>
+            <button type="button" data-reading-size="lg" aria-pressed="false">A+</button>
+          </div>
+          <div class="reading-group" role="group" aria-label="Line width">
+            <button type="button" data-reading-width="normal" aria-pressed="true">Normal width</button>
+            <button type="button" data-reading-width="wide" aria-pressed="false">Wide</button>
+          </div>
+        </div>
+
         <div class="doc-actions">
           <a class="btn btn-primary" href={`/downloads/${slugOf(entry.id)}.pdf`} download={`${slugOf(entry.id)}.pdf`}>
             Download PDF
@@ -54,6 +102,9 @@ const toc = headings.filter((heading) => heading.depth === 2);
           </a>
           <a class="text-link doc-action-link" href={`/downloads/print/${slugOf(entry.id)}`}>
             Print edition →
+          </a>
+          <a class="text-link doc-action-link" href={`/policies/versions/${slugOf(entry.id)}`} style="font-size: 0.8125rem;">
+            Version history ({versions.length}) →
           </a>
           <a class="text-link doc-action-link" href="/downloads" style="font-size: 0.8125rem;">
             All files →
@@ -73,7 +124,7 @@ const toc = headings.filter((heading) => heading.depth === 2);
 
   <div class="container">
     <div class="doc-layout">
-      <article class="prose">
+      <article class="prose" data-policy-prose>
         <Content />
       </article>
 
@@ -119,6 +170,44 @@ const toc = headings.filter((heading) => heading.depth === 2);
   </div>
 
   <script>
+    // Reading controls: three text sizes and two measures, remembered locally.
+    // Preferences live in localStorage only, never on a server.
+    const controls = document.querySelector<HTMLElement>('[data-reading-controls]');
+    if (controls) {
+      const root = document.documentElement;
+      const storedSize = localStorage.getItem('nss-reading-size') ?? 'md';
+      const storedWidth = localStorage.getItem('nss-reading-width') ?? 'normal';
+
+      const apply = (size: string, width: string) => {
+        root.dataset.readingSize = size;
+        root.dataset.readingWidth = width;
+        controls.querySelectorAll<HTMLButtonElement>('[data-reading-size]').forEach((button) => {
+          button.setAttribute('aria-pressed', String(button.dataset.readingSize === size));
+        });
+        controls.querySelectorAll<HTMLButtonElement>('[data-reading-width]').forEach((button) => {
+          button.setAttribute('aria-pressed', String(button.dataset.readingWidth === width));
+        });
+      };
+
+      apply(storedSize, storedWidth);
+
+      controls.querySelectorAll<HTMLButtonElement>('[data-reading-size]').forEach((button) => {
+        button.addEventListener('click', () => {
+          const size = button.dataset.readingSize ?? 'md';
+          localStorage.setItem('nss-reading-size', size);
+          apply(size, root.dataset.readingWidth ?? 'normal');
+        });
+      });
+
+      controls.querySelectorAll<HTMLButtonElement>('[data-reading-width]').forEach((button) => {
+        button.addEventListener('click', () => {
+          const width = button.dataset.readingWidth ?? 'normal';
+          localStorage.setItem('nss-reading-width', width);
+          apply(root.dataset.readingSize ?? 'md', width);
+        });
+      });
+    }
+
     const toc = document.querySelector<HTMLElement>('.toc');
 
     if (toc) {

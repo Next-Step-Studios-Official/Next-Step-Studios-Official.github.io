@@ -18,9 +18,29 @@ const { title, tagline, status, category, summary } = entry.data;
 
 const isBot = entry.id === 'next-step-bot';
 const groups = modulesByGroup();
+
+const projectSchema = {
+  '@type': 'CreativeWork',
+  name: title,
+  description: summary,
+  genre: category,
+  creativeWorkStatus: status,
+  ...(entry.data.updated ? { dateModified: entry.data.updated.toISOString() } : {}),
+  creator: { '@id': `${(Astro.site ?? new URL('https://next-step-studios-official.github.io')).origin}#organization` },
+};
+
+const formatDate = (date: Date) =>
+  new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }).format(date);
 ---
 
-<Base title={title} description={summary} path={`/projects/${entry.id}`}>
+<Base
+  title={title}
+  description={summary}
+  path={`/projects/${entry.id}`}
+  schema={projectSchema}
+  ogImage={`og/project-${entry.id}.png`}
+  ogAlt={`${title} — Next Step Studios`}
+>
   <section class="page-head">
     <div class="container">
       <div class="page-head-stack">
@@ -36,10 +56,24 @@ const groups = modulesByGroup();
           <span>Category · {category}</span>
           <span>Operated by one person, for one server</span>
           {isBot && <span>{BOT_MODULES.length} modules · {moduleCommandCount()} commands listed</span>}
+          {entry.data.updated && <span>Status reviewed {formatDate(entry.data.updated)}</span>}
         </div>
       </div>
     </div>
   </section>
+
+  {entry.data.cover && (
+    <div class="container">
+      <img
+        class="project-hero-cover"
+        src={entry.data.cover}
+        alt=""
+        width={1100}
+        height={619}
+        loading="eager"
+      />
+    </div>
+  )}
 
   <section class="section">
     <div class="container">
@@ -63,7 +97,7 @@ const groups = modulesByGroup();
                 Where the project page still calls an area planned, that is what it says here.
               </p>
             </div>
-            <span class="read-time">{BOT_MODULES.length} modules</span>
+            <a class="read-time text-link" href="/modules">{BOT_MODULES.length} modules →</a>
           </div>
 
           {groups.map(({ group, modules }) => (

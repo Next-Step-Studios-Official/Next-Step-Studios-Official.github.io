@@ -1,0 +1,199 @@
+---
+import Base from '../../layouts/Base.astro';
+import { BOT_MODULES, MODULE_STATUS_LABEL } from '../../lib/modules';
+import { COMMANDS } from '../../lib/commands';
+import { SITE } from '../../lib/site';
+
+export function getStaticPaths() {
+  return BOT_MODULES.map((module, index) => ({
+    params: { id: module.id },
+    props: {
+      module,
+      previous: BOT_MODULES[index - 1],
+      next: BOT_MODULES[index + 1],
+    },
+  }));
+}
+
+const { module, previous, next } = Astro.props;
+
+/** The policy that governs the data this module touches. */
+const POLICY_BY_MODULE: Record<string, string[]> = {
+  tickets: ['privacy', 'data-retention', 'moderation'],
+  applications: ['privacy', 'data-retention', 'security'],
+  announcements: ['community-guidelines'],
+  welcome: ['privacy'],
+  loa: ['data-retention'],
+  moderation: ['moderation', 'community-guidelines'],
+  appeals: ['moderation'],
+  roles: ['security'],
+  logging: ['security', 'privacy'],
+  links: [],
+  rules: ['community-guidelines'],
+  faq: [],
+  suggestions: ['privacy', 'acceptable-use'],
+  giveaways: ['privacy'],
+  polls: ['privacy'],
+  reminders: ['privacy', 'data-retention'],
+  purge: ['moderation', 'data-retention'],
+  'server-stats': [],
+  versioning: [],
+  about: [],
+  fun: ['acceptable-use'],
+  minigames: ['acceptable-use'],
+  economy: ['privacy'],
+  administration: ['security'],
+  automation: [],
+  information: ['privacy'],
+  activity: ['privacy'],
+};
+
+const policySlugs = POLICY_BY_MODULE[module.id] ?? [];
+const relatedCommands = COMMANDS.filter((command) =>
+  (module.commands ?? []).some((name) => `/${command.name}` === name),
+);
+
+const touchpoints = [
+  {
+    label: 'What it reads',
+    body:
+      module.status === 'planned'
+        ? 'Nothing. The module is not a working feature, so it reads no data.'
+        : 'Discord events and the records needed for its own feature. No module reads another module’s records directly.',
+  },
+  {
+    label: 'What it stores',
+    body:
+      module.status === 'planned'
+        ? 'Nothing yet.'
+        : 'Only the records its feature needs, in the bot’s own SQLite database. Retention is defined by record type in the Data Retention and Deletion Policy.',
+  },
+  {
+    label: 'Who can use it',
+    body:
+      module.id === 'moderation' || module.id === 'purge' || module.id === 'administration'
+        ? 'Staff only, with Discord permissions checked before the action runs.'
+        : 'Members for member-facing commands; staff for the staff commands in the same module.',
+  },
+];
+---
+
+<Base
+  title={`${module.name} module`}
+  description={module.summary}
+  path="/modules"
+>
+  <section class="page-head">
+    <div class="container">
+      <div class="page-head-stack">
+        <p class="eyebrow">
+          <a class="text-link" href="/modules">Bot modules</a> · {module.group}
+        </p>
+        <h1 class="display display--page">{module.name}</h1>
+        <p class="lede">{module.summary}</p>
+        <div class="meta-bar">
+          <span class={`status status--${module.status}`}>{MODULE_STATUS_LABEL[module.status]}</span>
+          <span>{relatedCommands.length} documented commands</span>
+          <span>Module {module.id}</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--flush">
+    <div class="container">
+      <div class="module-detail-grid">
+        <article class="prose module-prose">
+          <h2>What it does</h2>
+          <p>{module.summary}</p>
+
+          <h2>Commands</h2>
+          {relatedCommands.length > 0 ? (
+            <div class="cmd-group">
+              <div class="cmd-group-head">
+                <h3>{module.name}</h3>
+                <span class="label">{relatedCommands.length} commands</span>
+              </div>
+              <ul class="cmd-list">
+                {relatedCommands.map((command) => (
+                  <li class="cmd-row">
+                    <span class="cmd-name">/{command.name}</span>
+                    <span class="cmd-desc">{command.description}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : module.commands && module.commands.length > 0 ? (
+            <ul class="command-inline">
+              {module.commands.map((command) => <li><code>{command}</code></li>)}
+            </ul>
+          ) : (
+            <p class="muted">
+              No slash commands are defined for this module in the source. It may work through
+              events, buttons or configuration instead.
+            </p>
+          )}
+
+          <h2>Data</h2>
+          <div class="touchpoint-list">
+            {touchpoints.map((point) => (
+              <div class="touchpoint">
+                <p class="label">{point.label}</p>
+                <p>{point.body}</p>
+              </div>
+            ))}
+          </div>
+
+          {policySlugs.length > 0 && (
+            <>
+              <h2>Governing policies</h2>
+              <ul class="link-list">
+                {policySlugs.map((slug) => (
+                  <li>
+                    <a class="text-link" href={`/policies/bot/${slug}`}>Read the {slug.replace('-', ' ')} policy →</a>
+                  </li>
+                ))}
+                <li>
+                  <a class="text-link" href="/trust">Trust centre: everything in one place →</a>
+                </li>
+              </ul>
+            </>
+          )}
+        </article>
+
+        <aside class="module-aside">
+          <div class="panel module-aside-panel">
+            <p class="label">Module status</p>
+            <p class={`status status--${module.status}`}>{MODULE_STATUS_LABEL[module.status]}</p>
+            <p class="muted">
+              {module.status === 'in-source'
+                ? 'Files and command definitions exist. Behaviour has not been confirmed end to end.'
+                : module.status === 'partial'
+                  ? 'Part of this area is implemented; the rest is not.'
+                  : 'This is not a working feature yet. Nothing here should be treated as available.'}
+            </p>
+            <a class="text-link" href="/projects/next-step-bot">Project status →</a>
+          </div>
+
+          <div class="panel module-aside-panel">
+            <p class="label">Report a problem</p>
+            <p class="muted">Something wrong on this page, or a module described inaccurately?</p>
+            <a class="text-link" href={`mailto:${SITE.contactEmail}`}>{SITE.contactEmail}</a>
+          </div>
+        </aside>
+      </div>
+
+      <nav class="module-pager" aria-label="Module navigation">
+        <span>
+          {previous && (
+            <a class="text-link" href={`/modules/${previous.id}`}>← {previous.name}</a>
+          )}
+        </span>
+        <a class="text-link" href="/modules">All modules</a>
+        <span>
+          {next && <a class="text-link" href={`/modules/${next.id}`}>{next.name} →</a>}
+        </span>
+      </nav>
+    </div>
+  </section>
+</Base>

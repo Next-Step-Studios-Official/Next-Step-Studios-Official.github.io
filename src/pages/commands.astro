@@ -10,6 +10,7 @@ const total = COMMANDS.length;
   title="Command reference"
   description="Every slash command in the Next Step Bot, grouped by what it does, with the same honest status labels the rest of the site uses."
   path="/commands"
+  ogImage="og/commands.png"
 >
   <section class="page-head">
     <div class="container">
@@ -111,9 +112,58 @@ const total = COMMANDS.length;
           status for each module; the policies describe what the commands may do with data.
         </p>
         <div class="callout-actions">
-          <a class="btn" href="/projects/next-step-bot">Module status <span class="btn-arrow" aria-hidden="true">→</span></a>
+          <a class="btn" href="/modules">Module register <span class="btn-arrow" aria-hidden="true">→</span></a>
           <a class="btn" href="/policies">Policies</a>
+          <a class="btn" href="/downloads/command-cheatsheet.pdf" download>Cheatsheet PDF</a>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">In practice</p>
+          <h2 class="section-title" style="margin-top: 0.75rem;">What a few of them look like</h2>
+          <p class="section-sub">
+            Rebuilt in HTML, not screenshots: these show the shape of the interaction without
+            pretending to be live output, and they use no real member data.
+          </p>
+        </div>
+      </div>
+
+      <div class="mockup-grid">
+        <figure class="mock-discord">
+          <div class="mock-head"><span class="mock-dot"></span> <span>/ticket-panel</span></div>
+          <div class="mock-embed">
+            <p class="mock-title">Support tickets</p>
+            <p class="mock-body">Need help? Open a private ticket and a member of staff will pick it up. One ticket per issue.</p>
+            <div class="mock-select">Choose a category… <span aria-hidden="true">▾</span></div>
+          </div>
+          <figcaption>Posts the persistent panel. The select menu creates a private channel.</figcaption>
+        </figure>
+
+        <figure class="mock-discord">
+          <div class="mock-head"><span class="mock-dot mock-dot--ephemeral"></span> <span>/status</span></div>
+          <div class="mock-ephemeral">Only you can see this</div>
+          <div class="mock-embed">
+            <p class="mock-title">Application status</p>
+            <p class="mock-body">Your application is <strong>under review</strong>. You will be contacted if an interview is needed.</p>
+            <p class="mock-meta">Submitted · 12 days ago</p>
+          </div>
+          <figcaption>A private reply. Application data is covered by the privacy and retention policies.</figcaption>
+        </figure>
+
+        <figure class="mock-discord">
+          <div class="mock-head"><span class="mock-dot"></span> <span>/suggest</span></div>
+          <div class="mock-embed">
+            <p class="mock-title">Suggestion · #142</p>
+            <p class="mock-body">Add a channel for weekly screenshots so the showcase stays readable.</p>
+            <div class="mock-buttons"><span>▲ 14</span><span>▼ 2</span><span>Status · Open</span></div>
+          </div>
+          <figcaption>Suggestions can be searched and their status changed by staff.</figcaption>
+        </figure>
       </div>
     </div>
   </section>

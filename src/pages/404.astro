@@ -1,22 +1,57 @@
 ---
 import Base from '../layouts/Base.astro';
+
+const suggestions = [
+  { href: '/projects', label: 'Projects', note: 'What exists, and at what stage' },
+  { href: '/commands', label: 'Command reference', note: 'All 51 slash commands' },
+  { href: '/policies', label: 'Policies', note: 'The seven bot documents' },
+  { href: '/trust', label: 'Trust centre', note: 'Data, security and requests' },
+  { href: '/modules', label: 'Module register', note: 'The bot, module by module' },
+  { href: '/downloads', label: 'Downloads', note: 'Every document as a file' },
+];
 ---
 
-<Base title="Page not found" description="That page doesn't exist." path="/404">
-  <section class="page-head">
+<Base title="Page not found" description="That page doesn't exist — search the site or take one of the suggested routes." path="/404">
+  <section class="page-head page-head--center">
     <div class="container">
       <div class="page-head-stack">
         <p class="eyebrow">Error 404</p>
-        <h1 class="display display--page">That page isn't here.</h1>
+        <p class="error-code" aria-hidden="true">404</p>
+        <h1 class="display display--page">That step doesn't exist.</h1>
         <p class="lede">
-          The link may be out of date, or the address may be mistyped. Everything the site
-          publishes is reachable from the pages below.
+          The link may be out of date, or the address may be mistyped. Search the whole site below,
+          or take one of the routes that definitely exist.
         </p>
-        <div class="hero-actions">
-          <a class="btn btn-primary" href="/">Back to the home page</a>
-          <a class="btn" href="/policies">Bot policies</a>
-        </div>
+
+        <form class="search-form search-form--page" action="/search" method="get" role="search">
+          <label class="search-field">
+            <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <circle cx="6.8" cy="6.8" r="4.4" stroke="currentColor" stroke-width="1.3" />
+              <path d="M10.2 10.2 14 14" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" />
+            </svg>
+            <input type="search" name="q" placeholder="Search policies, commands, modules…" aria-label="Search the site" autocomplete="off" />
+          </label>
+          <button type="submit" class="btn btn-primary">Search</button>
+        </form>
       </div>
+    </div>
+  </section>
+
+  <section class="section section--flush">
+    <div class="container">
+      <div class="card-grid suggestion-grid">
+        {suggestions.map((item) => (
+          <a class="panel panel-link suggestion-card" href={item.href}>
+            <h2>{item.label}</h2>
+            <p>{item.note}</p>
+            <span class="card-arrow" aria-hidden="true">→</span>
+          </a>
+        ))}
+      </div>
+      <p class="muted" style="margin-top: 1.5rem;">
+        Press <kbd>?</kbd> anywhere on the site for the keyboard shortcuts, or
+        <kbd>Ctrl</kbd> + <kbd>K</kbd> for the command palette.
+      </p>
     </div>
   </section>
 </Base>

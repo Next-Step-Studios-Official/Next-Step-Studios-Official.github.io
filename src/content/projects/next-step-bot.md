@@ -6,6 +6,8 @@ category: Discord bot
 summary: Server tooling built for a single private Discord server — applications and staff review, support tickets, announcements, and administration. In development; not publicly installable.
 featured: true
 order: 1
+cover: /images/project-bot.webp
+updated: 2026-11-21
 ---
 
 ## What it is

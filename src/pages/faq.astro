@@ -2,12 +2,23 @@
 import Base from '../layouts/Base.astro';
 import { FAQ } from '../lib/faq';
 import { SITE } from '../lib/site';
+
+const faqSchema = {
+  '@type': 'FAQPage',
+  mainEntity: FAQ.map((entry) => ({
+    '@type': 'Question',
+    name: entry.question,
+    acceptedAnswer: { '@type': 'Answer', text: entry.answer },
+  })),
+};
 ---
 
 <Base
   title="FAQ"
   description="Straight answers about the Next Step Bot, the Discord server, data, moderation, privacy and this website."
   path="/faq"
+  schema={faqSchema}
+  ogImage="og/faq.png"
 >
   <section class="page-head">
     <div class="container">

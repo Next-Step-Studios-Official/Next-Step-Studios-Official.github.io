@@ -6,6 +6,7 @@ docStatus: "Draft for review. Not yet effective."
 appliesTo: "The Next Step Studios Discord bot operating in the single private Next Step Studios Discord server"
 order: 1
 summary: "The terms governing use of the Next Step Studios Discord bot."
+updated: 2026-11-21
 ---
 
 ## 1. Introduction

@@ -1,0 +1,134 @@
+---
+import Base from '../../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+import { snapshotsFor, diffLines, diffSummary } from '../../../lib/policyVersions';
+
+export async function getStaticPaths() {
+  const policies = await getCollection('policies');
+  return policies.map((entry) => ({
+    params: { slug: entry.id.replace(/^bot\//, '') },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const slug = entry.id.replace(/^bot\//, '');
+const snapshots = snapshotsFor(slug);
+const latest = snapshots[0];
+const changes = latest ? diffLines(latest.body, entry.body ?? '') : [];
+const summary = diffSummary(changes);
+const changed = changes.filter((line) => line.kind !== 'same');
+const hasChanges = summary.added > 0 || summary.removed > 0;
+
+const formatDate = (date: Date) =>
+  new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }).format(date);
+---
+
+<Base
+  title={`${entry.data.shortTitle} — version history`}
+  description={`Recorded versions of the ${entry.data.shortTitle} for the Next Step Studios Discord bot.`}
+  path="/policies"
+>
+  <section class="page-head">
+    <div class="container">
+      <div class="page-head-stack">
+        <p class="eyebrow">
+          <a class="text-link" href="/policies">Policies</a> ·
+          <a class="text-link" href={`/policies/bot/${slug}`}>{entry.data.shortTitle}</a> ·
+          Versions
+        </p>
+        <h1 class="display display--page">Version history</h1>
+        <p class="lede">
+          Every version of this document is kept as a text snapshot. The newest snapshot is compared
+          with the text published today, so an unrecorded edit is caught rather than hidden.
+        </p>
+        <div class="meta-bar">
+          <span>Current · v{entry.data.version}</span>
+          <span>{snapshots.length} recorded</span>
+          <span>Updated {formatDate(entry.data.updated)}</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--flush">
+    <div class="container">
+      <div class="version-list">
+        {snapshots.length === 0 && (
+          <div class="notice notice--neutral">
+            <span class="status status--info">No snapshots yet</span>
+            <p class="notice-body">
+              No snapshot has been recorded for this document. Run <code>npm run snapshot</code> to
+              record the current text as the first version.
+            </p>
+          </div>
+        )}
+        {snapshots.map((snapshot, index) => (
+          <div class="panel version-row">
+            <div>
+              <p class="label">{index === 0 ? 'Current version' : 'Recorded version'}</p>
+              <h2>v{snapshot.version}</h2>
+            </div>
+            <div class="version-meta">
+              <span>{formatDate(entry.data.updated)}</span>
+              <span>{snapshot.body.length.toLocaleString('en-GB')} characters</span>
+              <span>{index === 0 ? 'snapshot matches the current text' : 'superseded'}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <h2>Compared with the published text</h2>
+        <span class="label">
+          {hasChanges ? `${summary.added} added · ${summary.removed} removed` : 'No differences'}
+        </span>
+      </div>
+
+      {latest ? (
+        hasChanges ? (
+          <>
+            <p class="lede">
+              The document has changed since v{latest.version} was recorded. Either the recorded
+              snapshot is out of date, or a new version needs publishing — the diff shows exactly
+              what changed.
+            </p>
+            <pre class="diff" aria-label="Differences between the snapshot and the published text">
+              {changed.map((line) => (
+                <span class:list={['diff-line', `diff-line--${line.kind}`]}>
+                  {line.kind === 'add' ? '+ ' : '- '}{line.text}
+                  {'\n'}
+                </span>
+              ))}
+            </pre>
+          </>
+        ) : (
+          <div class="notice notice--neutral">
+            <span class="status status--ready">Verified</span>
+            <p class="notice-body">
+              The published text is byte-for-byte identical to the v{latest.version} snapshot
+              recorded on {formatDate(entry.data.updated)}. When the document changes, a diff appears
+              here until a new snapshot is recorded.
+            </p>
+          </div>
+        )
+      ) : (
+        <p class="muted">Record a snapshot to enable comparison.</p>
+      )}
+
+      <div class="notice notice--neutral" style="margin-top: 2rem;">
+        <span class="status status--info">How snapshots work</span>
+        <p class="notice-body">
+          Snapshots are plain Markdown files in <code>src/data/policy-snapshots/&lt;document&gt;/&lt;version&gt;.md</code>.
+          They are committed with the site, so the history ships with the build. Running
+          <code>npm run snapshot</code> copies the current body of each policy into a file named
+          after its frontmatter version.
+        </p>
+      </div>
+    </div>
+  </section>
+</Base>

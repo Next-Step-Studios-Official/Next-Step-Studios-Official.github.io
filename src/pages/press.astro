@@ -1,0 +1,178 @@
+---
+import Base from '../layouts/Base.astro';
+import { SITE } from '../lib/site';
+
+const files = [
+  { name: 'logo-1024.png', href: '/brand/press/logo-1024.png', size: '577 KB', note: '1024 × 1024 · white tile' },
+  { name: 'logo-512.png', href: '/brand/press/logo-512.png', size: '187 KB', note: '512 × 512 · white tile' },
+  { name: 'logo-256.png', href: '/brand/press/logo-256.png', size: '54 KB', note: '256 × 256 · white tile' },
+  { name: 'logo-128.png', href: '/brand/press/logo-128.png', size: '14 KB', note: '128 × 128 · white tile' },
+  { name: 'logo-512.webp', href: '/brand/press/logo-512.webp', size: '13 KB', note: '512 × 512 · web' },
+  { name: 'logo-on-dark.jpg', href: '/brand/press/logo-on-dark.jpg', size: '63 KB', note: '1024 × 1024 · dark background' },
+  { name: 'logo-on-light.jpg', href: '/brand/press/logo-on-light.jpg', size: '63 KB', note: '1024 × 1024 · white background' },
+  { name: 'logo-embedded.svg', href: '/brand/press/logo-embedded.svg', size: '249 KB', note: '512 × 512 · embedded raster' },
+];
+
+const colours = [
+  { name: 'Base', value: '#07080B', role: 'Background' },
+  { name: 'Ink', value: '#E9EEF7', role: 'Primary text' },
+  { name: 'Accent blue', value: '#4D8DFF', role: 'Primary accent' },
+  { name: 'Violet', value: '#A78BFA', role: 'Secondary accent' },
+  { name: 'Magenta', value: '#FF64D8', role: 'Rare highlight' },
+];
+
+const facts = [
+  { label: 'Studio', value: SITE.name },
+  { label: 'Operator', value: SITE.operator },
+  { label: 'Focus', value: 'A private Discord bot; games and tools next' },
+  { label: 'Contact', value: SITE.contactEmail },
+];
+---
+
+<Base
+  title="Press kit"
+  description="Logos, colours, a boilerplate description and contact details for writing about Next Step Studios."
+  path="/press"
+  ogImage="og/press.png"
+>
+  <section class="page-head">
+    <div class="container">
+      <div class="page-head-stack">
+        <p class="eyebrow">Press kit</p>
+        <h1 class="display display--page">Everything needed to write about the studio.</h1>
+        <p class="lede">
+          Current logos in every useful format, the colours and typefaces, a description you can
+          quote, and a permanent archive of retired marks. No sign-up, no request form.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--flush">
+    <div class="container">
+      <div class="press-layout">
+        <div class="panel press-logo-panel">
+          <p class="label">Current mark</p>
+          <img src="/brand/press/logo-512.png" width="256" height="256" alt="Next Step Studios logo" />
+          <p class="muted">The current logo, unchanged since the site launch.</p>
+        </div>
+
+        <div>
+          <h2>Boilerplate</h2>
+          <p class="press-quote">
+            “Next Step Studios is the independent creative and software practice of Candler Shaw.
+            It builds a private Discord bot for one community server, and games and tools are the
+            direction it is working toward.”
+          </p>
+          <p class="muted">Use it whole; it is written to be accurate rather than flattering.</p>
+
+          <h2 style="margin-top: 2rem;">Quick facts</h2>
+          <dl class="fact-grid fact-grid--press">
+            {facts.map((fact) => (
+              <div class="fact">
+                <dt>{fact.label}</dt>
+                <dd>{fact.value}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <h2>Logo downloads</h2>
+        <span class="label">8 files</span>
+      </div>
+      <ul class="download-list">
+        {files.map((file) => (
+          <li class="download-row">
+            <div>
+              <a class="text-link" href={file.href} download>{file.name}</a>
+              <span class="muted download-note">{file.note}</span>
+            </div>
+            <span class="label">{file.size}</span>
+          </li>
+        ))}
+      </ul>
+      <div class="notice notice--neutral">
+        <span class="status status--info">About these files</span>
+        <p class="notice-body">
+          The mark is drawn on a white tile, so the PNGs carry that white background rather than
+          transparency; the dark and light JPGs are flattened for their backgrounds. There is no
+          vector master yet: the SVG embeds the 512px raster, which scales in layout but is not a
+          redraw. When a true vector and a transparent version exist they will be added at new
+          filenames and these will move to the archive — links never break.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <h2>Colours and type</h2>
+        <a class="text-link" href="/brand">Full guidelines →</a>
+      </div>
+      <div class="swatch-grid">
+        {colours.map((colour) => (
+          <div class="swatch">
+            <span class="swatch-chip" style={`background:${colour.value}`} aria-hidden="true"></span>
+            <span class="swatch-name">{colour.name}</span>
+            <code>{colour.value}</code>
+            <span class="muted">{colour.role}</span>
+          </div>
+        ))}
+      </div>
+      <p class="muted" style="margin-top: 1rem;">
+        Typefaces: Space Grotesk for display, Inter for body, JetBrains Mono for code and labels.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <h2>Archive</h2>
+        <span class="label">Permanent</span>
+      </div>
+      <div class="archive-grid">
+        <div class="panel archive-card">
+          <img src="/brand/archive/neon-emblem-2026-07-25.webp" width="320" height="320" alt="Retired neon orbit emblem" loading="lazy" />
+          <div>
+            <p class="label">Retired · 25 July 2026</p>
+            <h3>Neon orbit emblem</h3>
+            <p class="muted">
+              The mark used before the current logo. Kept because old posts, videos and documents
+              still show it, and a press kit that erases its own history is not much of an archive.
+            </p>
+            <p class="archive-links">
+              <a class="text-link" href="/brand/archive/neon-emblem-2026-07-25.png" download>PNG · 1024px</a>
+              <a class="text-link" href="/brand/archive/neon-emblem-2026-07-25.webp" download>WebP · 512px</a>
+            </p>
+          </div>
+        </div>
+      </div>
+      <p class="muted" style="margin-top: 1rem;">
+        Archived marks live under <code>/brand/archive/</code> with the date in the filename. They
+        are never overwritten and never deleted, so a link in an old article keeps working.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="notice notice--neutral">
+        <span class="status status--info">Usage</span>
+        <p class="notice-body">
+          Use the mark to refer to Next Step Studios in editorial work. Do not alter it, recolour it,
+          stretch it, or use it to imply endorsement. The
+          <a class="text-link" href="/brand">brand guidelines</a> give the exact rules, and
+          <a class="text-link" href="/contact">contact</a> is open if something is unclear.
+        </p>
+      </div>
+    </div>
+  </section>
+</Base>

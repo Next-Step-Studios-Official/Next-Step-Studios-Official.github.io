@@ -25,6 +25,10 @@ const projects = defineCollection({
     featured: z.boolean().default(false),
     /** Used for ordering the projects index. */
     order: z.number().default(100),
+    /** Optional cover art, relative to /public. */
+    cover: z.string().optional(),
+    /** Last date the status or copy was reviewed. */
+    updated: z.coerce.date().optional(),
   }),
 });
 
@@ -51,6 +55,8 @@ const policies = defineCollection({
     appliesTo: z.string(),
     order: z.number().default(100),
     summary: z.string(),
+    /** Date this version was recorded, used for version history. */
+    updated: z.coerce.date(),
   }),
 });
 
