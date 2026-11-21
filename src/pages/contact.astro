@@ -3,12 +3,14 @@ import Base from '../layouts/Base.astro';
 import { Image } from 'astro:assets';
 import supportBanner from '../assets/banners/support.jpg';
 import { SITE } from '../lib/site';
-import { discordInvite, DISCORD } from '../lib/discord';
+import { discordInvite, discordTicketPanel, DISCORD } from '../lib/discord';
 import { CONTACT_ENDPOINT } from '../lib/contact';
 
 const mailto = `mailto:${SITE.contactEmail}`;
 /** Null until a usable invite is configured; the markup then degrades to /links. */
 const invite = discordInvite();
+/** The ticket panel channel, when its id is configured. */
+const ticketPanel = discordTicketPanel();
 
 /**
  * The contact service is optional at build time. Without an endpoint the form
@@ -182,7 +184,10 @@ const subjects = [
           <p class="label">How it works</p>
           <ol class="ticket-steps">
             <li>Join the server with the public invite link.</li>
-            <li>Open the ticket channel and choose the ticket type that matches the question.</li>
+            <li>
+              Open the ticket panel and choose the ticket type that matches the question — the
+              button on the right goes straight to it.
+            </li>
             <li>A private channel is created, visible to you and the staff team.</li>
             <li>Reply there, or use the waiting and close commands when the topic is resolved.</li>
           </ol>
@@ -207,6 +212,11 @@ const subjects = [
             Form and email messages are read by the studio operator.
           </p>
           <div class="doc-actions" style="margin-top: 1rem;">
+            {ticketPanel && (
+              <a class="btn btn-primary" href={ticketPanel} rel="noopener">
+                Open the ticket panel
+              </a>
+            )}
             {invite && (
               <a class="btn" href={invite} rel="noopener">
                 Open {DISCORD.serverName} in Discord
