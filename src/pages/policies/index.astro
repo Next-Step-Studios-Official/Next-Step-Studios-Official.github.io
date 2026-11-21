@@ -1,0 +1,162 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+import { githubUrlForSlug, slugOf } from '../../lib/documents';
+import { readingLabel } from '../../lib/reading';
+
+const policies = (await getCollection('policies')).sort((a, b) => a.data.order - b.data.order);
+const version = policies[0]?.data.version ?? '—';
+---
+
+<Base
+  title="Policies"
+  description="The public policy documents for the Next Step Studios Discord bot, published here at stable addresses."
+  path="/policies"
+>
+  <section class="page-head">
+    <div class="container">
+      <div class="page-head-stack">
+        <p class="eyebrow">Policies</p>
+        <h1 class="display display--page">The bot's public documents.</h1>
+        <p class="lede">
+          Seven documents govern the Next Step Studios Discord bot. They are their own set,
+          separate from anything on this website, and every one of them is currently a draft
+          awaiting review.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--flush">
+    <div class="container">
+      <div class="notice" role="note">
+        <span class="status status--draft">Draft · v{version}</span>
+        <p class="notice-body">
+          All seven documents below are marked <strong>draft for review</strong> and
+          <strong>not yet effective</strong>. They are published here so they have stable
+          addresses and can be read without the bot being online. They do not yet represent
+          operative policies, and nothing here claims legal compliance.
+        </p>
+      </div>
+
+      <div class="toolbar" style="margin-top: 1.5rem;" data-docs-toolbar>
+        <div class="toolbar-row">
+          <label class="search-field">
+            <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <circle cx="6.8" cy="6.8" r="4.4" stroke="currentColor" stroke-width="1.3" />
+              <path d="M10.2 10.2 14 14" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" />
+            </svg>
+            <input
+              type="search"
+              data-doc-search
+              placeholder="Search the seven documents…"
+              aria-label="Search documents by title or summary"
+              autocomplete="off"
+            />
+          </label>
+          <span class="read-time" data-doc-count aria-live="polite">{policies.length} documents</span>
+        </div>
+      </div>
+
+      <div class="doc-grid" data-doc-grid>
+        {
+          policies.map((policy) => {
+            const slug = slugOf(policy.id);
+            return (
+              <article
+                class="panel doc-card"
+                data-doc
+                data-search={`${policy.data.title} ${policy.data.shortTitle} ${policy.data.summary}`.toLowerCase()}
+              >
+                <span class="status status--draft" style="align-self: flex-start;">
+                  v{policy.data.version} · draft
+                </span>
+                <h3>
+                  <a href={`/policies/bot/${slug}`}>{policy.data.shortTitle}</a>
+                </h3>
+                <p>{policy.data.summary}</p>
+                <div class="doc-card-meta">
+                  <span>{readingLabel(policy.body)}</span>
+                  <span>Applies to · Discord bot</span>
+                </div>
+                <div class="doc-card-actions">
+                  <a class="text-link" href={`/policies/bot/${slug}`}>Read →</a>
+                  <a class="text-link" href={`/downloads/${slug}.md`} download={`${slug}.md`}>
+                    Download .md
+                  </a>
+                  <a class="text-link" href={githubUrlForSlug(slug)} rel="noopener">GitHub ↗</a>
+                </div>
+              </article>
+            );
+          })
+        }
+      </div>
+
+      <p class="empty-state" data-doc-empty>
+        No document matches that search. Try a shorter word, or clear the field.
+      </p>
+
+      <p style="color: var(--color-muted); font-size: 0.875rem; margin-top: 1.25rem;">
+        Every document can also be downloaded as a plain Markdown file, with no form or
+        email address required. <a class="text-link" href="/downloads">All downloads →</a>
+      </p>
+
+      <div class="split" style="margin-top: 2rem;">
+        <div class="panel panel--pad">
+          <p class="label">These cover the bot only</p>
+          <p style="color: var(--color-muted); font-size: 0.9375rem; margin-top: 0.6rem;">
+            The documents describe the Discord bot operating in one private server. They do
+            not cover this website, and they are not a website privacy policy.
+          </p>
+          <a class="text-link" href="/website-privacy" style="display: inline-block; margin-top: 0.85rem; font-size: 0.875rem;">
+            Website privacy notice →
+          </a>
+        </div>
+        <div class="panel panel--pad">
+          <p class="label">Privacy requests</p>
+          <p style="color: var(--color-muted); font-size: 0.9375rem; margin-top: 0.6rem;">
+            There is no automated request system. Requests for access, correction or deletion
+            are sent by email and handled by one person.
+          </p>
+          <a class="text-link" href="/contact#privacy-requests" style="display: inline-block; margin-top: 0.85rem; font-size: 0.875rem;">
+            How to submit a request →
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    const toolbar = document.querySelector<HTMLElement>('[data-docs-toolbar]');
+    const grid = document.querySelector<HTMLElement>('[data-doc-grid]');
+
+    if (toolbar && grid) {
+      const search = toolbar.querySelector<HTMLInputElement>('[data-doc-search]');
+      const countEl = toolbar.querySelector<HTMLElement>('[data-doc-count]');
+      const emptyEl = document.querySelector<HTMLElement>('[data-doc-empty]');
+      const cards = Array.from(grid.querySelectorAll<HTMLElement>('[data-doc]'));
+
+      const apply = () => {
+        const query = (search?.value ?? '').trim().toLowerCase();
+        let visible = 0;
+
+        cards.forEach((card) => {
+          const matches = !query || (card.dataset.search ?? '').includes(query);
+          card.classList.toggle('is-hidden', !matches);
+          if (matches) visible += 1;
+        });
+
+        if (countEl) {
+          countEl.textContent =
+            visible === cards.length
+              ? `${cards.length} documents`
+              : `${visible} of ${cards.length} documents`;
+        }
+
+        emptyEl?.classList.toggle('is-visible', visible === 0);
+      };
+
+      search?.addEventListener('input', apply);
+    }
+  </script>
+</Base>

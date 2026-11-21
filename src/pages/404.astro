@@ -1,0 +1,22 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base title="Page not found" description="That page doesn't exist." path="/404">
+  <section class="page-head">
+    <div class="container">
+      <div class="page-head-stack">
+        <p class="eyebrow">Error 404</p>
+        <h1 class="display display--page">That page isn't here.</h1>
+        <p class="lede">
+          The link may be out of date, or the address may be mistyped. Everything the site
+          publishes is reachable from the pages below.
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="/">Back to the home page</a>
+          <a class="btn" href="/policies">Bot policies</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</Base>

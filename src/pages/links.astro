@@ -1,0 +1,231 @@
+---
+import Base from '../layouts/Base.astro';
+import { Image } from 'astro:assets';
+import linksBanner from '../assets/banners/links.jpg';
+import { LINK_SECTIONS, enabledLinks, DOCS_REPO_URL } from '../lib/links';
+
+const sections = LINK_SECTIONS.map((section) => ({
+  ...section,
+  entries: enabledLinks().filter((entry) => entry.section === section.id),
+})).filter((section) => section.entries.length > 0);
+
+const total = sections.reduce((count, section) => count + section.entries.length, 0);
+
+/**
+ * The bot's X brand colour is #000000, which would be invisible on this
+ * background. Very dark accents are lifted to a readable neutral instead.
+ */
+const readableAccent = (hex?: string) => {
+  if (!hex) return 'var(--color-accent)';
+  const value = hex.replace('#', '');
+  if (value.length !== 6) return hex;
+  const r = parseInt(value.slice(0, 2), 16);
+  const g = parseInt(value.slice(2, 4), 16);
+  const b = parseInt(value.slice(4, 6), 16);
+  const luminance = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+  return luminance < 0.16 ? '#9aa6ba' : hex;
+};
+---
+
+<Base
+  title="Official links"
+  description="Every official Next Step Studios link in one place — the website, social accounts, the Discord community, the GitHub organization and the bot's policy documents."
+  path="/links"
+>
+  <section class="page-head">
+    <div class="container">
+      <div class="page-head-stack">
+        <p class="eyebrow">
+          <a class="text-link" href="/social">Social</a> · Official links
+        </p>
+        <h1 class="display display--page">Every official link, in one place.</h1>
+        <p class="lede">
+          The same panel the Discord server's <span class="mono">/links</span> command publishes —
+          the website, the social accounts, the community spaces, the repositories and the
+          policies, each one attached to the place it belongs.
+        </p>
+        <div class="meta-bar">
+          <span>{total} entries</span>
+          <span>{sections.length} sections</span>
+          <span>Mirrors the bot's links config</span>
+        </div>
+        <figure class="page-banner">
+          <Image
+            src={linksBanner}
+            alt="Next Step Studios — connect with us. Find our official social links, community hubs and resources."
+            widths={[600, 900, 1200]}
+            sizes="(max-width: 900px) 100vw, 1100px"
+          />
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--flush">
+    <div class="container">
+      <div class="toolbar" data-links-toolbar>
+        <div class="toolbar-row">
+          <label class="search-field">
+            <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <circle cx="6.8" cy="6.8" r="4.4" stroke="currentColor" stroke-width="1.3" />
+              <path d="M10.2 10.2 14 14" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" />
+            </svg>
+            <input
+              type="search"
+              data-link-search
+              placeholder="Search names, descriptions or sections…"
+              aria-label="Search the official links"
+              autocomplete="off"
+            />
+          </label>
+          <span class="read-time" data-link-count aria-live="polite">{total} entries</span>
+        </div>
+      </div>
+
+      <ol class="links-sections">
+        {
+          sections.map((section, index) => (
+            <li class="links-section panel" data-link-section>
+              <header class="links-head">
+                <span class="links-index" aria-hidden="true">
+                  {String(index + 1).padStart(2, '0')}
+                </span>
+                <div class="links-head-text">
+                  <h2 class="links-title">{section.title}</h2>
+                  <p class="links-sub">{section.description}</p>
+                </div>
+                <span class="label links-count">
+                  {section.entries.length} {section.entries.length === 1 ? 'entry' : 'entries'}
+                </span>
+              </header>
+
+              <ul class="links-rows">
+                {section.entries.map((entry) => (
+                  <li
+                    class="link-row"
+                    data-link-row
+                    data-search={`${entry.name} ${entry.description} ${section.title} ${entry.url ?? ''}`.toLowerCase()}
+                    style={`--entry-accent: ${readableAccent(entry.accent)}`}
+                  >
+                    <span class="link-dot" aria-hidden="true"></span>
+
+                    <div class="link-body">
+                      <p class="link-name">
+                        {entry.name}
+                        {entry.id === 'official_policies' && (
+                          <span class="link-kind">GitHub</span>
+                        )}
+                      </p>
+                      <p class="link-desc">{entry.description}</p>
+                      {entry.notice && <p class="link-notice">{entry.notice}</p>}
+                      {entry.type === 'email' && (
+                        <p class="link-value mono">{entry.url}</p>
+                      )}
+                    </div>
+
+                    <div class="link-action">
+                      {entry.type === 'link' && (
+                        <a
+                          class="btn"
+                          href={entry.url}
+                          rel={entry.url?.startsWith('http') ? 'me noopener' : undefined}
+                        >
+                          Open
+                          <span class="btn-arrow" aria-hidden="true">↗</span>
+                        </a>
+                      )}
+                      {entry.type === 'email' && (
+                        <button type="button" class="btn" data-copy={entry.url}>
+                          <span data-copy-label>Copy address</span>
+                        </button>
+                      )}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </li>
+          ))
+        }
+      </ol>
+
+      <p class="empty-state" data-link-empty>
+        No link matches that search. Try a platform name, or clear the field.
+      </p>
+
+      <p class="links-note">
+        Every entry above comes from one configuration file, the same structure the bot reads.
+        The policy documents themselves live in
+        <a class="text-link" href={DOCS_REPO_URL} rel="noopener">the bot-documentation repository</a>
+        and can also be read here, at <a class="text-link" href="/policies">/policies</a>.
+      </p>
+    </div>
+  </section>
+
+  <script>
+    const toolbar = document.querySelector<HTMLElement>('[data-links-toolbar]');
+
+    if (toolbar) {
+      const search = toolbar.querySelector<HTMLInputElement>('[data-link-search]');
+      const countEl = toolbar.querySelector<HTMLElement>('[data-link-count]');
+      const sections = Array.from(document.querySelectorAll<HTMLElement>('[data-link-section]'));
+      const rows = Array.from(document.querySelectorAll<HTMLElement>('[data-link-row]'));
+      const emptyEl = document.querySelector<HTMLElement>('[data-link-empty]');
+
+      const apply = () => {
+        const query = (search?.value ?? '').trim().toLowerCase();
+        let visible = 0;
+
+        rows.forEach((row) => {
+          const matches = !query || (row.dataset.search ?? '').includes(query);
+          row.style.display = matches ? '' : 'none';
+          if (matches) visible += 1;
+        });
+
+        sections.forEach((section) => {
+          const sectionRows = Array.from(section.querySelectorAll<HTMLElement>('[data-link-row]'));
+          const anyVisible = sectionRows.some((row) => row.style.display !== 'none');
+          section.style.display = anyVisible ? '' : 'none';
+        });
+
+        if (countEl) {
+          countEl.textContent =
+            visible === rows.length ? `${rows.length} entries` : `${visible} of ${rows.length} entries`;
+        }
+
+        emptyEl?.classList.toggle('is-visible', visible === 0);
+      };
+
+      search?.addEventListener('input', apply);
+
+      document.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach((button) => {
+        button.addEventListener('click', async () => {
+          const value = button.dataset.copy ?? '';
+          const label = button.querySelector<HTMLElement>('[data-copy-label]');
+          if (!value) return;
+
+          try {
+            await navigator.clipboard.writeText(value);
+          } catch {
+            const helper = document.createElement('textarea');
+            helper.value = value;
+            helper.setAttribute('readonly', '');
+            helper.style.position = 'fixed';
+            helper.style.opacity = '0';
+            document.body.appendChild(helper);
+            helper.select();
+            document.execCommand('copy');
+            helper.remove();
+          }
+
+          if (label) {
+            const original = label.textContent ?? 'Copy address';
+            label.textContent = 'Copied';
+            window.setTimeout(() => {
+              label.textContent = original;
+            }, 1600);
+          }
+        });
+      });
+    }
+  </script>
+</Base>

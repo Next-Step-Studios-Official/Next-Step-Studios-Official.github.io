@@ -1,0 +1,14 @@
+---
+const { docStatus, version } = Astro.props as { docStatus: string; version: string };
+---
+
+<div class="notice" role="note">
+  <span class="status status--draft">Draft</span>
+  <div class="notice-body">
+    <p class="notice-title">Not yet in force — version {version}</p>
+    <p>
+      This document is published for review. Status: {docStatus}
+      It has no effective date and does not yet represent an operative policy.
+    </p>
+  </div>
+</div>

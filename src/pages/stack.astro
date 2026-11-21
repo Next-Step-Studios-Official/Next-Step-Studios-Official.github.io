@@ -1,0 +1,96 @@
+---
+import Base from '../layouts/Base.astro';
+import { COMMANDS } from '../lib/commands';
+
+const site = [
+  { label: 'Framework', value: 'Astro 5, static output' },
+  { label: 'Language', value: 'TypeScript and Astro components' },
+  { label: 'Styling', value: 'Hand-written CSS, no utility framework' },
+  { label: 'Fonts', value: 'Inter, Space Grotesk, JetBrains Mono — self-hosted' },
+  { label: 'Client JavaScript', value: 'Small inline scripts, no framework bundle' },
+  { label: 'Content', value: 'Markdown collections in the repository' },
+  { label: 'Search', value: 'Generated JSON index, searched in the browser' },
+  { label: 'Hosting', value: 'GitHub Pages, built by GitHub Actions' },
+];
+
+const bot = [
+  { label: 'Language', value: 'Python' },
+  { label: 'Discord library', value: 'discord.py, slash commands' },
+  { label: 'Storage', value: 'SQLite' },
+  { label: 'Structure', value: 'Cogs, one per area of the server' },
+  { label: 'Source', value: 'Private repository' },
+  { label: 'Status', value: `In development · ${COMMANDS.length} commands in source` },
+];
+
+const absent = [
+  'No analytics, no cookies, no fingerprinting.',
+  'No accounts, no logins, no sessions.',
+  'No contact form, no email capture.',
+  'No third-party scripts, fonts, embeds or trackers.',
+  'No client-side framework and no hydration.',
+  'No database behind the website.',
+];
+---
+
+<Base
+  title="Stack"
+  description="What this website and the Discord bot are actually built with, and what has been deliberately left out."
+  path="/stack"
+>
+  <section class="page-head">
+    <div class="container">
+      <div class="page-head-stack">
+        <p class="eyebrow"><a class="text-link" href="/about">Studio</a> · Stack</p>
+        <h1 class="display display--page">Small tools, chosen on purpose.</h1>
+        <p class="lede">
+          The site is a static build with no server behind it. The bot is a Python process with a
+          SQLite file. Both are deliberately unglamorous, because the interesting part should be
+          the work, not the plumbing.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--flush">
+    <div class="container">
+      <div class="stack-grid">
+        <div class="panel panel--pad">
+          <p class="label">This website</p>
+          <dl class="stack-list">
+            {site.map((row) => (
+              <div>
+                <dt>{row.label}</dt>
+                <dd>{row.value}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+
+        <div class="panel panel--pad">
+          <p class="label">The Discord bot</p>
+          <dl class="stack-list">
+            {bot.map((row) => (
+              <div>
+                <dt>{row.label}</dt>
+                <dd>{row.value}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      </div>
+
+      <div class="panel panel--pad" style="margin-top: 1rem;">
+        <p class="label">Absent by design</p>
+        <ul class="stack-absent">
+          {absent.map((item) => <li>{item}</li>)}
+        </ul>
+        <p class="stack-note">
+          Each of those is a decision, not an omission. The
+          <a class="text-link" href="/website-privacy">website privacy notice</a> describes what that
+          means in practice, and the <a class="text-link" href="/roadmap">roadmap</a> records that it stays
+          that way.
+        </p>
+      </div>
+    </div>
+  </section>
+</Base>

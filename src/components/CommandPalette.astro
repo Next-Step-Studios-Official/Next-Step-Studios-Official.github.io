@@ -1,0 +1,227 @@
+---
+interface Item {
+  title: string;
+  href: string;
+  kind: string;
+  meta?: string;
+}
+
+const { items } = Astro.props as { items: Item[] };
+---
+
+<div class="palette" data-palette hidden>
+  <div class="palette-backdrop" data-palette-close></div>
+
+  <div class="palette-panel" role="dialog" aria-modal="true" aria-label="Search this site">
+    <div class="palette-input-row">
+      <svg class="palette-icon" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <circle cx="6.8" cy="6.8" r="4.4" stroke="currentColor" stroke-width="1.3" />
+        <path d="M10.2 10.2 14 14" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" />
+      </svg>
+      <input
+        class="palette-input"
+        data-palette-input
+        type="text"
+        inputmode="search"
+        placeholder="Search pages, policies, devlog…"
+        autocomplete="off"
+        spellcheck="false"
+        aria-label="Search this site"
+        aria-controls="palette-results"
+        role="combobox"
+        aria-expanded="true"
+        aria-autocomplete="list"
+      />
+      <kbd class="palette-esc">Esc</kbd>
+    </div>
+
+    <ul class="palette-results" id="palette-results" data-palette-results role="listbox" aria-label="Results"></ul>
+
+    <div class="palette-foot">
+      <span><kbd>↑</kbd><kbd>↓</kbd> navigate</span>
+      <span><kbd>↵</kbd> open</span>
+      <span>{items.length} destinations</span>
+    </div>
+  </div>
+</div>
+
+<script type="application/json" data-palette-index set:html={JSON.stringify(items)}></script>
+
+<script>
+  type Item = { title: string; href: string; kind: string; meta?: string };
+
+  const root = document.querySelector<HTMLElement>('[data-palette]');
+  const panel = root?.querySelector<HTMLElement>('.palette-panel');
+  const input = root?.querySelector<HTMLInputElement>('[data-palette-input]');
+  const list = root?.querySelector<HTMLUListElement>('[data-palette-results]');
+  const indexEl = document.querySelector<HTMLElement>('[data-palette-index]');
+
+  const items: Item[] = JSON.parse(indexEl?.textContent || '[]');
+  let results: Item[] = items;
+  let active = 0;
+  let isOpen = false;
+  let closeTimer: number | undefined;
+
+  const escapeHtml = (value: string) =>
+    value.replace(/[&<>"']/g, (char) =>
+      ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char] as string,
+    );
+
+  const score = (item: Item, needle: string) => {
+    if (!needle) return 1;
+    const haystack = `${item.title} ${item.kind} ${item.meta ?? ''}`.toLowerCase();
+    const exact = haystack.indexOf(needle);
+    if (exact > -1) return 1000 - exact;
+    let cursor = 0;
+    for (const char of haystack) {
+      if (char === needle[cursor]) cursor += 1;
+      if (cursor === needle.length) return 100 - haystack.indexOf(needle[0]);
+    }
+    return 0;
+  };
+
+  const render = () => {
+    if (!list) return;
+    if (results.length === 0) {
+      list.innerHTML = `<li class="palette-empty">No destination matches that.</li>`;
+      input?.removeAttribute('aria-activedescendant');
+      return;
+    }
+    list.innerHTML = results
+      .map(
+        (item, index) => `
+        <li id="palette-option-${index}" class="palette-item${index === active ? ' is-active' : ''}" role="option" aria-selected="${index === active}" data-index="${index}" data-href="${escapeHtml(item.href)}">
+          <span class="palette-kind">${escapeHtml(item.kind)}</span>
+          <span class="palette-title">${escapeHtml(item.title)}</span>
+          <span class="palette-meta">${escapeHtml(item.meta ?? '')}</span>
+          <span class="palette-arrow" aria-hidden="true">↵</span>
+        </li>`,
+      )
+      .join('');
+    input?.setAttribute('aria-activedescendant', `palette-option-${active}`);
+  };
+
+  const filter = () => {
+    const needle = (input?.value ?? '').trim().toLowerCase();
+    results = items
+      .map((item) => ({ item, rank: score(item, needle) }))
+      .filter((entry) => entry.rank > 0)
+      .sort((a, b) => b.rank - a.rank)
+      .map((entry) => entry.item);
+    active = 0;
+    render();
+    if (list) list.scrollTop = 0;
+  };
+
+  const open = (fromTrigger = false) => {
+    if (!root || !input || isOpen) return;
+    window.clearTimeout(closeTimer);
+    isOpen = true;
+    window.dispatchEvent(new CustomEvent('site:closedrawer'));
+    document.body.classList.add('palette-open');
+    root.hidden = false;
+    results = items;
+    active = 0;
+    if (input) input.value = '';
+    render();
+    // Force a style flush so the fade/scale transition always runs, even when
+    // requestAnimationFrame is throttled in a background tab.
+    void root.offsetWidth;
+    root.classList.add('is-open');
+    window.setTimeout(() => input?.focus(), fromTrigger ? 120 : 20);
+  };
+
+  const close = (returnFocus = true) => {
+    if (!root || !isOpen) return;
+    isOpen = false;
+    root.classList.remove('is-open');
+    document.body.classList.remove('palette-open');
+    closeTimer = window.setTimeout(() => {
+      if (root) root.hidden = true;
+    }, 220);
+    if (returnFocus) {
+      const trigger = document.querySelector<HTMLElement>('.palette-trigger');
+      trigger?.focus();
+    }
+  };
+
+  const go = (index: number) => {
+    const target = results[index];
+    if (target) window.location.href = target.href;
+  };
+
+  document.addEventListener('click', (event) => {
+    const target = event.target as HTMLElement;
+    if (target.closest('[data-palette-open]')) {
+      event.preventDefault();
+      open(true);
+      return;
+    }
+    if (target.closest('[data-palette-close]')) {
+      close();
+      return;
+    }
+    const option = target.closest<HTMLElement>('[data-index]');
+    if (option && option.dataset.href) {
+      window.location.href = option.dataset.href;
+    }
+  });
+
+  document.addEventListener('keydown', (event) => {
+    const typingInField =
+      event.target instanceof HTMLElement &&
+      ['INPUT', 'TEXTAREA', 'SELECT'].includes(event.target.tagName);
+
+    if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+      event.preventDefault();
+      isOpen ? close() : open();
+      return;
+    }
+
+    if (event.key === 'Escape') {
+      if (isOpen) {
+        event.preventDefault();
+        close();
+      }
+      return;
+    }
+
+    if (!isOpen) {
+      if (event.key === '/' && !typingInField) {
+        event.preventDefault();
+        open();
+      }
+      return;
+    }
+
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      active = Math.min(active + 1, results.length - 1);
+      render();
+      list?.querySelector('.is-active')?.scrollIntoView({ block: 'nearest' });
+    } else if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      active = Math.max(active - 1, 0);
+      render();
+      list?.querySelector('.is-active')?.scrollIntoView({ block: 'nearest' });
+    } else if (event.key === 'Enter') {
+      event.preventDefault();
+      go(active);
+    } else if (event.key === 'Tab' && panel) {
+      event.preventDefault();
+      input?.focus();
+    }
+  });
+
+  input?.addEventListener('input', filter);
+
+  list?.addEventListener('pointermove', (event) => {
+    const option = (event.target as HTMLElement).closest<HTMLElement>('[data-index]');
+    if (!option) return;
+    const index = Number(option.dataset.index);
+    if (!Number.isNaN(index) && index !== active) {
+      active = index;
+      render();
+    }
+  });
+</script>

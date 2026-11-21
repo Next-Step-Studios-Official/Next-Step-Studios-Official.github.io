@@ -1,0 +1,130 @@
+---
+import Base from '../layouts/Base.astro';
+import { COMMANDS } from '../lib/commands';
+import { FAQ } from '../lib/faq';
+import { getDocuments } from '../lib/documents';
+
+const documents = await getDocuments();
+const buildDate = new Intl.DateTimeFormat('en-GB', {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+}).format(new Date());
+
+const rows = [
+  {
+    name: 'This website',
+    state: 'live',
+    detail: 'Every page is pre-built and served as a static file. No runtime, no database, no login.',
+    meta: 'Static build',
+  },
+  {
+    name: 'Policy documents',
+    state: 'draft',
+    detail: `${documents.length} documents published at version 0.2.0. Complete, downloadable, not legally reviewed.`,
+    meta: 'Draft',
+  },
+  {
+    name: 'Discord bot',
+    state: 'dev',
+    detail: 'Running in one private community server. The release checklist is mostly unticked.',
+    meta: 'In development',
+  },
+  {
+    name: 'Command surface',
+    state: 'dev',
+    detail: `${COMMANDS.length} slash commands exist in source. Transcripts remain unverified end to end.`,
+    meta: 'In source',
+  },
+  {
+    name: 'Document search',
+    state: 'live',
+    detail: 'Full-text search runs in the browser against a generated index. No query leaves the page.',
+    meta: 'Client side',
+  },
+  {
+    name: 'Analytics, accounts, cookies',
+    state: 'none',
+    detail: 'None of these exist. Nothing on this list is waiting to notice you.',
+    meta: 'Not applicable',
+  },
+];
+
+const stateLabel: Record<string, string> = {
+  live: 'Operational',
+  draft: 'Draft',
+  dev: 'In development',
+  none: 'Not present',
+};
+
+const stateClass: Record<string, string> = {
+  live: 'status status--testing',
+  draft: 'status status--draft',
+  dev: 'status status--dev',
+  none: 'status status--planned',
+};
+---
+
+<Base
+  title="Status"
+  description="The current state of the website, the documentation and the bot — written by hand, at build time."
+  path="/status"
+>
+  <section class="page-head">
+    <div class="container">
+      <div class="page-head-stack">
+        <p class="eyebrow"><a class="text-link" href="/about">Studio</a> · Status</p>
+        <h1 class="display display--page">What's up, in plain terms.</h1>
+        <p class="lede">
+          No live monitor and no uptime theatre. This page states the condition of each thing
+          as of the build, and it changes when the thing changes.
+        </p>
+        <div class="meta-bar">
+          <span>As of {buildDate}</span>
+          <span>Written at build time</span>
+          <span>Not a live probe</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--flush">
+    <div class="container">
+      <div class="status-table">
+        {
+          rows.map((row) => (
+            <div class="status-row">
+              <div class="status-row-main">
+                <h2 class="status-name">{row.name}</h2>
+                <p class="status-detail">{row.detail}</p>
+              </div>
+              <div class="status-row-state">
+                <span class={stateClass[row.state]}>{stateLabel[row.state]}</span>
+                <span class="label">{row.meta}</span>
+              </div>
+            </div>
+          ))
+        }
+      </div>
+
+      <div class="split" style="margin-top: 1rem;">
+        <div class="panel panel--pad">
+          <p class="label">Incidents</p>
+          <p class="status-note">
+            None recorded. There is no incident history because there has not been an incident
+            worth a page — this section will be replaced with a dated record if that changes.
+          </p>
+        </div>
+        <div class="panel panel--pad">
+          <p class="label">How this is maintained</p>
+          <p class="status-note">
+            The page is regenerated on every build from the same content the rest of the site uses:
+            {documents.length} documents, {COMMANDS.length} commands, {FAQ.length} answered questions.
+            Nothing here is typed twice.
+          </p>
+          <a class="text-link" href="/changelog">See what changed →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</Base>

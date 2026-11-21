@@ -1,0 +1,105 @@
+---
+import Base from '../layouts/Base.astro';
+import { SITE } from '../lib/site';
+---
+
+<Base
+  title="Website privacy notice"
+  description="What this website does and does not collect. No accounts, no forms, no cookies, no analytics, no tracking."
+  path="/website-privacy"
+>
+  <section class="page-head">
+    <div class="container">
+      <div class="page-head-stack">
+        <p class="eyebrow">Website privacy notice</p>
+        <h1 class="display display--page">This website collects nothing.</h1>
+        <p class="lede">
+          A short notice about this site specifically. It is separate from the Discord bot's
+          Privacy Policy, which does not cover the website.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--flush">
+    <div class="container">
+      <div class="notice notice--neutral" role="note" style="margin-bottom: 2rem;">
+        <span class="status status--planned">Scope</span>
+        <p class="notice-body">
+          This notice covers <strong>nextstepstudios website</strong> pages only. The
+          <a class="text-link" href="/policies/bot/privacy">Discord Bot Privacy Policy</a>
+          covers the bot, and is a separate document.
+        </p>
+      </div>
+
+      <div class="doc-layout" style="grid-template-columns: minmax(0, 1fr);">
+        <article class="prose">
+          <h2>What this site does not do</h2>
+          <p>The website has no accounts, no sign-in, no contact forms, no comment sections, no downloads that require details, and no newsletter. Specifically, it does not use:</p>
+          <ul>
+            <li>cookies or similar storage technologies;</li>
+            <li>analytics, statistics or audience-measurement services;</li>
+            <li>advertising, advertising pixels or affiliate tracking;</li>
+            <li>session recording, heatmaps or fingerprinting;</li>
+            <li>third-party embeds, widgets or social plugins;</li>
+            <li>third-party fonts, scripts or content delivery networks.</li>
+          </ul>
+          <p>
+            The site is built as static pages and the fonts are served from the site itself.
+            No information is stored in your browser by this site.
+          </p>
+
+          <h2>Hosting and technical logs</h2>
+          <p>
+            The site is served by a hosting provider, which necessarily processes network
+            requests to deliver pages. Like most hosting, this may involve standard request
+            logs — such as the requesting IP address, the browser's user agent, the requested
+            page, and a timestamp — kept by the provider for delivery, security and
+            troubleshooting.
+          </p>
+          <p>
+            These logs are not used by the Studio for profiling, advertising or tracking, and
+            this site does not combine them with any other information. The exact logging and
+            retention behaviour of the hosting provider is set by that provider rather than by
+            this website, and it is not described in more detail here than has been confirmed.
+          </p>
+
+          <h2>Email</h2>
+          <p>
+            If you email <a href={`mailto:${SITE.contactEmail}`}>{SITE.contactEmail}</a>, the
+            Studio receives your email address, the contents of your message, and anything you
+            choose to attach, and uses them to read and answer your message. Email is handled
+            by the third-party email provider that hosts that mailbox.
+          </p>
+          <p>
+            Messages are kept as long as needed to deal with the matter they concern. No
+            specific retention period is stated here, because none has been fixed and verified
+            — stating one would be inventing it.
+          </p>
+
+          <h2>What this notice does not claim</h2>
+          <p>
+            This notice describes what the website actually does. It is not a legal opinion
+            and does not claim compliance with any particular law or regulation. If the site
+            later adds a feature that collects information — a form, analytics, an account
+            system — this notice will be rewritten before that feature goes live.
+          </p>
+
+          <h2>Changes</h2>
+          <p>
+            This notice is updated when the website's behaviour changes. It carries no version
+            history yet because it is the first version.
+          </p>
+
+          <h2>Contact</h2>
+          <p>
+            Questions about this notice, or about the website, go to
+            <a href={`mailto:${SITE.contactEmail}`}>{SITE.contactEmail}</a>. Requests
+            concerning information held by the Discord bot are handled through the same
+            address — see <a href="/contact#privacy-requests">privacy requests</a>.
+          </p>
+        </article>
+      </div>
+    </div>
+  </section>
+</Base>

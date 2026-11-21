@@ -1,0 +1,125 @@
+---
+import { Image } from 'astro:assets';
+import logo from '../assets/brand/logo.png';
+
+/**
+ * The social share card, rendered by the browser so the real fonts are used.
+ * It is generated once into /og-image.png and is not linked from the site.
+ */
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Social card — Next Step Studios</title>
+    <style>
+      @font-face {
+        font-family: "Space Grotesk Card";
+        src: local("Space Grotesk Variable"), local("Space Grotesk"), local("Segoe UI Semibold");
+        font-weight: 600;
+      }
+
+      * { box-sizing: border-box; margin: 0; }
+
+      html, body { width: 1200px; height: 630px; overflow: hidden; }
+
+      body {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 56px;
+        padding: 72px 80px;
+        background: #07080b;
+        color: #e9eef7;
+        font-family: "Space Grotesk Variable", "Space Grotesk", "Segoe UI", sans-serif;
+      }
+
+      body::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image:
+          linear-gradient(to right, rgba(126, 156, 208, 0.07) 1px, transparent 1px),
+          linear-gradient(to bottom, rgba(126, 156, 208, 0.07) 1px, transparent 1px);
+        background-size: 60px 60px;
+        -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 0%, #000 30%, transparent 78%);
+        mask-image: radial-gradient(ellipse 80% 70% at 50% 0%, #000 30%, transparent 78%);
+      }
+
+      body::after {
+        content: "";
+        position: absolute;
+        top: -320px;
+        right: -180px;
+        width: 900px;
+        height: 700px;
+        background: radial-gradient(circle, rgba(77, 141, 255, 0.3), rgba(167, 139, 250, 0.12) 45%, transparent 70%);
+        pointer-events: none;
+      }
+
+      .card-logo {
+        position: relative;
+        z-index: 1;
+        flex: none;
+        width: 300px;
+        height: 300px;
+        border-radius: 24px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 30px 90px -30px rgba(0, 0, 0, 0.9), 0 0 0 10px rgba(255, 255, 255, 0.02);
+      }
+
+      .card-body { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 22px; }
+
+      .card-eyebrow {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        font-family: "JetBrains Mono Variable", ui-monospace, monospace;
+        font-size: 16px;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: #8d99ab;
+      }
+
+      .card-eyebrow::before {
+        content: "";
+        width: 34px;
+        height: 1px;
+        background: linear-gradient(90deg, #4d8dff, transparent);
+      }
+
+      .card-title { font-size: 60px; line-height: 1.02; letter-spacing: -0.035em; font-weight: 600; }
+
+      .card-accent {
+        background: linear-gradient(102deg, #f2f7ff 4%, #8fb6ff 46%, #a78bfa 96%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+
+      .card-foot {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        font-family: "JetBrains Mono Variable", ui-monospace, monospace;
+        font-size: 15px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: #b7c1d1;
+      }
+
+      .card-dot { width: 6px; height: 6px; border-radius: 99px; background: #7ee0c0; box-shadow: 0 0 10px #7ee0c0; }
+    </style>
+  </head>
+  <body>
+    <Image class="card-logo" src={logo} width={300} height={300} alt="" />
+    <div class="card-body">
+      <p class="card-eyebrow">Independent studio</p>
+      <h1 class="card-title">Games and software,<br />built one careful <span class="card-accent">step</span> at a time.</h1>
+      <p class="card-foot"><span class="card-dot"></span> Next Step Studios · nextstepstudios</p>
+    </div>
+  </body>
+</html>

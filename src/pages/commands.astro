@@ -1,0 +1,182 @@
+---
+import Base from '../layouts/Base.astro';
+import { COMMANDS, COMMAND_GROUPS, commandCountByGroup, commandsByGroup } from '../lib/commands';
+
+const groups = commandsByGroup();
+const total = COMMANDS.length;
+---
+
+<Base
+  title="Command reference"
+  description="Every slash command in the Next Step Bot, grouped by what it does, with the same honest status labels the rest of the site uses."
+  path="/commands"
+>
+  <section class="page-head">
+    <div class="container">
+      <div class="page-head-stack">
+        <p class="eyebrow"><a class="text-link" href="/projects/next-step-bot">Next Step Bot</a> · Command reference</p>
+        <h1 class="display display--page">Every command, named exactly as it runs.</h1>
+        <p class="lede">
+          Read from the bot's own cogs, not from a plan. {total} slash commands exist in source across
+          {COMMAND_GROUPS.length} areas. Existing in source is not the same as verified: the project page marks what
+          has actually been exercised end to end.
+        </p>
+        <div class="meta-bar">
+          <span>{total} commands</span>
+          <span>{COMMAND_GROUPS.length} groups</span>
+          <span>No prefix commands</span>
+          <span>Source: bot cogs</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--flush">
+    <div class="container">
+      <div class="toolbar" data-cmd-toolbar>
+        <div class="toolbar-row">
+          <label class="search-field">
+            <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <circle cx="6.8" cy="6.8" r="4.4" stroke="currentColor" stroke-width="1.3" />
+              <path d="M10.2 10.2 14 14" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" />
+            </svg>
+            <input
+              type="search"
+              data-cmd-search
+              placeholder="Filter commands by name or purpose…"
+              aria-label="Filter commands"
+              autocomplete="off"
+            />
+          </label>
+          <span class="read-time" data-cmd-count aria-live="polite">{total} commands</span>
+        </div>
+
+        <div class="toolbar-row">
+          <div class="chip-group" data-cmd-chips>
+            <button type="button" class="chip" data-group="all" aria-pressed="true">
+              All groups <span class="chip-count">{total}</span>
+            </button>
+            {groups.map(({ group }) => (
+              <button type="button" class="chip" data-group={group.id} aria-pressed="false">
+                {group.label} <span class="chip-count">{commandCountByGroup(group.id)}</span>
+              </button>
+            ))}
+          </div>
+          <button type="button" class="btn btn-reset" data-cmd-reset hidden>Clear filters</button>
+        </div>
+      </div>
+
+      <p class="empty-state" data-cmd-empty>
+        No command matches that filter. Try part of a name, or clear the field.
+      </p>
+
+      <div class="cmd-groups">
+        {
+          groups.map(({ group, commands }, index) => (
+            <section class="cmd-group panel" data-cmd-group={group.id} aria-labelledby={`cmd-group-${group.id}`}>
+              <header class="cmd-group-head">
+                <span class="cmd-group-icon" aria-hidden="true">{group.icon}</span>
+                <div>
+                  <h2 id={`cmd-group-${group.id}`} class="cmd-group-title">{group.label}</h2>
+                  <p class="cmd-group-blurb">{group.blurb}</p>
+                </div>
+                <span class="label cmd-group-count">
+                  {commands.length} {commands.length === 1 ? 'command' : 'commands'}
+                </span>
+              </header>
+
+              <ul class="cmd-list">
+                {commands.map((command) => (
+                  <li
+                    class="cmd-row"
+                    data-cmd-row
+                    data-search={`${command.name} ${command.description} ${group.label}`.toLowerCase()}
+                  >
+                    <code class="cmd-name">/{command.name}</code>
+                    <span class="cmd-desc">{command.description}</span>
+                    {command.note ? <span class="cmd-note">{command.note}</span> : <span class="cmd-note cmd-note--blank" aria-hidden="true">—</span>}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ))
+        }
+      </div>
+
+      <div class="callout">
+        <p class="callout-title">How to read this page</p>
+        <p class="callout-body">
+          A command listed here is a command the source defines. It may still be unverified, staff-only, or
+          waiting on a configuration the server has not set. The project page carries the verification
+          status for each module; the policies describe what the commands may do with data.
+        </p>
+        <div class="callout-actions">
+          <a class="btn" href="/projects/next-step-bot">Module status <span class="btn-arrow" aria-hidden="true">→</span></a>
+          <a class="btn" href="/policies">Policies</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    const toolbar = document.querySelector<HTMLElement>('[data-cmd-toolbar]');
+
+    if (toolbar) {
+      const search = toolbar.querySelector<HTMLInputElement>('[data-cmd-search]');
+      const countEl = toolbar.querySelector<HTMLElement>('[data-cmd-count]');
+      const chips = Array.from(toolbar.querySelectorAll<HTMLButtonElement>('[data-cmd-chips] .chip'));
+      const reset = toolbar.querySelector<HTMLButtonElement>('[data-cmd-reset]');
+      const rows = Array.from(document.querySelectorAll<HTMLElement>('[data-cmd-row]'));
+      const groups = Array.from(document.querySelectorAll<HTMLElement>('[data-cmd-group]'));
+      const empty = document.querySelector<HTMLElement>('[data-cmd-empty]');
+      const total = rows.length;
+      let activeGroup = 'all';
+
+      const apply = () => {
+        const query = (search?.value ?? '').trim().toLowerCase();
+        let visible = 0;
+
+        rows.forEach((row) => {
+          const group = row.closest<HTMLElement>('[data-cmd-group]')?.dataset.cmdGroup ?? '';
+          const inGroup = activeGroup === 'all' || group === activeGroup;
+          const matches = inGroup && (!query || (row.dataset.search ?? '').includes(query));
+          row.hidden = !matches;
+          if (matches) visible += 1;
+        });
+
+        groups.forEach((section) => {
+          const any = Array.from(section.querySelectorAll<HTMLElement>('[data-cmd-row]')).some(
+            (row) => !row.hidden,
+          );
+          section.hidden = !any;
+        });
+
+        if (countEl) {
+          countEl.textContent =
+            visible === total ? `${total} commands` : `${visible} of ${total} commands`;
+        }
+
+        empty?.classList.toggle('is-visible', visible === 0);
+        if (reset) reset.hidden = !(query || activeGroup !== 'all');
+      };
+
+      search?.addEventListener('input', apply);
+
+      chips.forEach((chip) => {
+        chip.addEventListener('click', () => {
+          activeGroup = chip.dataset.group ?? 'all';
+          chips.forEach((other) => other.setAttribute('aria-pressed', String(other === chip)));
+          apply();
+        });
+      });
+
+      reset?.addEventListener('click', () => {
+        if (search) search.value = '';
+        activeGroup = 'all';
+        chips.forEach((chip) => chip.setAttribute('aria-pressed', String(chip.dataset.group === 'all')));
+        apply();
+        search?.focus();
+      });
+    }
+  </script>
+</Base>

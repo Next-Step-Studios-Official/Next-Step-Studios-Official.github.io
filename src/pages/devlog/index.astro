@@ -1,0 +1,91 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+import { readingLabel } from '../../lib/reading';
+
+const posts = (await getCollection('devlog')).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
+);
+
+const formatDate = (date: Date) =>
+  new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }).format(date);
+
+const monthLabel = (date: Date) =>
+  new Intl.DateTimeFormat('en-GB', { month: 'long', year: 'numeric' }).format(date);
+
+const tags = [...new Set(posts.flatMap((post) => post.data.tags))].sort();
+
+const months = posts.reduce<{ label: string; posts: typeof posts }[]>((groups, post) => {
+  const label = monthLabel(post.data.date);
+  const existing = groups.find((group) => group.label === label);
+  if (existing) existing.posts.push(post);
+  else groups.push({ label, posts: [post] });
+  return groups;
+}, []);
+---
+
+<Base
+  title="Devlog"
+  description="Notes from the work at Next Step Studios, written when there is something worth reporting."
+  path="/devlog"
+>
+  <section class="page-head">
+    <div class="container">
+      <div class="page-head-stack">
+        <p class="eyebrow">Devlog</p>
+        <h1 class="display display--page">Notes from the work.</h1>
+        <p class="lede">
+          Short entries about what is being built and what is genuinely unfinished.
+          Written when there is something to say, rather than to fill a schedule.
+        </p>
+        <div class="meta-bar">
+          <span>{posts.length} entries</span>
+          <span>{months.length} {months.length === 1 ? 'month' : 'months'}</span>
+          <span>{tags.length} tags</span>
+          <span>Newest first</span>
+        </div>
+        <div class="chip-group devlog-tags">
+          {tags.map((tag) => (
+            <a class="chip" href={`/devlog/tag/${tag}`}>#{tag}</a>
+          ))}
+          <a class="chip" href="/rss.xml">RSS</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--flush">
+    <div class="container">
+      {
+        months.map((month) => (
+          <div class="devlog-month">
+            <div class="devlog-month-head">
+              <h2 class="label">{month.label}</h2>
+              <span class="label">
+                {month.posts.length} {month.posts.length === 1 ? 'entry' : 'entries'}
+              </span>
+            </div>
+            <ul class="entry-list">
+              {month.posts.map((post) => (
+                <li>
+                  <a class="entry" href={`/devlog/${post.id}`}>
+                    <span class="entry-when">
+                      <time datetime={post.data.date.toISOString()}>{formatDate(post.data.date)}</time>
+                      <span class="read-time">{readingLabel(post.body)}</span>
+                    </span>
+                    <span class="entry-title">{post.data.title}</span>
+                    <span class="card-arrow" aria-hidden="true" style="color: var(--color-muted);">→</span>
+                    <span class="entry-summary">{post.data.summary}</span>
+                    {post.data.tags.length > 0 && (
+                      <span class="entry-tags">{post.data.tags.map((tag) => `#${tag}`).join('  ·  ')}</span>
+                    )}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))
+      }
+    </div>
+  </section>
+</Base>

@@ -1,0 +1,68 @@
+---
+import Base from '../layouts/Base.astro';
+import { FAQ } from '../lib/faq';
+import { SITE } from '../lib/site';
+---
+
+<Base
+  title="FAQ"
+  description="Straight answers about the Next Step Bot, the Discord server, data, moderation, privacy and this website."
+  path="/faq"
+>
+  <section class="page-head">
+    <div class="container">
+      <div class="page-head-stack">
+        <p class="eyebrow"><a class="text-link" href="/about">About</a> · FAQ</p>
+        <h1 class="display display--page">Questions, answered without spin.</h1>
+        <p class="lede">
+          The things people actually ask about the studio and the bot. Where the answer is
+          "not yet", it says that; where a document has the detail, it links to it.
+        </p>
+        <div class="meta-bar">
+          <span>{FAQ.length} questions</span>
+          <span>Policy answers link to the source document</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--flush">
+    <div class="container faq-layout">
+      <div class="faq">
+        {
+          FAQ.map((entry, index) => (
+            <details class="faq-item" name="faq">
+              <summary>
+                <span class="faq-index" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+                <span class="faq-question">{entry.question}</span>
+                <span class="faq-toggle" aria-hidden="true">+</span>
+              </summary>
+              <div class="faq-answer">
+                <p>{entry.answer}</p>
+                {entry.link && (
+                  <a class="text-link" href={entry.link.href}>{entry.link.label} →</a>
+                )}
+              </div>
+            </details>
+          ))
+        }
+      </div>
+
+      <aside class="faq-aside">
+        <div class="panel panel--pad">
+          <p class="label">Still stuck</p>
+          <p class="faq-aside-text">
+            Email is the only contact route. It is the same address the policies name,
+            and it reaches one person.
+          </p>
+          <a class="footer-mail" href={`mailto:${SITE.contactEmail}`}>{SITE.contactEmail}</a>
+          <div class="faq-aside-links">
+            <a class="text-link" href="/contact">Contact page</a>
+            <a class="text-link" href="/policies">All documents</a>
+            <a class="text-link" href="/status">Current status</a>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </section>
+</Base>

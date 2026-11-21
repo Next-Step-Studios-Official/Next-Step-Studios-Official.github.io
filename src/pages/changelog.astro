@@ -1,0 +1,57 @@
+---
+import Base from '../layouts/Base.astro';
+import { CHANGELOG } from '../lib/changelog';
+
+const formatDate = (value: string) =>
+  new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }).format(
+    new Date(`${value}T00:00:00Z`),
+  );
+---
+
+<Base
+  title="Changelog"
+  description="What changed on this website, version by version, including the parts that were rebuilt rather than added."
+  path="/changelog"
+>
+  <section class="page-head">
+    <div class="container">
+      <div class="page-head-stack">
+        <p class="eyebrow"><a class="text-link" href="/devlog">Devlog</a> · Changelog</p>
+        <h1 class="display display--page">What changed, and when.</h1>
+        <p class="lede">
+          The devlog is the narrative; this is the record. Versions are the website's own,
+          not the bot's, and they are bumped when something visible changes.
+        </p>
+        <div class="meta-bar">
+          <span>{CHANGELOG.length} releases</span>
+          <span>Newest first</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--flush">
+    <div class="container">
+      <ol class="changelog">
+        {
+          CHANGELOG.map((entry, index) => (
+            <li class="changelog-entry">
+              <div class="changelog-meta">
+                <span class="changelog-version">v{entry.version}</span>
+                <time datetime={entry.date}>{formatDate(entry.date)}</time>
+                {index === 0 && <span class="changelog-latest">Latest</span>}
+              </div>
+              <div class="changelog-body">
+                <h2 class="changelog-title">{entry.title}</h2>
+                <p class="changelog-summary">{entry.summary}</p>
+                <ul class="changelog-list">
+                  {entry.changes.map((change) => <li>{change}</li>)}
+                </ul>
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+</Base>

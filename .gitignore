@@ -1,0 +1,17 @@
+node_modules/
+dist/
+.astro/
+.env
+.env.*
+.DS_Store
+*.log
+
+# Local working captures
+/*.png
+
+# Source material that must never be published
+# (internal registers, checklists and security documents)
+documentation-source/
+.freebuff/
+docs/
+COPY_DRAFTS.md

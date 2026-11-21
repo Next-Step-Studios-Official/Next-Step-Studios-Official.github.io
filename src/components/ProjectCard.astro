@@ -1,0 +1,34 @@
+---
+interface Props {
+  title: string;
+  tagline: string;
+  summary: string;
+  status: string;
+  category: string;
+  href?: string;
+}
+
+const { title, tagline, summary, status, category, href } = Astro.props;
+import StatusBadge from './StatusBadge.astro';
+---
+
+{ href ? (
+  <a class="panel panel-link project-card" href={href}>
+    <div class="project-card-top">
+      <span class="project-card-cat">{category}</span>
+      <StatusBadge status={status} />
+    </div>
+    <h3>{title}</h3>
+    <p>{tagline}</p>
+    <span class="project-card-foot">View project <span class="card-arrow" aria-hidden="true">↗</span></span>
+  </a>
+) : (
+  <div class="panel project-card">
+    <div class="project-card-top">
+      <span class="project-card-cat">{category}</span>
+      <StatusBadge status={status} />
+    </div>
+    <h3>{title}</h3>
+    <p>{tagline}</p>
+  </div>
+) }

@@ -1,0 +1,226 @@
+---
+import Base from '../layouts/Base.astro';
+
+const indexUrl = `${import.meta.env.BASE_URL}search-index.json`;
+---
+
+<Base
+  title="Search"
+  description="Search every policy, devlog entry, command, FAQ answer and page on the Next Step Studios site. The index is a file; nothing is sent anywhere."
+  path="/search"
+>
+  <section class="page-head">
+    <div class="container">
+      <div class="page-head-stack">
+        <p class="eyebrow">Search</p>
+        <h1 class="display display--page">Search the whole site.</h1>
+        <p class="lede">
+          Every policy, devlog entry, command, FAQ answer, roadmap item and page — read from one
+          generated file. The query stays in this browser; there is nothing on the other end to
+          receive it.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--flush">
+    <div class="container" data-search-root data-index-url={indexUrl}>
+      <div class="search-bar">
+        <label class="search-field search-field--lg">
+          <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <circle cx="6.8" cy="6.8" r="4.4" stroke="currentColor" stroke-width="1.3" />
+            <path d="M10.2 10.2 14 14" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" />
+          </svg>
+          <input
+            type="search"
+            data-search-input
+            placeholder="Try “retention”, “ticket”, “analytics”…"
+            aria-label="Search the site"
+            autocomplete="off"
+            autofocus
+          />
+        </label>
+        <span class="read-time" data-search-status aria-live="polite">Type to search</span>
+      </div>
+
+      <div class="chip-group search-types" data-search-types>
+        <button type="button" class="chip" data-type="all" aria-pressed="true">Everything</button>
+        <button type="button" class="chip" data-type="Policy" aria-pressed="false">Policies</button>
+        <button type="button" class="chip" data-type="Command" aria-pressed="false">Commands</button>
+        <button type="button" class="chip" data-type="Devlog" aria-pressed="false">Devlog</button>
+        <button type="button" class="chip" data-type="FAQ" aria-pressed="false">FAQ</button>
+        <button type="button" class="chip" data-type="Page" aria-pressed="false">Pages</button>
+      </div>
+
+      <ol class="search-results" data-search-results></ol>
+
+      <div class="search-empty" data-search-empty>
+        <p class="search-empty-title">Nothing matched.</p>
+        <p class="search-empty-body">
+          Try a shorter word, or one that would appear in the text rather than in a title.
+          The <a class="text-link" href="/commands">command reference</a> and the
+          <a class="text-link" href="/policies">policy index</a> are also browsable directly.
+        </p>
+      </div>
+
+      <p class="search-note">
+        The index includes full policy text and is generated at build time. It is loaded once,
+        on your first keystroke, and then held in memory for this page only.
+      </p>
+    </div>
+  </section>
+
+  <script>
+    const root = document.querySelector<HTMLElement>('[data-search-root]');
+
+    if (root) {
+      const input = root.querySelector<HTMLInputElement>('[data-search-input]');
+      const resultsEl = root.querySelector<HTMLElement>('[data-search-results]');
+      const statusEl = root.querySelector<HTMLElement>('[data-search-status]');
+      const emptyEl = root.querySelector<HTMLElement>('[data-search-empty]');
+      const typeChips = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-search-types] .chip'));
+      const indexUrl = root.dataset.indexUrl ?? '/search-index.json';
+
+      type Entry = { type: string; title: string; url: string; section?: string; text: string };
+
+      let entries: Entry[] | null = null;
+      let loading = false;
+      let activeType = 'all';
+      let lastQuery = '';
+
+      const escapeHtml = (value: string) =>
+        value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+      const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+      const highlight = (value: string, terms: string[]) => {
+        const safe = escapeHtml(value);
+        if (terms.length === 0) return safe;
+        const pattern = new RegExp(`(${terms.map(escapeRegExp).join('|')})`, 'gi');
+        return safe.replace(pattern, '<mark>$1</mark>');
+      };
+
+      const snippet = (text: string, terms: string[]) => {
+        const lower = text.toLowerCase();
+        let at = -1;
+        for (const term of terms) {
+          const found = lower.indexOf(term);
+          if (found >= 0 && (at < 0 || found < at)) at = found;
+        }
+        if (at < 0) return text.slice(0, 180).trim();
+        const start = Math.max(0, at - 90);
+        const end = Math.min(text.length, at + 150);
+        return `${start > 0 ? '…' : ''}${text.slice(start, end).trim()}${end < text.length ? '…' : ''}`;
+      };
+
+      const render = (query: string) => {
+        if (!entries || !resultsEl) return;
+        const terms = query.toLowerCase().split(/\s+/).filter(Boolean);
+        const alphaFiltered = activeType === 'all' ? entries : entries.filter((entry) => entry.type === activeType);
+
+        const scored = alphaFiltered
+          .map((entry) => {
+            const haystack = `${entry.title} ${entry.section ?? ''} ${entry.text}`.toLowerCase();
+            if (!terms.every((term) => haystack.includes(term))) return null;
+            let score = 0;
+            for (const term of terms) {
+              if (entry.title.toLowerCase().includes(term)) score += 12;
+              if ((entry.section ?? '').toLowerCase().includes(term)) score += 4;
+              score += Math.min(6, haystack.split(term).length - 1);
+            }
+            return { entry, score };
+          })
+          .filter((value): value is { entry: Entry; score: number } => value !== null)
+          .sort((a, b) => b.score - a.score)
+          .slice(0, 40);
+
+        resultsEl.innerHTML = scored
+          .map(
+            ({ entry }) => `
+          <li class="result">
+            <a class="result-link" href="${entry.url}">
+              <span class="result-type">${escapeHtml(entry.type)}</span>
+              <span class="result-title">${highlight(entry.title, terms)}</span>
+              ${entry.section ? `<span class="result-section">${escapeHtml(entry.section)}</span>` : ''}
+              <span class="result-snippet">${highlight(snippet(entry.text, terms), terms)}</span>
+            </a>
+          </li>`,
+          )
+          .join('');
+
+        if (statusEl) {
+          statusEl.textContent =
+            scored.length === 0
+              ? `0 of ${alphaFiltered.length} entries`
+              : `${scored.length}${scored.length === 40 ? '+' : ''} of ${alphaFiltered.length} entries`;
+        }
+
+        emptyEl?.classList.toggle('is-visible', scored.length === 0);
+      };
+
+      const run = (query: string) => {
+        lastQuery = query;
+        if (query.trim().length < 2) {
+          resultsEl && (resultsEl.innerHTML = '');
+          if (statusEl) statusEl.textContent = 'Type to search';
+          emptyEl?.classList.remove('is-visible');
+          return;
+        }
+        render(query);
+      };
+
+      const load = async () => {
+        if (entries || loading) return;
+        loading = true;
+        try {
+          const response = await fetch(indexUrl);
+          entries = (await response.json()) as Entry[];
+          if (statusEl) statusEl.textContent = `${entries.length} entries indexed`;
+          if (lastQuery) render(lastQuery);
+        } catch {
+          if (statusEl) statusEl.textContent = 'Search index unavailable';
+        } finally {
+          loading = false;
+        }
+      };
+
+      const syncUrl = (query: string) => {
+        const url = new URL(window.location.href);
+        if (query.trim().length >= 2) url.searchParams.set('q', query);
+        else url.searchParams.delete('q');
+        window.history.replaceState({}, '', url);
+      };
+
+      input?.addEventListener('focus', load);
+      input?.addEventListener('input', () => {
+        load();
+        run(input.value);
+        syncUrl(input.value);
+      });
+
+      input?.addEventListener('keydown', (event) => {
+        if (event.key !== 'Enter') return;
+        const first = resultsEl?.querySelector<HTMLAnchorElement>('a');
+        if (first) {
+          event.preventDefault();
+          first.click();
+        }
+      });
+
+      typeChips.forEach((chip) => {
+        chip.addEventListener('click', () => {
+          activeType = chip.dataset.type ?? 'all';
+          typeChips.forEach((other) => other.setAttribute('aria-pressed', String(other === chip)));
+          run(input?.value ?? '');
+        });
+      });
+
+      const initial = new URLSearchParams(window.location.search).get('q') ?? '';
+      if (input && initial) {
+        input.value = initial;
+        load();
+        run(initial);
+      }
+    }
+  </script>
+</Base>

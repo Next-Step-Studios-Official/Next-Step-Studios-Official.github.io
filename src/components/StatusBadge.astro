@@ -1,0 +1,21 @@
+---
+interface Props {
+  status: string;
+  /** Optional override for how the status is written out. */
+  label?: string;
+}
+
+const { status, label } = Astro.props;
+
+const variants: Record<string, string> = {
+  'In development': 'status--dev',
+  Prototype: 'status--prototype',
+  Testing: 'status--testing',
+  Planned: 'status--planned',
+  'On hold': 'status--hold',
+};
+
+const variant = variants[status] ?? 'status--planned';
+---
+
+<span class={`status ${variant}`}>{label ?? status}</span>

@@ -1,0 +1,227 @@
+---
+import '@fontsource-variable/inter';
+import '@fontsource-variable/space-grotesk';
+import '@fontsource-variable/jetbrains-mono';
+import '../styles/global.css';
+import '../styles/pages.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import CommandPalette from '../components/CommandPalette.astro';
+import { SITE } from '../lib/site';
+import { COMMANDS, COMMAND_GROUPS } from '../lib/commands';
+import { getCollection, render } from 'astro:content';
+
+interface Props {
+  title?: string;
+  description: string;
+  path: string;
+}
+
+const { title, description, path } = Astro.props;
+const pageTitle = title ? `${title} — ${SITE.name}` : `${SITE.name} — Independent creative and software studio`;
+
+const base = import.meta.env.BASE_URL;
+const origin = Astro.site ?? new URL(SITE.url);
+const canonical = new URL(path, origin).toString();
+const ogImage = new URL(`${base}og-image.png`, origin).toString();
+
+const formatDate = (date: Date) =>
+  new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }).format(date);
+
+const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
+const posts = (await getCollection('devlog')).sort((b, a) => a.data.date.valueOf() - b.data.date.valueOf());
+const policies = (await getCollection('policies')).sort((a, b) => a.data.order - b.data.order);
+
+const tags = [...new Set(posts.flatMap((post) => post.data.tags))];
+
+/** Section headings, so the palette can jump straight into a document. */
+const policySections = (
+  await Promise.all(
+    policies.map(async (policy) => ({
+      policy,
+      headings: (await render(policy)).headings.filter((heading) => heading.depth === 2),
+    })),
+  )
+).flatMap(({ policy, headings }) =>
+  headings.map((heading) => ({
+    title: heading.text,
+    href: `/policies/bot/${policy.id.replace(/^bot\//, '')}#${heading.slug}`,
+    kind: 'Section',
+    meta: policy.data.shortTitle,
+  })),
+);
+
+/** Everything the command palette can jump to, built once at build time. */
+const searchItems = [
+  { title: 'Home', href: '/', kind: 'Page', meta: 'Studio overview' },
+  { title: 'Projects', href: '/projects', kind: 'Page', meta: 'Current work' },
+  { title: 'Devlog', href: '/devlog', kind: 'Page', meta: 'Notes from the work' },
+  { title: 'Command reference', href: '/commands', kind: 'Page', meta: `${COMMANDS.length} commands` },
+  { title: 'Search', href: '/search', kind: 'Page', meta: 'Full text' },
+  { title: 'Social', href: '/social', kind: 'Page', meta: 'Official accounts' },
+  { title: 'Links', href: '/links', kind: 'Page', meta: 'Every official link' },
+  { title: 'About', href: '/about', kind: 'Page', meta: 'The studio' },
+  { title: 'Roadmap', href: '/roadmap', kind: 'Page', meta: 'What is next' },
+  { title: 'Changelog', href: '/changelog', kind: 'Page', meta: 'Release record' },
+  { title: 'Status', href: '/status', kind: 'Page', meta: 'Current state' },
+  { title: 'Stack', href: '/stack', kind: 'Page', meta: 'What it runs on' },
+  { title: 'FAQ', href: '/faq', kind: 'Page', meta: 'Straight answers' },
+  { title: 'Policies', href: '/policies', kind: 'Page', meta: 'Discord bot documents' },
+  { title: 'Downloads', href: '/downloads', kind: 'Page', meta: 'Every document as a file' },
+  { title: 'Contact', href: '/contact', kind: 'Page', meta: 'Email and privacy requests' },
+  { title: 'Website privacy', href: '/website-privacy', kind: 'Page', meta: 'Notice for this site' },
+  ...projects.map((project) => ({
+    title: project.data.title,
+    href: `/projects/${project.id}`,
+    kind: 'Project',
+    meta: project.data.category,
+  })),
+  ...policies.map((policy) => ({
+    title: policy.data.shortTitle,
+    href: `/policies/bot/${policy.id.replace(/^bot\//, '')}`,
+    kind: 'Policy',
+    meta: `v${policy.data.version} · draft`,
+  })),
+  ...posts.map((post) => ({
+    title: post.data.title,
+    href: `/devlog/${post.id}`,
+    kind: 'Devlog',
+    meta: formatDate(post.data.date),
+  })),
+  ...COMMAND_GROUPS.flatMap((group) =>
+    COMMANDS.filter((command) => command.group === group.id).map((command) => ({
+      title: `/${command.name}`,
+      href: '/commands',
+      kind: 'Command',
+      meta: group.label,
+    })),
+  ),
+  ...tags.map((tag) => ({
+    title: `#${tag}`,
+    href: `/devlog/tag/${tag}`,
+    kind: 'Tag',
+    meta: 'Devlog',
+  })),
+  // Section-level jumps last, so the first screen of an empty palette is pages.
+  ...policySections,
+];
+
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Organization',
+      '@id': `${origin.origin}#organization`,
+      name: SITE.name,
+      url: origin.origin,
+      email: SITE.contactEmail,
+      founder: { '@type': 'Person', name: SITE.operator },
+      description: 'An independent creative and software studio operated by Candler Shaw.',
+      sameAs: [
+        'https://github.com/Next-Step-Studios-Official',
+      ],
+    },
+    {
+      '@type': 'WebSite',
+      '@id': `${origin.origin}#website`,
+      url: origin.origin,
+      name: SITE.name,
+      inLanguage: 'en-GB',
+      publisher: { '@id': `${origin.origin}#organization` },
+      potentialAction: {
+        '@type': 'SearchAction',
+        target: `${new URL('/search', origin).toString()}?q={search_term_string}`,
+        'query-input': 'required name=search_term_string',
+      },
+    },
+    {
+      '@type': 'WebPage',
+      '@id': canonical,
+      url: canonical,
+      name: pageTitle,
+      description,
+      isPartOf: { '@id': `${origin.origin}#website` },
+    },
+  ],
+};
+---
+
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content="#07080b" />
+    <link rel="canonical" href={canonical} />
+
+    <link rel="icon" href={`${base}brand/favicon-64.png`} sizes="64x64" type="image/png" />
+    <link rel="icon" href={`${base}favicon.svg`} type="image/svg+xml" />
+    <link rel="apple-touch-icon" href={`${base}brand/apple-touch-icon.png`} />
+    <link rel="alternate" type="application/rss+xml" title="Next Step Studios — Devlog" href={`${base}rss.xml`} />
+    <link rel="sitemap" href={`${base}sitemap.xml`} type="application/xml" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={SITE.name} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Next Step Studios — games and software, built one careful step at a time." />
+    <meta property="og:locale" content="en_GB" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <Header path={path} />
+    <main id="main" class="site-main">
+      <slot />
+    </main>
+    <Footer />
+    <CommandPalette items={searchItems} />
+
+    <script>
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      if (!reduceMotion && 'IntersectionObserver' in window) {
+        const targets = Array.from(
+          document.querySelectorAll<HTMLElement>('.section, .page-head, .hero-grid > *'),
+        );
+        targets.forEach((element) => element.classList.add('reveal'));
+
+        const observer = new IntersectionObserver(
+          (entries) => {
+            for (const entry of entries) {
+              if (!entry.isIntersecting) continue;
+              entry.target.classList.add('is-in');
+              observer.unobserve(entry.target);
+            }
+          },
+          { rootMargin: '0px 0px -6% 0px', threshold: 0.05 },
+        );
+
+        targets.forEach((element) => observer.observe(element));
+      }
+
+      // Pointer spotlight on panels and cards. Pure decoration, no tracking:
+      // the pointer position never leaves the page.
+      document.querySelectorAll<HTMLElement>('.panel, .project-card').forEach((element) => {
+        element.classList.add('panel--glow');
+        element.addEventListener('pointermove', (event) => {
+          const rect = element.getBoundingClientRect();
+          element.style.setProperty('--mx', `${Math.round(event.clientX - rect.left)}px`);
+          element.style.setProperty('--my', `${Math.round(event.clientY - rect.top)}px`);
+        });
+      });
+    </script>
+  </body>
+</html>

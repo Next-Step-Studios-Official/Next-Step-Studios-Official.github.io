@@ -1,0 +1,73 @@
+---
+import Base from '../../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+import { readingLabel } from '../../../lib/reading';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('devlog');
+  const tags = [...new Set(posts.flatMap((post) => post.data.tags))];
+
+  return tags.map((tag) => ({
+    params: { tag },
+    props: {
+      tag,
+      posts: posts
+        .filter((post) => post.data.tags.includes(tag))
+        .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf()),
+      allTags: tags,
+    },
+  }));
+}
+
+const { tag, posts, allTags } = Astro.props;
+
+const formatDate = (date: Date) =>
+  new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }).format(date);
+---
+
+<Base
+  title={`Devlog · ${tag}`}
+  description={`Devlog entries tagged ${tag} at Next Step Studios.`}
+  path="/devlog"
+>
+  <section class="page-head">
+    <div class="container">
+      <div class="page-head-stack">
+        <p class="eyebrow"><a class="text-link" href="/devlog">Devlog</a> · Tag</p>
+        <h1 class="display display--page">Tagged “{tag}”.</h1>
+        <div class="meta-bar">
+          <span>{posts.length} {posts.length === 1 ? 'entry' : 'entries'}</span>
+          <span>{allTags.length} tags in the devlog</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--flush">
+    <div class="container">
+      <div class="chip-group" style="margin-bottom: 1.35rem;">
+        {allTags.map((name) => (
+          <a class="chip" href={`/devlog/tag/${name}`} aria-current={name === tag ? 'page' : undefined}>
+            {name}
+          </a>
+        ))}
+      </div>
+
+      <ol class="entry-list">
+        {posts.map((post) => (
+          <li>
+            <a class="entry" href={`/devlog/${post.id}`}>
+              <span class="entry-when">
+                <time datetime={post.data.date.toISOString()}>{formatDate(post.data.date)}</time>
+                <span class="read-time">{readingLabel(post.body)}</span>
+              </span>
+              <span class="entry-title">{post.data.title}</span>
+              <span class="card-arrow" aria-hidden="true" style="color: var(--color-muted);">→</span>
+              <span class="entry-summary">{post.data.summary}</span>
+            </a>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+</Base>

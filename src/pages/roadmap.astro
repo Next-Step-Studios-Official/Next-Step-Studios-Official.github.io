@@ -1,0 +1,72 @@
+---
+import Base from '../layouts/Base.astro';
+import { ROADMAP, ROADMAP_INTRO, type RoadmapStatus } from '../lib/roadmap';
+
+const statusClass: Record<RoadmapStatus, string> = {
+  'In development': 'status status--dev',
+  Draft: 'status status--draft',
+  Planned: 'status status--planned',
+  Live: 'status status--testing',
+  'Not planned': 'status status--planned',
+};
+
+const counts = ROADMAP.reduce<Record<string, number>>((totals, item) => {
+  totals[item.status] = (totals[item.status] ?? 0) + 1;
+  return totals;
+}, {});
+---
+
+<Base
+  title="Roadmap"
+  description="What Next Step Studios is building, what is only planned, and what has been decided against — with statuses instead of dates."
+  path="/roadmap"
+>
+  <section class="page-head">
+    <div class="container">
+      <div class="page-head-stack">
+        <p class="eyebrow"><a class="text-link" href="/projects">Projects</a> · Roadmap</p>
+        <h1 class="display display--page">What's next, and what isn't.</h1>
+        <p class="lede">{ROADMAP_INTRO}</p>
+        <div class="meta-bar">
+          {Object.entries(counts).map(([status, count]) => <span>{count} {status.toLowerCase()}</span>)}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--flush">
+    <div class="container">
+      <ol class="roadmap">
+        {
+          ROADMAP.map((item, index) => (
+            <li class="roadmap-item panel">
+              <div class="roadmap-rail" aria-hidden="true">
+                <span class="roadmap-index">{String(index + 1).padStart(2, '0')}</span>
+                <span class="roadmap-line" />
+              </div>
+
+              <div class="roadmap-body">
+                <div class="roadmap-head">
+                  <h2 class="roadmap-title">{item.title}</h2>
+                  <span class={statusClass[item.status]}>{item.status}</span>
+                </div>
+                <p class="roadmap-summary">{item.summary}</p>
+                <ul class="roadmap-points">
+                  {item.points.map((point) => <li>{point}</li>)}
+                </ul>
+                {item.link && (
+                  <a class="text-link roadmap-link" href={item.link.href}>{item.link.label} →</a>
+                )}
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+
+      <p class="roadmap-note">
+        No dates are given on purpose. The devlog records what actually changed;
+        the <a class="text-link" href="/changelog">changelog</a> records when it changed.
+      </p>
+    </div>
+  </section>
+</Base>

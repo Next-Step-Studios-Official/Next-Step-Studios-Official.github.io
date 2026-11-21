@@ -1,0 +1,228 @@
+---
+import Base from '../../layouts/Base.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import { getCollection } from 'astro:content';
+
+const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
+
+const statuses = ['In development', 'Prototype', 'Testing', 'Planned', 'On hold'];
+const categories = [...new Set(projects.map((project) => project.data.category))];
+
+const statusCount = (status: string) => projects.filter((project) => project.data.status === status).length;
+const plural = (count: number) => (count === 1 ? 'project' : 'projects');
+---
+
+<Base
+  title="Projects"
+  description="Projects from Next Step Studios, each listed with the status it has actually reached."
+  path="/projects"
+>
+  <section class="page-head">
+    <div class="container">
+      <div class="page-head-stack">
+        <p class="eyebrow">Projects</p>
+        <h1 class="display display--page">Everything, at the stage it's actually at.</h1>
+        <p class="lede">
+          No project is described as released unless it is. Each one carries a status:
+          in development, prototype, testing, planned, or on hold. Filter and sort the list
+          to see exactly what exists.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--flush">
+    <div class="container">
+      <div class="toolbar" data-project-toolbar>
+        <div class="toolbar-row">
+          <label class="search-field">
+            <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <circle cx="6.8" cy="6.8" r="4.4" stroke="currentColor" stroke-width="1.3" />
+              <path d="M10.2 10.2 14 14" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" />
+            </svg>
+            <input
+              type="search"
+              data-project-search
+              placeholder="Filter by name or description…"
+              aria-label="Filter projects by name or description"
+              autocomplete="off"
+            />
+          </label>
+
+          <div class="toolbar-sort">
+            <span class="label" id="project-sort-label">Sort</span>
+            <span class="select-wrap">
+              <select class="select" data-project-sort aria-labelledby="project-sort-label">
+                <option value="order">Studio order</option>
+                <option value="az">A–Z</option>
+                <option value="za">Z–A</option>
+                <option value="status">By status</option>
+              </select>
+            </span>
+          </div>
+        </div>
+
+        <div class="toolbar-row">
+          <div class="chip-group" role="group" aria-label="Filter by status" data-status-chips>
+            <button type="button" class="chip" aria-pressed="true" data-status="all">
+              All statuses <span class="chip-count">{projects.length}</span>
+            </button>
+            {statuses.map((status) => (
+              <button type="button" class="chip" aria-pressed="false" data-status={status}>
+                {status} <span class="chip-count">{statusCount(status)}</span>
+              </button>
+            ))}
+          </div>
+
+          <div class="chip-group" role="group" aria-label="Filter by category" data-category-chips>
+            <button type="button" class="chip" aria-pressed="true" data-category="all">
+              All categories
+            </button>
+            {categories.map((category) => (
+              <button type="button" class="chip" aria-pressed="false" data-category={category}>
+                {category}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div class="toolbar-status">
+          <span data-project-count aria-live="polite">
+            {projects.length} {plural(projects.length)} shown
+          </span>
+          <button type="button" class="toolbar-reset" data-project-reset hidden>Clear filters</button>
+        </div>
+      </div>
+
+      <div class="card-grid" data-project-grid>
+        {projects.map((project) => (
+          <div
+            class="project-item"
+            data-title={`${project.data.title} ${project.data.tagline} ${project.data.summary} ${project.data.category}`.toLowerCase()}
+            data-status={project.data.status}
+            data-category={project.data.category}
+            data-order={project.data.order}
+            data-name={project.data.title}
+          >
+            <ProjectCard
+              title={project.data.title}
+              tagline={project.data.tagline}
+              summary={project.data.summary}
+              status={project.data.status}
+              category={project.data.category}
+              href={`/projects/${project.id}`}
+            />
+          </div>
+        ))}
+      </div>
+
+      <p class="empty-state" data-project-empty>
+        Nothing matches that combination of filters. Try clearing the search or choosing a
+        different status.
+      </p>
+
+      <div class="notice notice--neutral" style="margin-top: 1.5rem;">
+        <span class="status status--planned">Nothing else yet</span>
+        <p class="notice-body">
+          Games, tools and other projects are the direction, not yet existing work. When
+          another project begins it will be listed here from its first honest status — a
+          project's absence is more accurate than a placeholder.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    const grid = document.querySelector<HTMLElement>('[data-project-grid]');
+    const toolbar = document.querySelector<HTMLElement>('[data-project-toolbar]');
+
+    if (grid && toolbar) {
+      const items = Array.from(grid.querySelectorAll<HTMLElement>('[data-title]'));
+      const search = toolbar.querySelector<HTMLInputElement>('[data-project-search]');
+      const sort = toolbar.querySelector<HTMLSelectElement>('[data-project-sort]');
+      const statusChips = Array.from(toolbar.querySelectorAll<HTMLButtonElement>('[data-status-chips] .chip'));
+      const categoryChips = Array.from(toolbar.querySelectorAll<HTMLButtonElement>('[data-category-chips] .chip'));
+      const countEl = toolbar.querySelector<HTMLElement>('[data-project-count]');
+      const resetBtn = toolbar.querySelector<HTMLButtonElement>('[data-project-reset]');
+      const emptyEl = document.querySelector<HTMLElement>('[data-project-empty]');
+
+      const statusRank = ['In development', 'Prototype', 'Testing', 'Planned', 'On hold'];
+
+      let status = 'all';
+      let category = 'all';
+
+      const setPressed = (chips: HTMLButtonElement[], value: string, key: string) => {
+        chips.forEach((chip) => {
+          const active = chip.dataset[key] === value;
+          chip.setAttribute('aria-pressed', String(active));
+        });
+      };
+
+      const apply = () => {
+        const query = (search?.value ?? '').trim().toLowerCase();
+
+        let visible = 0;
+        items.forEach((item) => {
+          const matchesQuery = !query || (item.dataset.title ?? '').includes(query);
+          const matchesStatus = status === 'all' || item.dataset.status === status;
+          const matchesCategory = category === 'all' || item.dataset.category === category;
+          const matches = matchesQuery && matchesStatus && matchesCategory;
+          item.classList.toggle('is-hidden', !matches);
+          if (matches) visible += 1;
+        });
+
+        const mode = sort?.value ?? 'order';
+        const ordered = [...items].sort((a, b) => {
+          if (mode === 'az') return (a.dataset.name ?? '').localeCompare(b.dataset.name ?? '');
+          if (mode === 'za') return (b.dataset.name ?? '').localeCompare(a.dataset.name ?? '');
+          if (mode === 'status') {
+            return statusRank.indexOf(a.dataset.status ?? '') - statusRank.indexOf(b.dataset.status ?? '');
+          }
+          return Number(a.dataset.order ?? 100) - Number(b.dataset.order ?? 100);
+        });
+        ordered.forEach((item) => grid.appendChild(item));
+
+        if (countEl) {
+          const total = items.length;
+          const noun = total === 1 ? 'project' : 'projects';
+          countEl.textContent =
+            visible === total ? `${total} ${noun} shown` : `${visible} of ${total} ${noun} shown`;
+        }
+
+        emptyEl?.classList.toggle('is-visible', visible === 0);
+        if (resetBtn) resetBtn.hidden = !(query || status !== 'all' || category !== 'all' || mode !== 'order');
+      };
+
+      search?.addEventListener('input', apply);
+      sort?.addEventListener('change', apply);
+
+      statusChips.forEach((chip) => {
+        chip.addEventListener('click', () => {
+          status = chip.dataset.status ?? 'all';
+          setPressed(statusChips, status, 'status');
+          apply();
+        });
+      });
+
+      categoryChips.forEach((chip) => {
+        chip.addEventListener('click', () => {
+          category = chip.dataset.category ?? 'all';
+          setPressed(categoryChips, category, 'category');
+          apply();
+        });
+      });
+
+      resetBtn?.addEventListener('click', () => {
+        if (search) search.value = '';
+        if (sort) sort.value = 'order';
+        status = 'all';
+        category = 'all';
+        setPressed(statusChips, status, 'status');
+        setPressed(categoryChips, category, 'category');
+        apply();
+      });
+
+      apply();
+    }
+  </script>
+</Base>
