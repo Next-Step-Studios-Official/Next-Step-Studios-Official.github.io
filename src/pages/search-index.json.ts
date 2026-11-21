@@ -38,13 +38,14 @@ type IndexEntry = {
 };
 
 const PAGES: IndexEntry[] = [
-  { type: 'Page', title: 'Home', url: '/', text: 'Next Step Studios independent creative and software studio Candler Shaw games software Discord bot. See the work, read the documents, official links.' },
+  { type: 'Page', title: 'Home', url: '/', text: 'Next Step Studios independent creative and software studio Candler Shaw volunteer contributors games software Discord bot. See the work, read the documents, official links.' },
   { type: 'Page', title: 'Projects', url: '/projects', text: 'Every project at the stage it is actually at. Status, category, sorting and filtering.' },
   { type: 'Page', title: 'Devlog', url: '/devlog', text: 'Notes from the work. Short entries about what is being built and what is unfinished.' },
   { type: 'Page', title: 'Command reference', url: '/commands', text: 'Every slash command in the Next Step Bot, grouped by area of the server.' },
   { type: 'Page', title: 'Social', url: '/social', text: 'Official accounts: YouTube, Instagram, TikTok, X, Facebook, Roblox, GitHub and the Discord invite.' },
   { type: 'Page', title: 'Official links', url: '/links', text: 'Every official link in one place, mirroring the bot links panel.' },
-  { type: 'Page', title: 'About', url: '/about', text: 'The studio, the operator, how it works and what it is for.' },
+  { type: 'Page', title: 'About', url: '/about', text: 'The studio, the operator, the contributors, how it works and what it is for.' },
+  { type: 'Page', title: 'Team', url: '/team', text: 'The people who contribute to Next Step Studios: the operator and the volunteer contributors, with what each one works on.' },
   { type: 'Page', title: 'Policies', url: '/policies', text: 'Discord bot policy documents: privacy, terms, acceptable use, community guidelines, moderation, data retention and security.' },
   { type: 'Page', title: 'Downloads', url: '/downloads', text: 'Every policy document as Markdown, plain text, print layout and PDF, plus one combined file.' },
   { type: 'Page', title: 'Roadmap', url: '/roadmap', text: 'What is in development, what is planned and what has been decided against.' },

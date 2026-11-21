@@ -1,0 +1,225 @@
+/* ---------------------------------------------------------------------------
+   Theme
+   Dark is the default, defined by the tokens in global.css. This file adds the
+   light appearance and the header control that switches between them.
+
+   The attribute lives on <html> and is set before first paint by a small inline
+   script in Base.astro, so nothing flashes. A stored choice wins; otherwise the
+   system preference is used once, and then the visitor's choice takes over.
+
+   Rules this file keeps:
+    - Both themes are complete. Every token is restated for light mode, and the
+      few places that hard-code a dark-only surface are overridden below.
+    - Contrast is the reason for most of these values, not taste. Body text in
+      light mode sits around 12:1 on the page background; muted text stays above
+      4.5:1.
+    - The Discord message mock-ups on /commands keep their dark styling in both
+      themes, because they are pictures of Discord's own dark interface rather
+      than part of this site's surface.
+--------------------------------------------------------------------------- */
+
+/* The control itself ------------------------------------------------------- */
+.theme-toggle {
+  padding-inline: 0.55rem;
+}
+
+.theme-icon {
+  width: 1rem;
+  height: 1rem;
+  flex: none;
+}
+
+.theme-icon--moon {
+  display: none;
+}
+
+html[data-theme='light'] .theme-icon--sun {
+  display: none;
+}
+
+html[data-theme='light'] .theme-icon--moon {
+  display: block;
+}
+
+/* Light tokens ------------------------------------------------------------ */
+html[data-theme='light'] {
+  color-scheme: light;
+
+  --color-bg: #f6f7fa;
+  --color-bg-soft: #eceff5;
+  --color-surface: #ffffff;
+  --color-surface-2: #f1f4f9;
+  --color-line: #d3d9e3;
+  --color-line-soft: #e3e7ee;
+  --color-control-line: #767f8e;
+  --color-ink: #101520;
+  --color-ink-dim: #333e4f;
+  --color-muted: #5a6678;
+  --color-accent: #1a5cd0;
+  --color-accent-soft: #10489f;
+  --color-violet: #6743d1;
+  --color-magenta: #b02a94;
+}
+
+/* Decoration that was tuned for a near-black page ------------------------- */
+html[data-theme='light'] body::before {
+  background-image:
+    linear-gradient(to right, rgba(60, 84, 130, 0.07) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(60, 84, 130, 0.07) 1px, transparent 1px);
+}
+
+html[data-theme='light'] body::after {
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(26, 92, 208, 0.1),
+    rgba(103, 67, 209, 0.05) 42%,
+    transparent 68%
+  );
+}
+
+html[data-theme='light'] ::selection {
+  background: rgba(26, 92, 208, 0.2);
+  color: #0b1020;
+}
+
+/* Surfaces that carried an opaque dark colour ----------------------------- */
+html[data-theme='light'] .site-header {
+  background: rgba(246, 247, 250, 0.86);
+}
+
+html[data-theme='light'] .panel {
+  background: var(--color-surface);
+}
+
+html[data-theme='light'] .palette-panel,
+html[data-theme='light'] .drawer-panel,
+html[data-theme='light'] .nav-menu {
+  border-color: var(--color-line);
+  background: var(--color-surface);
+  box-shadow:
+    0 30px 90px -34px rgba(22, 30, 48, 0.28),
+    0 0 0 1px rgba(26, 92, 208, 0.06);
+}
+
+html[data-theme='light'] .palette-backdrop,
+html[data-theme='light'] .drawer-backdrop {
+  background: rgba(16, 21, 32, 0.42);
+}
+
+/* Hover states that resolved to pure white, which vanishes on paper-white -- */
+html[data-theme='light'] .text-link:hover,
+html[data-theme='light'] .prose a:hover,
+html[data-theme='light'] .entry:hover .entry-title,
+html[data-theme='light'] .footer-mail:hover,
+html[data-theme='light'] .drawer-nav a:hover,
+html[data-theme='light'] .drawer-nav a:focus-visible,
+html[data-theme='light'] .nav-menu a:hover,
+html[data-theme='light'] .nav-menu a[aria-current='page'],
+html[data-theme='light'] .faq-item summary:hover .faq-question,
+html[data-theme='light'] .tag-link:hover,
+html[data-theme='light'] .series-list a:hover {
+  color: var(--color-ink);
+}
+
+/* Text that sits on the accent colour, which is dark in light mode --------- */
+html[data-theme='light'] .btn-primary,
+html[data-theme='light'] .skip-link,
+html[data-theme='light'] .chip--active,
+html[data-theme='light'] .search-submit,
+html[data-theme='light'] .filter-chip[aria-pressed='true'] {
+  color: #ffffff;
+}
+
+/* The gradient headline started with a near-white stop -------------------- */
+html[data-theme='light'] .accent-text {
+  background: linear-gradient(102deg, #0b1425 4%, var(--color-accent) 46%, var(--color-violet) 96%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Status badges: dark-mode pastels fail on white, so they are re-mixed ---- */
+html[data-theme='light'] .status--dev {
+  color: #12457f;
+  background: rgba(26, 92, 208, 0.08);
+  border-color: rgba(26, 92, 208, 0.3);
+}
+
+html[data-theme='light'] .status--prototype {
+  color: #4b2f9e;
+  background: rgba(103, 67, 209, 0.08);
+  border-color: rgba(103, 67, 209, 0.28);
+}
+
+html[data-theme='light'] .status--testing {
+  color: #12634a;
+  background: rgba(16, 138, 100, 0.09);
+  border-color: rgba(16, 138, 100, 0.28);
+}
+
+html[data-theme='light'] .status--planned {
+  color: #45526a;
+  background: rgba(69, 82, 106, 0.06);
+  border-color: rgba(69, 82, 106, 0.24);
+}
+
+html[data-theme='light'] .status--hold {
+  color: #8a4a12;
+  background: rgba(196, 105, 26, 0.09);
+  border-color: rgba(196, 105, 26, 0.28);
+}
+
+html[data-theme='light'] .status--draft {
+  color: #7a4c00;
+  background: rgba(196, 130, 0, 0.1);
+  border-color: rgba(196, 130, 0, 0.3);
+}
+
+/* The draft notice, amber on near-black ----------------------------------- */
+html[data-theme='light'] .notice {
+  border-color: rgba(196, 130, 0, 0.26);
+  border-left-color: rgba(196, 130, 0, 0.6);
+  background: rgba(196, 130, 0, 0.05);
+}
+
+html[data-theme='light'] .notice-body {
+  color: #43350f;
+}
+
+html[data-theme='light'] .notice-title {
+  color: #7a4c00;
+}
+
+html[data-theme='light'] .prose li::marker {
+  color: #7d8aa0;
+}
+
+/* Low-contrast greys that were hard-coded for a dark background ----------- */
+html[data-theme='light'] .drawer-index,
+html[data-theme='light'] .palette-kind,
+html[data-theme='light'] .palette-input::placeholder,
+html[data-theme='light'] .search-field input::placeholder,
+html[data-theme='light'] .social-pending,
+html[data-theme='light'] .series-index,
+html[data-theme='light'] .faq-index,
+html[data-theme='light'] .channel-link--pending,
+html[data-theme='light'] .link-meta {
+  color: var(--color-muted);
+}
+
+/* Diff lines in the editorial layout -------------------------------------- */
+html[data-theme='light'] .diff-line--add {
+  color: #10633f;
+  background: rgba(16, 138, 100, 0.1);
+}
+
+html[data-theme='light'] .diff-line--remove {
+  color: #8c1c2e;
+  background: rgba(190, 40, 70, 0.09);
+}
+
+/* Focus rings need more weight against a pale page ------------------------ */
+html[data-theme='light'] :focus-visible {
+  outline-color: var(--color-accent);
+  outline-offset: 2px;
+}

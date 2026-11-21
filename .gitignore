@@ -3,6 +3,7 @@ dist/
 .astro/
 .env
 .env.*
+!.env.example
 .DS_Store
 *.log
 
@@ -15,3 +16,5 @@ documentation-source/
 .freebuff/
 docs/
 COPY_DRAFTS.md
+.env.local
+server-data/

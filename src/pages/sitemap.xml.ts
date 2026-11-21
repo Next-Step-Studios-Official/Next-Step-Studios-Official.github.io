@@ -13,6 +13,7 @@ const STATIC_ROUTES = [
   '/social',
   '/links',
   '/about',
+  '/team',
   '/policies',
   '/downloads',
   '/roadmap',

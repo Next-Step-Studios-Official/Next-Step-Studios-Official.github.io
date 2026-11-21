@@ -6,6 +6,7 @@ import { SITE } from '../lib/site';
 import { enabledLinks } from '../lib/links';
 import { BOT_MODULES } from '../lib/modules';
 import { COMMANDS } from '../lib/commands';
+import { CONTRIBUTOR_WORD } from '../lib/contributors';
 
 const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
 const featured = projects.find((project) => project.data.featured) ?? projects[0];
@@ -29,7 +30,7 @@ const tickerItems = [
   'Bot documentation · v0.2.0 drafts',
   `${COMMANDS.length} slash commands documented`,
   'Full-text search · no third parties',
-  'Independent studio · one operator',
+  `Independent studio · ${CONTRIBUTOR_WORD} contributors`,
   'Next Step Bot · in development',
 ];
 
@@ -78,7 +79,7 @@ const routes = [
 ---
 
 <Base
-  description="Next Step Studios is the independent creative and software studio of Candler Shaw — currently building a private Discord bot, with games and tools to follow."
+  description="Next Step Studios is an independent creative and software studio run by Candler Shaw with a small group of contributors — currently building a private Discord bot, with games and tools to follow."
   path="/"
 >
   <section class="hero">
@@ -88,7 +89,7 @@ const routes = [
     <div class="container">
       <div class="hero-grid">
         <div class="hero-stack">
-          <p class="eyebrow">Independent studio · One operator · In development</p>
+          <p class="eyebrow">Independent studio · {CONTRIBUTOR_WORD} contributors · In development</p>
           <h1 class="display">
             Games and software,<br />
             built one careful <span class="accent-text">step</span> at a time.
@@ -114,7 +115,7 @@ const routes = [
             <span class="hud-live">Live</span>
           </div>
           <dl class="hud-rows">
-            <div><dt>Studio</dt><dd>Independent · solo</dd></div>
+            <div><dt>Studio</dt><dd>Independent · contributors</dd></div>
             <div><dt>Build</dt><dd>Static HTML</dd></div>
             <div><dt>Tracking</dt><dd>None</dd></div>
             <div><dt>Accounts</dt><dd>None</dd></div>
@@ -273,8 +274,8 @@ const routes = [
         <div class="panel panel--pad" style="display: flex; flex-direction: column; gap: 1rem;">
           <p class="label">Contact</p>
           <p style="color: var(--color-ink-dim); font-size: 0.9375rem;">
-            Email is the only public contact route. There is no contact form, and this
-            site does not collect messages.
+            Use the contact form or email directly. Both reach the studio inbox, and both
+            are read by the person who runs the studio.
           </p>
           <a class="btn" href={`mailto:${SITE.contactEmail}`} style="align-self: flex-start; word-break: break-all;">
             {SITE.contactEmail}

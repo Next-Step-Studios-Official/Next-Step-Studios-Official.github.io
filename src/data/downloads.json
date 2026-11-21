@@ -1,0 +1,14 @@
+[
+  {
+    "slug": "command-cheatsheet",
+    "title": "Slash command cheatsheet",
+    "summary": "Every documented slash command, grouped, on a two-page A4 sheet.",
+    "category": "files",
+    "platforms": ["any"],
+    "kinds": ["document"],
+    "href": "/downloads/command-cheatsheet.pdf",
+    "formats": [
+      { "label": "PDF", "href": "/downloads/command-cheatsheet.pdf", "download": true }
+    ]
+  }
+]

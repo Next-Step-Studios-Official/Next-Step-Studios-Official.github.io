@@ -11,6 +11,7 @@ const site = [
   { label: 'Content', value: 'Markdown collections in the repository' },
   { label: 'Search', value: 'Generated JSON index, searched in the browser' },
   { label: 'Hosting', value: 'GitHub Pages, built by GitHub Actions' },
+  { label: 'Contact form', value: 'Small Node service, JSON storage, no framework' },
 ];
 
 const bot = [
@@ -23,12 +24,12 @@ const bot = [
 ];
 
 const absent = [
-  'No analytics, no cookies, no fingerprinting.',
-  'No accounts, no logins, no sessions.',
-  'No contact form, no email capture.',
+  'No analytics, no advertising, no fingerprinting.',
+  'No visitor accounts and no public logins.',
+  'No newsletter and no marketing email capture.',
   'No third-party scripts, fonts, embeds or trackers.',
   'No client-side framework and no hydration.',
-  'No database behind the website.',
+  'No advertising or analytics database.',
 ];
 ---
 
@@ -43,9 +44,9 @@ const absent = [
         <p class="eyebrow"><a class="text-link" href="/about">Studio</a> · Stack</p>
         <h1 class="display display--page">Small tools, chosen on purpose.</h1>
         <p class="lede">
-          The site is a static build with no server behind it. The bot is a Python process with a
-          SQLite file. Both are deliberately unglamorous, because the interesting part should be
-          the work, not the plumbing.
+          The site is a static build; the only server is a small contact service. The bot is a
+          Python process with a SQLite file. All of it is deliberately unglamorous, because the
+          interesting part should be the work, not the plumbing.
         </p>
       </div>
     </div>

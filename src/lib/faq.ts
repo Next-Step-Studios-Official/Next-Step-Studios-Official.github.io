@@ -3,6 +3,8 @@
  * Where the honest answer is "not yet", the answer says so.
  */
 
+import { CONTRIBUTOR_WORD } from './contributors';
+
 export type FaqEntry = {
   question: string;
   answer: string;
@@ -44,7 +46,7 @@ export const FAQ: FaqEntry[] = [
   {
     question: 'Does this website track me?',
     answer:
-      'No. There is no analytics, no cookie, no font or script from a third party, no account and no form. Every page is a pre-built file. The website privacy notice describes what the host can see at the network level, which this site does not control.',
+      'No. There is no analytics, no advertising, no tracking cookie, and no font or script from a third party. There is a contact form, but it only stores what you type into it so the message can be answered. The website privacy notice lists exactly what is kept, where, and how to have it deleted.',
     link: { href: '/website-privacy', label: 'Website privacy notice' },
   },
   {
@@ -80,7 +82,7 @@ export const FAQ: FaqEntry[] = [
   {
     question: 'Who runs Next Step Studios?',
     answer:
-      'One person: Candler Shaw. The studio is a public-facing name for a solo practice, not a registered company, and the site says so in the footer rather than implying a team.',
-    link: { href: '/about', label: 'About the studio' },
+      `Candler Shaw runs the studio and is its only legal operator. A small group of ${CONTRIBUTOR_WORD} contributors helps with specific projects, all voluntarily — nobody is employed, contracted or paid. It is still a public-facing name rather than a registered company, and the team page lists everyone involved and what they work on.`,
+    link: { href: '/team', label: 'The team' },
   },
 ];

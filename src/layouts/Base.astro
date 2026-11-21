@@ -3,6 +3,7 @@ import '../styles/global.css';
 import '../styles/pages.css';
 import '../styles/editorial.css';
 import '../styles/print.css';
+import '../styles/theme.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import CommandPalette from '../components/CommandPalette.astro';
@@ -70,6 +71,7 @@ const searchItems = [
   { title: 'Social', href: '/social', kind: 'Page', meta: 'Official accounts' },
   { title: 'Links', href: '/links', kind: 'Page', meta: 'Every official link' },
   { title: 'About', href: '/about', kind: 'Page', meta: 'The studio' },
+  { title: 'Team', href: '/team', kind: 'Page', meta: 'Who contributes' },
   { title: 'Roadmap', href: '/roadmap', kind: 'Page', meta: 'What is next' },
   { title: 'Changelog', href: '/changelog', kind: 'Page', meta: 'Release record' },
   { title: 'Status', href: '/status', kind: 'Page', meta: 'Current state' },
@@ -131,7 +133,8 @@ const structuredData = {
       url: origin.origin,
       email: SITE.contactEmail,
       founder: { '@type': 'Person', name: SITE.operator },
-      description: 'An independent creative and software studio operated by Candler Shaw.',
+      description:
+        'An independent creative and software studio run by Candler Shaw with a small group of volunteer contributors.',
       sameAs: [
         'https://github.com/Next-Step-Studios-Official',
       ],
@@ -167,9 +170,24 @@ const structuredData = {
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script is:inline>
+      // Resolve the theme before the first paint, so a visitor never sees the
+      // wrong palette flash. A stored choice wins; otherwise the system
+      // preference decides. Dark remains the default when neither is known.
+      (() => {
+        try {
+          const stored = localStorage.getItem('nss-theme');
+          const systemLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+          document.documentElement.dataset.theme =
+            stored === 'light' || stored === 'dark' ? stored : systemLight ? 'light' : 'dark';
+        } catch {
+          document.documentElement.dataset.theme = 'dark';
+        }
+      })();
+    </script>
     <title>{pageTitle}</title>
     <meta name="description" content={description} />
-    <meta name="color-scheme" content="dark" />
+    <meta name="color-scheme" content="dark light" />
     <meta name="theme-color" content="#07080b" />
     <link rel="preload" href={`${base}fonts/inter-latin.woff2`} as="font" type="font/woff2" crossorigin />
     <link rel="preload" href={`${base}fonts/space-grotesk-latin.woff2`} as="font" type="font/woff2" crossorigin />

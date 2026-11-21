@@ -5,17 +5,17 @@ import { SITE } from '../lib/site';
 
 <Base
   title="Website privacy notice"
-  description="What this website does and does not collect. No accounts, no forms, no cookies, no analytics, no tracking."
+  description="What this website collects: contact form messages, the theme you choose, and nothing else. No analytics, no advertising, no tracking cookies."
   path="/website-privacy"
 >
   <section class="page-head">
     <div class="container">
       <div class="page-head-stack">
         <p class="eyebrow">Website privacy notice</p>
-        <h1 class="display display--page">This website collects nothing.</h1>
+        <h1 class="display display--page">What this site collects, exactly.</h1>
         <p class="lede">
-          A short notice about this site specifically. It is separate from the Discord bot's
-          Privacy Policy, which does not cover the website.
+          A short notice about this site specifically, separate from the Discord bot's Privacy
+          Policy. It is written to describe what actually happens, including the one form.
         </p>
       </div>
     </div>
@@ -34,19 +34,59 @@ import { SITE } from '../lib/site';
 
       <div class="doc-layout" style="grid-template-columns: minmax(0, 1fr);">
         <article class="prose">
-          <h2>What this site does not do</h2>
-          <p>The website has no accounts, no sign-in, no contact forms, no comment sections, no downloads that require details, and no newsletter. Specifically, it does not use:</p>
+          <h2>The short version</h2>
+          <p>
+            There are no accounts and no analytics. The only information the site asks for is
+            what you type into the contact form, plus the theme you choose to look at it in.
+            Nothing is sold, shared for advertising, or used to build a profile.
+          </p>
+
+          <h2>The contact form</h2>
+          <p>When you send a message, the form records:</p>
           <ul>
-            <li>cookies or similar storage technologies;</li>
+            <li>the name you enter;</li>
+            <li>the email address you enter, used to reply;</li>
+            <li>the subject you choose and the message you write;</li>
+            <li>the time the message arrived;</li>
+            <li>a one-way hash of your network address, used only to rate-limit repeated submissions.</li>
+          </ul>
+          <p>
+            The raw network address is not stored with the message. The hash cannot be turned
+            back into an address by the studio.
+          </p>
+          <p>
+            Messages are stored by a small contact service run for the studio, not by an
+            advertising or analytics provider. They are kept while the matter they concern is
+            open and deleted once it is resolved, or sooner if you ask. There is no automated
+            expiry yet, and this notice will say so when there is one.
+          </p>
+          <p>
+            To have a message deleted, send a new message or email
+            <a href={`mailto:${SITE.contactEmail}`}>{SITE.contactEmail}</a> with enough detail
+            to identify it. See <a href="/contact#privacy-requests">privacy requests</a>.
+          </p>
+
+          <h2>Your theme choice</h2>
+          <p>
+            The light/dark toggle stores one value in your browser's local storage under the
+            name <span class="mono">nss-theme</span>. It records only “light” or “dark”. It is
+            never sent to the server, and clearing site data removes it.
+          </p>
+
+          <h2>What the site does not do</h2>
+          <p>Specifically, the website does not use:</p>
+          <ul>
             <li>analytics, statistics or audience-measurement services;</li>
             <li>advertising, advertising pixels or affiliate tracking;</li>
             <li>session recording, heatmaps or fingerprinting;</li>
             <li>third-party embeds, widgets or social plugins;</li>
-            <li>third-party fonts, scripts or content delivery networks.</li>
+            <li>third-party fonts, scripts or content delivery networks;</li>
+            <li>tracking cookies. Visitors receive no cookies from this site at all.</li>
           </ul>
           <p>
-            The site is built as static pages and the fonts are served from the site itself.
-            No information is stored in your browser by this site.
+            The fonts are served from the site itself, and every page is a pre-built file. The
+            private contact inbox is different: it sets one session cookie, and only after the
+            operator signs in. Visitors never receive it.
           </p>
 
           <h2>Hosting and technical logs</h2>
@@ -58,37 +98,32 @@ import { SITE } from '../lib/site';
             troubleshooting.
           </p>
           <p>
-            These logs are not used by the Studio for profiling, advertising or tracking, and
+            These logs are not used by the studio for profiling, advertising or tracking, and
             this site does not combine them with any other information. The exact logging and
             retention behaviour of the hosting provider is set by that provider rather than by
-            this website, and it is not described in more detail here than has been confirmed.
+            this website.
           </p>
 
           <h2>Email</h2>
           <p>
             If you email <a href={`mailto:${SITE.contactEmail}`}>{SITE.contactEmail}</a>, the
-            Studio receives your email address, the contents of your message, and anything you
+            studio receives your email address, the contents of your message, and anything you
             choose to attach, and uses them to read and answer your message. Email is handled
-            by the third-party email provider that hosts that mailbox.
-          </p>
-          <p>
-            Messages are kept as long as needed to deal with the matter they concern. No
-            specific retention period is stated here, because none has been fixed and verified
-            — stating one would be inventing it.
+            by the third-party email provider that hosts that mailbox, under its own terms.
           </p>
 
           <h2>What this notice does not claim</h2>
           <p>
-            This notice describes what the website actually does. It is not a legal opinion
-            and does not claim compliance with any particular law or regulation. If the site
-            later adds a feature that collects information — a form, analytics, an account
-            system — this notice will be rewritten before that feature goes live.
+            This notice describes what the website actually does. It is not a legal opinion and
+            does not claim compliance with any particular law or regulation. If the site later
+            adds a feature that collects new information — accounts, analytics, a different
+            form — this notice will be rewritten before that feature goes live.
           </p>
 
           <h2>Changes</h2>
           <p>
             This notice is updated when the website's behaviour changes. It carries no version
-            history yet because it is the first version.
+            history yet because it was rewritten once, when the contact form was added.
           </p>
 
           <h2>Contact</h2>

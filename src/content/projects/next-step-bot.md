@@ -62,5 +62,5 @@ They are published here as drafts pending review:
 - [Data Retention and Deletion Policy](/policies/bot/data-retention)
 - [Security and Data Protection Overview](/policies/bot/security)
 
-Those documents cover the Bot only. They do not describe this website, which collects
-nothing — see the [website privacy notice](/website-privacy).
+Those documents cover the Bot only. They do not describe this website — see the
+[website privacy notice](/website-privacy).

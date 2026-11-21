@@ -54,7 +54,7 @@ const formatDate = (date: Date) =>
             Status <StatusBadge status={status} />
           </span>
           <span>Category · {category}</span>
-          <span>Operated by one person, for one server</span>
+          <span>Operated by the studio, for one server</span>
           {isBot && <span>{BOT_MODULES.length} modules · {moduleCommandCount()} commands listed</span>}
           {entry.data.updated && <span>Status reviewed {formatDate(entry.data.updated)}</span>}
         </div>

@@ -21,6 +21,7 @@ const navMenus: NavGroup[] = [
     label: 'Studio',
     links: [
       { href: '/about', label: 'About' },
+      { href: '/team', label: 'Team' },
       { href: '/roadmap', label: 'Roadmap' },
       { href: '/changelog', label: 'Changelog' },
       { href: '/status', label: 'Status' },
@@ -102,6 +103,32 @@ const isGroupActive = (group: NavGroup) => group.links.some((link) => isActive(l
           <a href={link.href} aria-current={isActive(link.href) ? 'page' : undefined}>{link.label}</a>
         ))}
       </nav>
+
+      <button
+        type="button"
+        class="tool-btn theme-toggle"
+        data-theme-toggle
+        aria-pressed="false"
+        aria-label="Switch to light theme"
+      >
+        <svg class="theme-icon theme-icon--sun" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <circle cx="12" cy="12" r="4.1" stroke="currentColor" stroke-width="1.6" />
+          <path
+            d="M12 2.6v2.3M12 19.1v2.3M2.6 12h2.3M19.1 12h2.3M5.4 5.4l1.6 1.6M17 17l1.6 1.6M18.6 5.4 17 7M7 17l-1.6 1.6"
+            stroke="currentColor"
+            stroke-width="1.6"
+            stroke-linecap="round"
+          />
+        </svg>
+        <svg class="theme-icon theme-icon--moon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path
+            d="M20.4 14.8A8.3 8.3 0 0 1 9.2 3.6a8.5 8.5 0 1 0 11.2 11.2Z"
+            stroke="currentColor"
+            stroke-width="1.6"
+            stroke-linejoin="round"
+          />
+        </svg>
+      </button>
 
       <a class="tool-btn tool-btn--search" href="/search" aria-label="Search the site">
         <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
@@ -300,4 +327,31 @@ const isGroupActive = (group: NavGroup) => group.links.some((link) => isActive(l
     .addEventListener('change', (event) => {
       if (event.matches) closeDrawer(false);
     });
+
+  // Theme: read the choice the head script already resolved, then keep the
+  // button's label and the browser chrome colour in step with it.
+  const themeToggle = document.querySelector<HTMLButtonElement>('[data-theme-toggle]');
+  const themeColor = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+
+  const reflectTheme = (theme: 'light' | 'dark') => {
+    document.documentElement.dataset.theme = theme;
+    themeToggle?.setAttribute('aria-pressed', String(theme === 'light'));
+    themeToggle?.setAttribute(
+      'aria-label',
+      theme === 'light' ? 'Switch to dark theme' : 'Switch to light theme',
+    );
+    themeColor?.setAttribute('content', theme === 'light' ? '#f6f7fa' : '#07080b');
+  };
+
+  reflectTheme(document.documentElement.dataset.theme === 'light' ? 'light' : 'dark');
+
+  themeToggle?.addEventListener('click', () => {
+    const next = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light';
+    reflectTheme(next);
+    try {
+      localStorage.setItem('nss-theme', next);
+    } catch {
+      // Storage can be unavailable; the choice then lasts for this page only.
+    }
+  });
 </script>
