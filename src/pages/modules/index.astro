@@ -51,7 +51,7 @@ const commandsInModules = moduleCommandCount();
               <h3>{module.name}</h3>
               <p>{module.summary}</p>
               <span class="module-card-foot">
-                <span>{module.commands?.length ?? 0} commands</span>
+                <span>{module.commands?.length ?? 0} {(module.commands?.length ?? 0) === 1 ? 'command' : 'commands'}</span>
                 <span class="card-arrow" aria-hidden="true">↗</span>
               </span>
             </a>

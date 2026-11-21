@@ -93,7 +93,7 @@ const touchpoints = [
         <p class="lede">{module.summary}</p>
         <div class="meta-bar">
           <span class={`status status--${module.status}`}>{MODULE_STATUS_LABEL[module.status]}</span>
-          <span>{relatedCommands.length} documented commands</span>
+          <span>{relatedCommands.length} documented {relatedCommands.length === 1 ? 'command' : 'commands'}</span>
           <span>Module {module.id}</span>
         </div>
       </div>
