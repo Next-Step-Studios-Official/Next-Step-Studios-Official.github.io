@@ -52,6 +52,7 @@ If a change makes the build fail, undo that one change and compare it with the e
 20. [Troubleshooting](#20-troubleshooting)
 21. [File map and commands](#21-file-map-and-commands)
 22. [Future accounts and the game launcher](#22-future-accounts-and-the-game-launcher)
+23. [Step, the local assistant](#23-step-the-local-assistant)
 
 ---
 
@@ -1679,6 +1680,10 @@ text. Prefer changing the shared module (`src/lib/...`) so every page follows.
 | `src/layouts/Base.astro` | Page shell, metadata, favicons, schema |
 | `src/components/Header.astro` | Desktop and mobile navigation |
 | `src/components/Footer.astro` | Footer navigation and contact |
+| `src/components/Assistant.astro` | Floating Step launcher, chat panel and local loader |
+| `src/lib/assistant.ts` | Step's local question matcher and answer builder |
+| `src/pages/assistant-facts.json.ts` | Curated public facts used by Step |
+| `src/pages/search-index.json.ts` | Full-text index used by Search and Step |
 | `src/lib/site.ts` | Studio name, operator, email, canonical URL |
 | `src/lib/links.ts` | Official links and social accounts |
 | `src/lib/discord.ts` | Discord invite and channel ids |
@@ -1777,3 +1782,110 @@ These keep the future option open without building it prematurely:
 
 Do not add placeholder login buttons, “coming soon” account pages or fake user counts.
 The honest state is that accounts do not exist yet, and the site already says so.
+
+---
+
+## 23. Step, the local assistant
+
+**Name:** Step. **Where:** the floating button in the bottom-right corner of every page.
+It answers questions about the studio from the site's public content.
+
+Step is **not a neural language model**. It is a deterministic local retrieval assistant:
+no API key, no cloud AI, no account, and no conversation storage. It is deliberately
+built this way so the site can keep its “no tracking, no third parties” promise.
+
+### How an answer is produced
+
+1. Opening the panel fetches two same-origin static files:
+   - `/assistant-facts.json` — curated facts about the studio, projects, policies, team
+     and links, generated at build time;
+   - `/search-index.json` — the same full-text index used by the Search page.
+2. `src/lib/assistant.ts` normalises the question, scores it against the facts, then
+   searches the index for longer-tail questions.
+3. The answer is displayed as plain text, with links to the relevant public page. The
+   browser receives the question text only through the form; it is not put in a URL or
+   sent to a server.
+4. If nothing is relevant, Step says it does not know and offers **Search** and
+   **Contact** instead of inventing an answer.
+
+No question is sent to an AI service or an API. The only requests are for the two static
+files above, and those requests contain no question text. There is no `localStorage` or
+cookie for the conversation; it exists in the open tab and resets on reload.
+
+### Files
+
+| File | Purpose |
+| --- | --- |
+| `src/components/Assistant.astro` | Launcher, panel, messages, loading and keyboard behaviour |
+| `src/lib/assistant.ts` | Tokenising, fact scoring, index search and answer templates |
+| `src/pages/assistant-facts.json.ts` | The curated facts; generates `/assistant-facts.json` |
+| `src/pages/search-index.json.ts` | The shared full-text index; generates `/search-index.json` |
+| `src/layouts/Base.astro` | Renders `<Assistant />` once on every page |
+| `src/pages/website-privacy.astro` | Explains the assistant's local-only behaviour |
+
+### Add or change an answer
+
+Open `src/pages/assistant-facts.json.ts` and find the `facts` array. A fact looks like:
+
+```ts
+fact(
+  'studio',
+  'Next Step Studios',
+  ['what is next step studios', 'what is the studio'],
+  'The answer shown to the visitor.',
+  [link('/about', 'About the studio')],
+  8,
+),
+```
+
+- `id` — unique, lowercase and stable. Do not reuse an existing id.
+- `title` — the short label; it is also used for matching.
+- `aliases` — real questions a visitor might type. Add several.
+- `answer` — plain text only. It is inserted with `textContent`, so HTML is not rendered.
+- `links` — public site routes or public HTTPS URLs. Do not add a private channel,
+  token, password or internal document.
+- `priority` — 0–10; higher wins when two facts are equally relevant. Use 7–10 for
+  important studio facts, 0–3 for narrow references.
+
+Keep every answer traceable to a public page. If the underlying project, policy or team
+fact changes, change the source content or the fact as well; never leave the assistant
+claiming something the page no longer says. The full-text index already covers policies,
+projects, devlog entries, commands, modules, FAQ entries, roadmap items and glossary
+terms, so those do not need a separate fact unless the common answer needs a direct
+summary.
+
+### Test Step
+
+1. Run `npm run dev` and open `http://localhost:4321/`.
+2. Open **Ask Step** in the bottom-right. Ask the five suggested questions.
+3. Ask something the public pages do not cover, for example “What is your favourite
+   colour?”. It should say it does not know, with Search and Contact links.
+4. Ask a policy question and a command question. Check the links open the right page.
+5. Open DevTools → Network, clear the log, then open Step. The only new requests should
+   be `/assistant-facts.json` and `/search-index.json`; there should be no external AI
+   request.
+6. Reload the page. The conversation should be gone. Check DevTools → Application →
+   Local Storage: Step should not have added a key.
+7. At a 390 × 844 viewport, the panel should fit without sideways scrolling, and
+   `Escape` or the ✕ button should close it.
+8. Run `npm run build` before publishing. A successful build is the check for the facts
+   route and the bundled script.
+
+### What not to do
+
+- Do not add an OpenAI, Anthropic, Google or other model API call. There is no API key
+  for Step, and the site's privacy notice says there is no third-party AI request.
+- Do not put the question in a URL, log it, or save it to `localStorage`, a cookie or the
+  contact service.
+- Do not render the answer with `innerHTML`; the current code uses `textContent` so page
+  content cannot inject markup.
+- Do not include private bot configuration, private Discord channel URLs, credentials or
+  internal notes in `assistant-facts.json.ts` or `search-index.json.ts`.
+
+### If Step gives a stale or missing answer
+
+- Rebuild with `npm run build`. The facts file is generated at build time.
+- Hard-refresh the browser if the panel was already open; the loader requests both JSON
+  files with `cache: 'no-cache'`.
+- If a new topic is missing, add a fact with several aliases. If a page exists but the
+  answer is vague, add a specific fact rather than making the search index larger.

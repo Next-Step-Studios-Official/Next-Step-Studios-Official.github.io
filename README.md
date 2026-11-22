@@ -20,8 +20,9 @@ The site has four jobs:
 4. Record the work through projects, devlog entries, a roadmap and a changelog.
 
 It is a static site. There is no account system, no analytics, no advertising and no
-third-party tracking. The contact form is the only interactive service, and it is kept
-separate from the pages themselves.
+third-party tracking. The contact form is the only service that receives data, and it is
+kept separate from the pages themselves. Step, the assistant, runs entirely in the
+browser.
 
 ## What you will find
 
@@ -53,6 +54,8 @@ separate from the pages themselves.
 - **Contact** — a message form and the public email address.
 - **Website privacy** — the privacy notice for this site, separate from the bot policies.
 - **Search** — a client-side search across the site's pages and sections.
+- **Step** — a local assistant, available from the bottom-right corner of every page,
+  that answers questions from the site's public content.
 
 ## Design and technology
 
@@ -69,6 +72,12 @@ the favicons and the retired marks.
 The contact form posts to a small separate service because GitHub Pages cannot run
 server code. Messages are stored so they can be answered; the website itself does not
 create accounts or keep user profiles.
+
+**Step** is a local knowledge assistant built into the site. It scores questions against
+a curated studio fact file and the same build-time index the Search page uses, then
+answers from that public content. It is not a language model, makes no request to an AI
+service, has no API key and does not save the conversation. When the public pages do not
+cover a question, it says so and offers Search and Contact instead of guessing.
 
 ## Project structure
 
@@ -103,6 +112,8 @@ exist.
 
 - No analytics, advertising, tracking pixels or third-party embeds.
 - No accounts, registration or login for visitors.
+- **Step** processes questions in the browser. They are not sent to an AI service, and
+  the conversation is not stored or included in a URL.
 - The contact form sends the name, email address, subject and message needed to reply.
   The contact service stores that message with a timestamp and a hashed IP address used
   for rate limiting; the website privacy notice explains how it is handled.

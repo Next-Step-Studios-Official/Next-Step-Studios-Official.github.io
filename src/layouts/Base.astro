@@ -8,6 +8,7 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import CommandPalette from '../components/CommandPalette.astro';
 import Shortcuts from '../components/Shortcuts.astro';
+import Assistant from '../components/Assistant.astro';
 import { BOT_MODULES } from '../lib/modules';
 import { SITE } from '../lib/site';
 import { COMMANDS, COMMAND_GROUPS } from '../lib/commands';
@@ -231,6 +232,7 @@ const structuredData = {
     <Footer />
     <CommandPalette items={searchItems} />
     <Shortcuts />
+    <Assistant />
 
     <script>
       const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;

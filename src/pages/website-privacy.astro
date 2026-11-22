@@ -5,7 +5,7 @@ import { SITE } from '../lib/site';
 
 <Base
   title="Website privacy notice"
-  description="What this website collects: contact form messages, the theme you choose, and nothing else. No analytics, no advertising, no tracking cookies."
+  description="What this website collects: contact form messages, the theme you choose, and nothing else. Step, the assistant, runs locally and stores no conversation. No analytics, no advertising, no tracking cookies."
   path="/website-privacy"
 >
   <section class="page-head">
@@ -36,9 +36,10 @@ import { SITE } from '../lib/site';
         <article class="prose">
           <h2>The short version</h2>
           <p>
-            There are no accounts and no analytics. The only information the site asks for is
+            There are no accounts and no analytics. The only information the site collects is
             what you type into the contact form, plus the theme you choose to look at it in.
-            Nothing is sold, shared for advertising, or used to build a profile.
+            Step, the assistant, processes your questions in the browser and does not collect
+            them. Nothing is sold, shared for advertising, or used to build a profile.
           </p>
 
           <h2>The contact form</h2>
@@ -72,6 +73,24 @@ import { SITE } from '../lib/site';
             The light/dark toggle stores one value in your browser's local storage under the
             name <span class="mono">nss-theme</span>. It records only “light” or “dark”. It is
             never sent to the server, and clearing site data removes it.
+          </p>
+
+          <h2>Step, the local assistant</h2>
+          <p>
+            <strong>Step</strong> is the assistant in the bottom-right corner. When it opens,
+            it loads two static files from this site: a curated fact file and the same
+            full-text index used by the Search page. Your question is matched against that
+            content in your browser.
+          </p>
+          <p>
+            The question is not sent to an AI service, a model or an API, and it is not put in
+            a URL. The conversation is held in memory only: it is not written to local
+            storage or a cookie, and it is discarded when you reload or close the page. The
+            static-file requests are ordinary page requests and do not contain your question.
+          </p>
+          <p>
+            Step can offer links to public pages and to the contact form. If it cannot find
+            an answer in the public pages, it says so rather than inventing one.
           </p>
 
           <h2>What the site does not do</h2>
@@ -135,7 +154,7 @@ import { SITE } from '../lib/site';
           <h2>Changes</h2>
           <p>
             This notice is updated when the website's behaviour changes. It carries no version
-            history yet because it was rewritten once, when the contact form was added.
+            history; it is revised whenever a feature changes what the site collects or sends.
           </p>
 
           <h2>Contact</h2>

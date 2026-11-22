@@ -1,0 +1,838 @@
+---
+import { Image } from 'astro:assets';
+import logoMark from '../assets/brand/logo-mark.png';
+
+const factsUrl = `${import.meta.env.BASE_URL}assistant-facts.json`;
+const indexUrl = `${import.meta.env.BASE_URL}search-index.json`;
+
+const intro =
+  "Hi — I'm Step, the local guide to Next Step Studios. I can answer from the studio's public pages: the studio, the bot, projects, policies, team, links and contact. What would you like to know?";
+
+const starters = [
+  'What is Next Step Studios?',
+  'What is Next Step Bot?',
+  'Who runs the studio?',
+  'How do I contact the studio?',
+  'What policies do you have?',
+];
+---
+
+<div
+  class="step-root"
+  data-assistant
+  data-facts-url={factsUrl}
+  data-index-url={indexUrl}
+  data-intro={intro}
+>
+  <section
+    class="step-panel"
+    id="step-panel"
+    data-assistant-panel
+    role="dialog"
+    aria-modal="false"
+    aria-label="Step, the Next Step Studios assistant"
+    hidden
+  >
+    <header class="step-head">
+      <div class="step-identity">
+        <span class="step-avatar" aria-hidden="true">
+          <Image src={logoMark} width={32} height={32} alt="" />
+        </span>
+        <div>
+          <p class="step-kicker">Local studio guide</p>
+          <h2 class="step-title">Step</h2>
+        </div>
+      </div>
+      <div class="step-head-actions">
+        <button
+          class="step-icon-button step-new"
+          type="button"
+          data-assistant-new
+          aria-label="Start a new conversation"
+          title="New conversation"
+        >
+          New
+        </button>
+        <button
+          class="step-icon-button step-close"
+          type="button"
+          data-assistant-close
+          aria-label="Close Step"
+          title="Close"
+        >
+          ✕
+        </button>
+      </div>
+    </header>
+
+    <div class="step-log" data-assistant-log role="log" aria-live="polite" aria-relevant="additions">
+      <article class="step-message step-message--assistant">
+        <p class="step-message-label">Step</p>
+        <p class="step-message-text">{intro}</p>
+      </article>
+    </div>
+
+    <div class="step-suggestions" data-assistant-suggestions aria-label="Suggested questions">
+      {starters.map((question) => (
+        <button class="step-suggestion" type="button" data-question={question}>
+          {question}
+        </button>
+      ))}
+    </div>
+
+    <p class="step-status" data-assistant-status aria-live="polite" hidden></p>
+
+    <form class="step-form" data-assistant-form>
+      <label class="sr-only" for="step-input">Ask Step about Next Step Studios</label>
+      <input
+        class="step-input"
+        id="step-input"
+        data-assistant-input
+        type="text"
+        name="question"
+        placeholder="Ask about the studio, bot, policies…"
+        autocomplete="off"
+        maxlength="500"
+        enterkeyhint="send"
+      />
+      <button class="step-send" type="submit" data-assistant-send aria-label="Send question">
+        <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+          <path d="M3.2 9.7 16.6 3.8 10.7 17.2l-2.1-6.1-5.4-1.4Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" />
+          <path d="m8.6 11.1 4.1-4.1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
+        </svg>
+      </button>
+    </form>
+
+    <p class="step-note">
+      Local only · no account · no API · resets on reload
+    </p>
+  </section>
+
+  <button
+    class="step-launcher"
+    type="button"
+    data-assistant-toggle
+    aria-expanded="false"
+    aria-controls="step-panel"
+    aria-label="Open Step, the studio assistant"
+  >
+    <span class="step-launcher-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none">
+        <path
+          d="M5.2 5.5h13.6a1.8 1.8 0 0 1 1.8 1.8v7.4a1.8 1.8 0 0 1-1.8 1.8H9.3l-4.3 3v-3H3.4a1.8 1.8 0 0 1-1.8-1.8V7.3a1.8 1.8 0 0 1 1.8-1.8Z"
+          stroke="currentColor"
+          stroke-width="1.4"
+          stroke-linejoin="round"
+        />
+        <path d="M6.7 9.3h10.6M6.7 12.6h6.8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
+      </svg>
+    </span>
+    <span class="step-launcher-copy">
+      <span class="step-launcher-label">Ask Step</span>
+      <span class="step-launcher-sub">Local studio guide</span>
+    </span>
+    <span class="step-live-dot" aria-hidden="true"></span>
+  </button>
+</div>
+
+<script>
+  import { answerQuestion } from '../lib/assistant';
+  import type {
+    AssistantEntry,
+    AssistantFact,
+    AssistantLink,
+    AssistantReply,
+  } from '../lib/assistant';
+
+  const root = document.querySelector<HTMLElement>('[data-assistant]');
+
+  if (root) {
+    const panel = root.querySelector<HTMLElement>('[data-assistant-panel]');
+    const launcher = root.querySelector<HTMLButtonElement>('[data-assistant-toggle]');
+    const log = root.querySelector<HTMLElement>('[data-assistant-log]');
+    const form = root.querySelector<HTMLFormElement>('[data-assistant-form]');
+    const input = root.querySelector<HTMLInputElement>('[data-assistant-input]');
+    const send = root.querySelector<HTMLButtonElement>('[data-assistant-send]');
+    const status = root.querySelector<HTMLElement>('[data-assistant-status]');
+    const suggestions = root.querySelector<HTMLElement>('[data-assistant-suggestions]');
+    const newChat = root.querySelector<HTMLButtonElement>('[data-assistant-new]');
+    const closeButton = root.querySelector<HTMLButtonElement>('[data-assistant-close]');
+
+    const factsUrl = root.dataset.factsUrl ?? '';
+    const indexUrl = root.dataset.indexUrl ?? '';
+    const intro = root.dataset.intro ?? '';
+
+    let facts: AssistantFact[] | null = null;
+    let entries: AssistantEntry[] | null = null;
+    let loading: Promise<boolean> | null = null;
+    let isOpen = false;
+    let closeTimer: number | undefined;
+
+    const setStatus = (message: string) => {
+      if (!status) return;
+      status.textContent = message;
+      status.hidden = message.length === 0;
+    };
+
+    const scrollLog = () => {
+      if (log) log.scrollTop = log.scrollHeight;
+    };
+
+    const sourceLabel = (confidence: AssistantReply['confidence']) => {
+      if (confidence === 'fact') return "From the studio's public pages";
+      if (confidence === 'index') return 'From the site index';
+      if (confidence === 'unknown') return 'Not in the public pages';
+      return '';
+    };
+
+    const addMessage = (
+      role: 'user' | 'assistant',
+      text: string,
+      links: AssistantLink[] = [],
+      confidence?: AssistantReply['confidence'],
+    ) => {
+      if (!log) return;
+      const article = document.createElement('article');
+      article.className = `step-message step-message--${role}`;
+
+      const label = document.createElement('p');
+      label.className = 'step-message-label';
+      label.textContent = role === 'user' ? 'You' : 'Step';
+      article.append(label);
+
+      const body = document.createElement('p');
+      body.className = 'step-message-text';
+      body.textContent = text;
+      article.append(body);
+
+      if (links.length > 0) {
+        const linkList = document.createElement('div');
+        linkList.className = 'step-message-links';
+        links.forEach((link) => {
+          const anchor = document.createElement('a');
+          anchor.className = 'step-message-link';
+          anchor.href = link.href;
+          anchor.textContent = link.label;
+          if (link.external || /^https?:\/\//i.test(link.href)) {
+            anchor.target = '_blank';
+            anchor.rel = 'noopener noreferrer';
+          }
+          linkList.append(anchor);
+        });
+        article.append(linkList);
+      }
+
+      const source = role === 'assistant' && confidence ? sourceLabel(confidence) : '';
+      if (source) {
+        const sourceEl = document.createElement('p');
+        sourceEl.className = 'step-message-source';
+        sourceEl.textContent = source;
+        article.append(sourceEl);
+      }
+
+      log.append(article);
+      scrollLog();
+    };
+
+    const loadKnowledge = (): Promise<boolean> => {
+      if (facts && entries) return Promise.resolve(true);
+      if (loading) return loading;
+
+      setStatus('Loading the local knowledge file…');
+      send && (send.disabled = true);
+
+      loading = Promise.all([
+        fetch(factsUrl, { cache: 'no-cache' }),
+        fetch(indexUrl, { cache: 'no-cache' }),
+      ])
+        .then(async ([factsResponse, indexResponse]) => {
+          if (!factsResponse.ok || !indexResponse.ok) {
+            throw new Error('Local knowledge unavailable');
+          }
+          const factData = (await factsResponse.json()) as { facts?: AssistantFact[] };
+          const indexData = (await indexResponse.json()) as AssistantEntry[];
+          if (!Array.isArray(factData.facts) || !Array.isArray(indexData)) {
+            throw new Error('Local knowledge has the wrong shape');
+          }
+          facts = factData.facts;
+          entries = indexData;
+          setStatus('');
+          send && (send.disabled = false);
+          return true;
+        })
+        .catch(() => {
+          loading = null;
+          setStatus('The local knowledge file could not be loaded. Search and Contact still work.');
+          send && (send.disabled = false);
+          return false;
+        });
+
+      return loading;
+    };
+
+    const open = () => {
+      if (!panel || !launcher || isOpen) return;
+      window.clearTimeout(closeTimer);
+      isOpen = true;
+      panel.hidden = false;
+      // Force a style flush so the transition runs even in a background tab.
+      void panel.offsetWidth;
+      panel.classList.add('is-open');
+      launcher.setAttribute('aria-expanded', 'true');
+      document.body.classList.add('step-open');
+      void loadKnowledge();
+      window.setTimeout(() => input?.focus(), 60);
+    };
+
+    const close = (returnFocus = true) => {
+      if (!panel || !launcher || !isOpen) return;
+      isOpen = false;
+      panel.classList.remove('is-open');
+      launcher.setAttribute('aria-expanded', 'false');
+      document.body.classList.remove('step-open');
+      if (returnFocus) launcher.focus();
+      closeTimer = window.setTimeout(() => {
+        panel.hidden = true;
+      }, 180);
+    };
+
+    const reset = () => {
+      if (!log) return;
+      log.replaceChildren();
+      addMessage('assistant', intro);
+      if (suggestions) suggestions.hidden = false;
+      if (input) {
+        input.value = '';
+        input.focus();
+      }
+      setStatus('');
+    };
+
+    const submit = async (raw: string) => {
+      const question = raw.trim();
+      if (!question) return;
+
+      addMessage('user', question);
+      if (input) input.value = '';
+      if (suggestions) suggestions.hidden = true;
+
+      const ready = await loadKnowledge();
+      if (!ready) {
+        addMessage(
+          'assistant',
+          "I couldn't load the local knowledge file, so I can't answer from the site right now. The Search page and Contact page still work.",
+          [
+            { href: '/search', label: 'Search the site' },
+            { href: '/contact', label: 'Contact the studio' },
+          ],
+          'unknown',
+        );
+        return;
+      }
+
+      if (!facts || !entries) return;
+      const reply = answerQuestion(question, facts, entries);
+      addMessage('assistant', reply.text, reply.links, reply.confidence);
+      input?.focus();
+    };
+
+    launcher?.addEventListener('click', () => {
+      if (isOpen) close();
+      else open();
+    });
+
+    closeButton?.addEventListener('click', () => close());
+    newChat?.addEventListener('click', reset);
+
+    form?.addEventListener('submit', (event) => {
+      event.preventDefault();
+      void submit(input?.value ?? '');
+    });
+
+    root.querySelectorAll<HTMLButtonElement>('[data-question]').forEach((button) => {
+      button.addEventListener('click', () => {
+        const question = button.dataset.question ?? button.textContent ?? '';
+        void submit(question);
+      });
+    });
+
+    document.addEventListener('click', (event) => {
+      if (!isOpen) return;
+      if (!root.contains(event.target as Node)) close(false);
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key !== 'Escape' || !isOpen) return;
+      event.preventDefault();
+      close();
+    });
+
+    panel?.addEventListener('keydown', (event) => {
+      if (event.key !== 'Tab' || !isOpen) return;
+      const focusable = Array.from(
+        panel.querySelectorAll<HTMLElement>('a[href], button:not([disabled]), input:not([disabled])'),
+      ).filter((element) => element.offsetParent !== null);
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    });
+  }
+</script>
+
+<style>
+  .step-root {
+    position: fixed;
+    right: max(1rem, env(safe-area-inset-right));
+    bottom: max(1rem, env(safe-area-inset-bottom));
+    z-index: 92;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.7rem;
+    font-family: var(--font-sans);
+    color: var(--color-ink);
+  }
+
+  .step-launcher {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    min-height: 3.15rem;
+    padding: 0.45rem 0.75rem 0.45rem 0.5rem;
+    border: 1px solid rgba(143, 182, 255, 0.38);
+    border-radius: 3px;
+    background:
+      linear-gradient(110deg, rgba(77, 141, 255, 0.16), rgba(167, 139, 250, 0.08)),
+      var(--color-surface);
+    box-shadow:
+      0 18px 45px -22px rgba(0, 0, 0, 0.9),
+      0 0 0 1px rgba(77, 141, 255, 0.08);
+    color: var(--color-ink);
+    text-align: left;
+    transition: border-color 150ms ease, background-color 150ms ease, transform 150ms ease;
+  }
+
+  .step-launcher:hover {
+    border-color: rgba(143, 182, 255, 0.75);
+    transform: translateY(-1px);
+  }
+
+  .step-launcher-icon {
+    display: grid;
+    place-items: center;
+    width: 2.15rem;
+    height: 2.15rem;
+    flex: none;
+    border: 1px solid rgba(143, 182, 255, 0.32);
+    border-radius: 2px;
+    background: rgba(7, 8, 11, 0.56);
+    color: var(--color-accent-soft);
+  }
+
+  .step-launcher-icon svg {
+    width: 1.15rem;
+    height: 1.15rem;
+  }
+
+  .step-launcher-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 0.05rem;
+    min-width: 0;
+  }
+
+  .step-launcher-label {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    line-height: 1.25;
+    text-transform: uppercase;
+  }
+
+  .step-launcher-sub {
+    color: var(--color-muted);
+    font-size: 0.68rem;
+    line-height: 1.3;
+  }
+
+  .step-live-dot {
+    width: 0.38rem;
+    height: 0.38rem;
+    align-self: flex-start;
+    margin: 0.38rem 0.1rem 0 0.1rem;
+    border-radius: 999px;
+    background: #7ee0c0;
+    box-shadow: 0 0 9px rgba(126, 224, 192, 0.8);
+  }
+
+  .step-panel {
+    display: flex;
+    flex-direction: column;
+    width: min(23.75rem, calc(100vw - 2rem));
+    height: min(34rem, calc(100vh - 7rem));
+    overflow: hidden;
+    border: 1px solid #26303f;
+    border-radius: 4px;
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0) 32%),
+      #090b10;
+    box-shadow:
+      0 36px 100px -30px rgba(0, 0, 0, 0.95),
+      0 0 0 1px rgba(77, 141, 255, 0.1),
+      0 0 60px -22px rgba(77, 141, 255, 0.4);
+    opacity: 0;
+    transform: translateY(10px) scale(0.99);
+    transform-origin: bottom right;
+    transition: opacity 180ms ease, transform 200ms cubic-bezier(0.22, 0.61, 0.36, 1);
+  }
+
+  .step-panel.is-open {
+    opacity: 1;
+    transform: none;
+  }
+
+  .step-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.8rem;
+    padding: 0.8rem 0.8rem 0.75rem;
+    border-bottom: 1px solid var(--color-line);
+    background: rgba(255, 255, 255, 0.018);
+  }
+
+  .step-identity {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    min-width: 0;
+  }
+
+  .step-avatar {
+    display: grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    flex: none;
+    border: 1px solid var(--color-line);
+    border-radius: 3px;
+    background: var(--color-bg);
+  }
+
+  .step-avatar :global(img) {
+    width: 1.65rem;
+    height: 1.65rem;
+    object-fit: contain;
+  }
+
+  .step-kicker {
+    margin: 0;
+    color: var(--color-muted);
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.14em;
+    line-height: 1.3;
+    text-transform: uppercase;
+  }
+
+  .step-title {
+    margin: 0.12rem 0 0;
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+
+  .step-head-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    flex: none;
+  }
+
+  .step-icon-button {
+    min-height: 2rem;
+    padding: 0.3rem 0.5rem;
+    border: 1px solid transparent;
+    border-radius: 2px;
+    color: var(--color-muted);
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    transition: color 140ms ease, border-color 140ms ease, background-color 140ms ease;
+  }
+
+  .step-icon-button:hover {
+    border-color: var(--color-line);
+    background: var(--color-surface);
+    color: var(--color-ink);
+  }
+
+  .step-close {
+    min-width: 2rem;
+    padding-inline: 0.45rem;
+    font-size: 0.9rem;
+    text-transform: none;
+  }
+
+  .step-log {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 1rem 0.85rem 0.75rem;
+    scrollbar-width: thin;
+    scrollbar-color: #2b3544 transparent;
+  }
+
+  .step-message {
+    max-width: 92%;
+    animation: step-in 180ms ease both;
+  }
+
+  .step-message + .step-message {
+    margin-top: 1rem;
+  }
+
+  .step-message--user {
+    margin-left: auto;
+    padding: 0.6rem 0.72rem;
+    border: 1px solid rgba(77, 141, 255, 0.25);
+    border-radius: 3px;
+    background: rgba(77, 141, 255, 0.1);
+  }
+
+  .step-message--assistant {
+    max-width: 100%;
+    padding-left: 0.7rem;
+    border-left: 2px solid rgba(143, 182, 255, 0.5);
+  }
+
+  .step-message-label {
+    margin: 0 0 0.25rem;
+    color: var(--color-muted);
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    letter-spacing: 0.13em;
+    line-height: 1.3;
+    text-transform: uppercase;
+  }
+
+  .step-message-text {
+    margin: 0;
+    color: var(--color-ink-dim);
+    font-size: 0.88rem;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+
+  .step-message--user .step-message-text {
+    color: var(--color-ink);
+  }
+
+  .step-message-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-top: 0.65rem;
+  }
+
+  .step-message-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2rem;
+    padding: 0.32rem 0.52rem;
+    border: 1px solid var(--color-line);
+    border-radius: 2px;
+    background: var(--color-surface);
+    color: var(--color-accent-soft);
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.04em;
+    line-height: 1.35;
+    text-decoration: none;
+    transition: border-color 140ms ease, color 140ms ease, background-color 140ms ease;
+  }
+
+  .step-message-link:hover {
+    border-color: rgba(143, 182, 255, 0.5);
+    background: var(--color-surface-2);
+    color: #fff;
+  }
+
+  .step-message-source {
+    margin: 0.45rem 0 0;
+    color: #7d899b;
+    font-family: var(--font-mono);
+    font-size: 0.54rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .step-suggestions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    max-height: 7.6rem;
+    overflow-y: auto;
+    padding: 0 0.85rem 0.7rem;
+  }
+
+  .step-suggestion {
+    min-height: 2rem;
+    padding: 0.35rem 0.55rem;
+    border: 1px solid var(--color-line);
+    border-radius: 2px;
+    color: var(--color-ink-dim);
+    font-size: 0.73rem;
+    line-height: 1.35;
+    text-align: left;
+    transition: border-color 140ms ease, background-color 140ms ease, color 140ms ease;
+  }
+
+  .step-suggestion:hover {
+    border-color: rgba(143, 182, 255, 0.5);
+    background: var(--color-surface);
+    color: var(--color-ink);
+  }
+
+  .step-status {
+    margin: 0;
+    padding: 0 0.85rem 0.6rem;
+    color: var(--color-muted);
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    line-height: 1.45;
+  }
+
+  .step-form {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin: 0;
+    padding: 0.65rem 0.7rem;
+    border-top: 1px solid var(--color-line);
+    background: rgba(255, 255, 255, 0.018);
+  }
+
+  .step-input {
+    min-width: 0;
+    flex: 1;
+    height: 2.65rem;
+    padding: 0.55rem 0.65rem;
+    border: 1px solid var(--color-control-line);
+    border-radius: 2px;
+    background: var(--color-bg);
+    color: var(--color-ink);
+    font-size: 0.86rem;
+    outline: none;
+  }
+
+  .step-input::placeholder {
+    color: #8b97a9;
+  }
+
+  .step-input:focus {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 2px rgba(77, 141, 255, 0.15);
+  }
+
+  .step-send {
+    display: grid;
+    place-items: center;
+    width: 2.65rem;
+    height: 2.65rem;
+    flex: none;
+    border: 1px solid transparent;
+    border-radius: 2px;
+    background: var(--color-accent);
+    color: #05080f;
+    transition: background-color 140ms ease, opacity 140ms ease;
+  }
+
+  .step-send:hover {
+    background: #6ba2ff;
+  }
+
+  .step-send:disabled {
+    cursor: wait;
+    opacity: 0.5;
+  }
+
+  .step-send svg {
+    width: 1.1rem;
+    height: 1.1rem;
+  }
+
+  .step-note {
+    margin: 0;
+    padding: 0 0.7rem 0.65rem;
+    color: #7d899b;
+    font-family: var(--font-mono);
+    font-size: 0.55rem;
+    letter-spacing: 0.04em;
+    line-height: 1.5;
+    text-align: center;
+  }
+
+  @keyframes step-in {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .step-root {
+      left: 0.75rem;
+      right: 0.75rem;
+      bottom: max(0.75rem, env(safe-area-inset-bottom));
+      align-items: stretch;
+    }
+
+    .step-panel {
+      position: fixed;
+      left: 0.75rem;
+      right: 0.75rem;
+      bottom: calc(4.25rem + env(safe-area-inset-bottom));
+      width: auto;
+      height: min(76vh, 38rem);
+      transform-origin: bottom center;
+    }
+
+    .step-launcher {
+      align-self: flex-end;
+    }
+
+    :global(body.step-open) {
+      overflow: hidden;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .step-panel,
+    .step-message {
+      animation: none;
+      transition: none;
+    }
+  }
+
+  @media print {
+    .step-root {
+      display: none !important;
+    }
+  }
+</style>
