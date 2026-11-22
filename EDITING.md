@@ -14,6 +14,10 @@ D:\NextStepStudios\next-step-studios-website
 
 Every path below is relative to that folder unless it starts with `D:\`.
 
+> **GitHub only receives files inside the website folder.** The Discord bot and the
+> original logo live elsewhere on the D: drive. Section 10 lists their full paths, what
+> is already correct and what, if anything, still needs to be changed.
+
 You do **not** need to understand Astro or TypeScript to make the changes here. You do
 need to copy punctuation exactly: quotes, commas, braces and angle brackets all matter.
 If a change makes the build fail, undo that one change and compare it with the example.
@@ -35,7 +39,7 @@ If a change makes the build fail, undo that one change and compare it with the e
 7. [Replace images](#7-replace-images)
 8. [Change the logo and favicon](#8-change-the-logo-and-favicon)
 9. [Add or remove official and social links](#9-add-or-remove-official-and-social-links)
-10. [Keep the Discord bot's links consistent](#10-keep-the-discord-bots-links-consistent)
+10. [Files on this computer and the Discord bot](#10-files-on-this-computer-and-the-discord-bot)
 11. [Edit or add policies](#11-edit-or-add-policies)
 12. [Edit projects, modules and commands](#12-edit-projects-modules-and-commands)
 13. [Edit the team list](#13-edit-the-team-list)
@@ -691,19 +695,37 @@ an id.
 
 ---
 
-## 10. Keep the Discord bot's links consistent
+## 10. Files on this computer and the Discord bot
 
 The bot is a separate project. The website does **not** read the bot's files at build
 time; the two lists are kept in sync by hand.
 
-**Bot config file:**
+### Files outside this repository
+
+| What | Full path on this computer | Does GitHub receive it? |
+| --- | --- | --- |
+| Website project | `D:\NextStepStudios\next-step-studios-website` | Yes — only files you commit and push |
+| Discord bot | `D:\NextStepStudios\DiscordBots\PrivateBots\NextStepStudioBot` | No — it is a separate project |
+| Master logo | `D:\NextStepStudios\DiscordBots\PrivateBots\NextStepStudioBot\images\server_logo\Next_StepStudios_Logo.png` | No — the generated copies in `src/assets/brand/` and `public/brand/` are committed instead |
+| Local `.env` | `D:\NextStepStudios\next-step-studios-website\.env` | No — Git ignores it; it is local only |
+
+**You do not need to copy the bot folder or the master logo into the website.** The site
+is built from `src/lib/links.ts` and the generated brand files that are already in the
+repository. GitHub will not see a change made only to a bot file or to the logo on your
+D: drive; those are separate local changes. A fresh clone of the website can be built
+and published without the bot folder or the master logo. Those files are only needed
+when you are editing the bot or regenerating the brand.
+
+### Bot config file
+
+**Full path:**
 
 ```text
 D:\NextStepStudios\DiscordBots\PrivateBots\NextStepStudioBot\bot\cogs\utilities\links\links_config.py
 ```
 
-Open it in VS Code only if you intend to change the bot. The project here is the
-website; changing the bot is a separate deployment.
+Open it in VS Code only if you intend to change the bot. Changing the bot is a separate
+deployment from publishing the website.
 
 ### What the bot already has
 
@@ -711,9 +733,22 @@ The config already contains the same six sections and the same five social accou
 the website: TikTok, Instagram, Facebook, X and YouTube, plus the website, Roblox,
 Discord, GitHub, policies and business email. The website was brought into line with it.
 
-### The one change the bot still needs
+### The bot's policy link — currently correct
 
-The bot's Official Policies link still points to GitHub:
+The bot's Official Policies link is already the website page. In the current 530-line
+file, **lines 185–187** are:
+
+```python
+POLICIES_DIRECTORY_URL = (
+    "https://next-step-studios-official.github.io/policies"
+)
+```
+
+Do **not** change this to the GitHub repository. The bot is not running on the website,
+so it needs the full absolute address; the website itself uses the relative `/policies`.
+No edit is required when your copy looks like the block above.
+
+If your copy still has the old block instead, at **lines 185–188**:
 
 ```python
 POLICIES_DIRECTORY_URL = (
@@ -722,19 +757,11 @@ POLICIES_DIRECTORY_URL = (
 )
 ```
 
-Change it to the website's policy page:
+replace those four lines with the three-line block above. Remove both old GitHub strings;
+do not leave one as a fallback or a comment. If the line numbers have moved, search for
+`POLICIES_DIRECTORY_URL` instead.
 
-```python
-POLICIES_DIRECTORY_URL = (
-    "https://next-step-studios-official.github.io/policies"
-)
-```
-
-Why the full address? The bot is not running on the website, so a relative `/policies`
-would not resolve. The website itself uses `/policies`; the bot needs the absolute
-version of the same page.
-
-Then:
+Then, only if you changed the file:
 
 1. Save the file.
 2. Restart the bot process (or reload the cog, if that is how the bot is run). Python
@@ -742,6 +769,33 @@ Then:
    restarts.
 3. Run the bot's `/links` command and confirm the **Official Policies** option opens the
    website page, not GitHub.
+4. Search the whole bot folder for `bot-documentation/tree/main/policies` (VS Code:
+   `Ctrl+Shift+F`) and update any other copy you own. The current `links_config.py` has no
+   such match.
+
+### What to remove after a change
+
+- When replacing the old policy block, remove **both** old GitHub strings in that block.
+- When adding a social account, remove any disabled placeholder with the same `id`;
+  duplicate ids are ignored by the bot.
+- When you stop testing locally, remove a test `RESEND_API_KEY` from `.env`; never commit
+  `.env` at all.
+- Do **not** remove `DOCS_POLICIES_URL` from `src/lib/links.ts`. That is the intentional
+  secondary GitHub mirror, not the bot's primary policy link.
+- Do **not** delete the bot folder or the master logo after generating the website files;
+  they are the source material outside this repository.
+
+### Current checklist (22 November 2026)
+
+| Item | What to do |
+| --- | --- |
+| Bot policy URL | Verify lines 185–187. If they already show the website URL, change nothing. |
+| Bot social links | The five accounts and the other entries already match the website. No edit. |
+| Bot restart | Only after editing the bot. Restart, then test `/links`. |
+| Website files | Already built and pushed. No manual website edit is needed to publish this version. |
+| Master logo | Only needed when replacing the logo or running `npm run brand`. |
+| Contact Worker | Already deployed separately. A GitHub Pages push does not redeploy it. |
+| Resend key | No D: file. Add it in Sites → Secrets; see section 17. |
 
 ### Adding a new social account to both places
 
@@ -1341,6 +1395,46 @@ leaked.
 
 Putting `RESEND_API_KEY` in `.env` alone will not make the live form send email. Set it
 on the Worker and redeploy.
+
+### Add the Resend key to the live form
+
+The key is **not a file** and has no path on the D: drive. It is a secret on the contact
+Worker. GitHub Pages only serves static files; it cannot run `server/worker.mjs` or send
+email. The separate Worker does that. The live Worker is already deployed; publishing
+the website does not redeploy it, and the live form does not need a Worker file on your
+computer. The source already reads the key; no website file needs to change. The Worker
+source is:
+
+```text
+D:\NextStepStudios\next-step-studios-website\server\worker.mjs
+```
+
+Do not put the key inside that file.
+
+1. Open the Freebuff Sites project **Next Step Studios Contact → Secrets**.
+2. Add a secret named exactly `RESEND_API_KEY`.
+3. Paste the key as the value and save. Do not add quotes around it.
+4. Redeploy the contact Worker from the Sites project. A saved secret does not change a
+   Worker that is already running.
+5. Open
+   <https://next-step-studios-contact-wqep7k.freebuff.site/healthz> and check the `email`
+   field. It should say `"configured"`. If it still says `"not configured"`, the secret
+   name is wrong, the value is empty, or the Worker was not redeployed.
+
+`NOTIFY_EMAIL` is optional: when empty, the published contact address is used.
+`MAIL_FROM` is optional: when empty, Resend's `onboarding@resend.dev` sender is used.
+Messages are stored even when email is not configured, so a missing key never loses a
+message.
+
+For **local Node testing only**, the exact file is:
+
+```text
+D:\NextStepStudios\next-step-studios-website\.env
+```
+
+Add the line `RESEND_API_KEY=` and paste the key after `=`. That file is ignored by Git
+and is never part of the GitHub Pages build. Do not put the live key in `.env.example`,
+`README.md`, `EDITING.md`, a commit or chat.
 
 ### If you accidentally commit a secret
 
