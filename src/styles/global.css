@@ -1904,8 +1904,8 @@ body.palette-open {
   border-radius: 2px;
   background: var(--color-surface-2);
   font-family: var(--font-mono);
-  font-size: 0.6875rem;
-  letter-spacing: 0.1em;
+  font-size: 1rem;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--color-ink-dim);
   cursor: pointer;
@@ -2280,14 +2280,6 @@ html {
   }
 }
 
-/* iOS zooms a focused form field whose text is below 16px. Keep the compact
-   mono styling on pointer devices but never on a phone. */
-@media (max-width: 700px) {
-  .select {
-    font-size: 1rem;
-    letter-spacing: 0.04em;
-  }
-}
 
 @media (prefers-reduced-motion: reduce) {
   .ticker-track,
