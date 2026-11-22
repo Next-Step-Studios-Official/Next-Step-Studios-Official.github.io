@@ -199,10 +199,8 @@ html[data-theme='light'] .drawer-index,
 html[data-theme='light'] .palette-kind,
 html[data-theme='light'] .palette-input::placeholder,
 html[data-theme='light'] .search-field input::placeholder,
-html[data-theme='light'] .social-pending,
 html[data-theme='light'] .series-index,
 html[data-theme='light'] .faq-index,
-html[data-theme='light'] .channel-link--pending,
 html[data-theme='light'] .link-meta {
   color: var(--color-muted);
 }

@@ -135,7 +135,7 @@ export const GET: APIRoute = async () => {
         'who is next step studios',
         'what does the studio do',
       ],
-      `Next Step Studios is an independent creative and software studio run by ${SITE.operator}, with a team of ${TEAM_WORD} people. It is a public-facing name rather than a registered company. The current work is Next Step Bot; games and studio tools are planned, not released.`,
+      `Next Step Studios is an independent creative and software studio of ${TEAM_WORD} people, run by ${SITE.operator}. It is a public-facing name rather than a registered company. The current work is Next Step Bot; games and studio tools are planned, not released.`,
       [link('/about', 'About the studio'), link('/team', 'Team')],
       8,
     ),

@@ -95,7 +95,7 @@ const starters = STARTER_QUESTIONS;
       </article>
     </div>
 
-    <div class="step-suggestions" data-assistant-suggestions aria-label="Suggested questions">
+    <div class="step-suggestions" data-assistant-suggestions role="group" aria-label="Suggested questions">
       {starters.map((question) => (
         <button class="step-suggestion" type="button" data-question={question}>
           {question}
@@ -1019,7 +1019,8 @@ const starters = STARTER_QUESTIONS;
     border-radius: 2px;
     background: var(--color-bg);
     color: var(--color-ink);
-    font-size: 0.95rem;
+    /* 16px keeps iOS from zooming the page when the field is focused. */
+    font-size: 1rem;
     outline: none;
   }
 

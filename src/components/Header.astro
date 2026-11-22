@@ -65,7 +65,15 @@ const isGroupActive = (group: NavGroup) => group.links.some((link) => isActive(l
 
   <div class="container header-inner">
     <a class="wordmark" href="/">
-      <Image class="wordmark-logo" src={logoMark} width={32} height={32} alt="" aria-hidden="true" />
+      <Image
+        class="wordmark-logo"
+        src={logoMark}
+        width={32}
+        height={32}
+        alt=""
+        aria-hidden="true"
+        loading="eager"
+      />
       <span>Next Step <span class="wordmark-dim">Studios</span></span>
     </a>
 
@@ -236,6 +244,41 @@ const isGroupActive = (group: NavGroup) => group.links.some((link) => isActive(l
       closeDropdowns(dropdown);
       trigger.setAttribute('aria-expanded', String(!open));
       menu.hidden = open;
+    });
+
+    // Open with the keyboard and move through the links without tabbing
+    // through every item, the way a menu button is expected to behave.
+    trigger.addEventListener('keydown', (event) => {
+      if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp') return;
+      event.preventDefault();
+      if (menu.hidden) {
+        closeDropdowns(dropdown);
+        trigger.setAttribute('aria-expanded', 'true');
+        menu.hidden = false;
+      }
+      const items = Array.from(menu.querySelectorAll<HTMLAnchorElement>('a'));
+      (event.key === 'ArrowDown' ? items[0] : items[items.length - 1])?.focus();
+    });
+
+    menu.addEventListener('keydown', (event) => {
+      const items = Array.from(menu.querySelectorAll<HTMLAnchorElement>('a'));
+      if (items.length === 0) return;
+      const index = items.indexOf(document.activeElement as HTMLAnchorElement);
+
+      if (event.key === 'ArrowDown') {
+        event.preventDefault();
+        items[(index + 1) % items.length]?.focus();
+      } else if (event.key === 'ArrowUp') {
+        event.preventDefault();
+        if (index <= 0) trigger.focus();
+        else items[index - 1].focus();
+      } else if (event.key === 'Home') {
+        event.preventDefault();
+        items[0]?.focus();
+      } else if (event.key === 'End') {
+        event.preventDefault();
+        items[items.length - 1]?.focus();
+      }
     });
 
     dropdown.addEventListener('keydown', (event) => {

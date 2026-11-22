@@ -132,7 +132,7 @@ const kinds = ['installer', 'archive', 'document', 'source', 'media'] as const;
                 {item.size && <> · {item.size}</>}
               </p>
               <div class="dl-card-actions">
-                <a class="btn btn-primary" href={item.href} download={!item.releaseUrl}>
+                <a class="btn btn-primary" href={item.href} download={!item.releaseUrl} data-astro-prefetch="false">
                   Download <span class="btn-arrow" aria-hidden="true">↓</span>
                 </a>
                 {item.releaseUrl && (
@@ -145,6 +145,7 @@ const kinds = ['installer', 'archive', 'document', 'source', 'media'] as const;
                       class="text-link"
                       href={format.href}
                       download={format.download ? true : undefined}
+                      data-astro-prefetch="false"
                     >
                       {format.label}
                     </a>
@@ -167,10 +168,10 @@ const kinds = ['installer', 'archive', 'document', 'source', 'media'] as const;
             for archiving or reading offline. Each document keeps its own version header.
           </p>
           <div class="doc-actions" style="margin-top: 0.9rem;">
-            <a class="btn btn-primary" href="/downloads/next-step-studios-policies.zip" download="next-step-studios-policies.zip">
+            <a class="btn btn-primary" href="/downloads/next-step-studios-policies.zip" download="next-step-studios-policies.zip" data-astro-prefetch="false">
               Policy set .zip <span class="btn-arrow" aria-hidden="true">↓</span>
             </a>
-            <a class="text-link doc-action-link" href="/downloads/all.md" download="next-step-studios-policies.md">
+            <a class="text-link doc-action-link" href="/downloads/all.md" download="next-step-studios-policies.md" data-astro-prefetch="false">
               Combined .md →
             </a>
             <a class="text-link doc-action-link" href="/downloads/print/privacy">Print editions →</a>
@@ -272,9 +273,13 @@ const kinds = ['installer', 'archive', 'document', 'source', 'media'] as const;
     background: var(--color-surface);
     color: var(--color-ink);
     font: inherit;
-    font-size: 0.875rem;
+    /* 16px keeps iOS from zooming the page when a field is focused. */
+    font-size: 1rem;
   }
   .dl-select--search input { min-width: 12rem; }
+  @media (pointer: coarse) {
+    .dl-chip { min-height: 2.75rem; }
+  }
   .dl-status {
     margin: 1rem 0;
     color: var(--color-muted);

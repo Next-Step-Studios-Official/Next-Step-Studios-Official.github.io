@@ -712,7 +712,18 @@ hr {
   border-left: 1px solid var(--color-line);
   padding-left: 1rem;
 }
-.toc p { margin-bottom: 0.65rem; }
+.toc-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.7rem 0.9rem;
+  list-style: none;
+  cursor: pointer;
+}
+.toc-summary::-webkit-details-marker { display: none; }
+.toc-caret { color: var(--color-muted); transition: transform 160ms ease; }
+.toc[open] .toc-caret { transform: rotate(180deg); }
 .toc ol { margin: 0; padding: 0; list-style: none; }
 .toc li { margin: 0; }
 .toc a {
@@ -724,6 +735,7 @@ hr {
   transition: color 140ms ease;
 }
 .toc a:hover { color: var(--color-accent-soft); }
+.toc a.is-active { color: var(--color-ink); }
 
 .doc-layout {
   display: grid;
@@ -732,9 +744,36 @@ hr {
   align-items: start;
   padding-block: clamp(1.75rem, 4vw, 2.75rem) clamp(3.5rem, 7vw, 5.5rem);
 }
+.doc-layout > article { grid-column: 1; grid-row: 1; }
+.doc-layout > .doc-aside { grid-column: 2; grid-row: 1; align-self: stretch; }
+
+/* On a wide screen the list is always open and the summary is redundant. */
+@media (min-width: 901px) {
+  .toc-summary { display: none; }
+  .toc > ol { display: block; }
+}
+
 @media (max-width: 900px) {
   .doc-layout { grid-template-columns: minmax(0, 1fr); }
-  .toc { position: static; max-height: none; border-left: 0; border-top: 1px solid var(--color-line-soft); padding: 1.25rem 0 0; order: -1; }
+  .doc-layout > article,
+  .doc-layout > .doc-aside {
+    grid-column: auto;
+    grid-row: auto;
+  }
+  .toc {
+    position: static;
+    max-height: none;
+    overflow: hidden;
+    padding: 0;
+    border: 1px solid var(--color-line);
+    border-radius: 2px;
+    background: var(--color-surface);
+  }
+  .toc > ol {
+    padding: 0.4rem 0.9rem 0.8rem;
+    border-top: 1px solid var(--color-line-soft);
+  }
+  .toc a { padding: 0.45rem 0; }
 }
 
 /* Draft / status notice */
@@ -762,57 +801,10 @@ hr {
 .notice--neutral .notice-body { color: var(--color-ink-dim); }
 
 /* ---------------------------------------------------------------------------
-   Social page
+   Generic card link
 --------------------------------------------------------------------------- */
 .card-link { transition: border-color 160ms ease, transform 160ms ease; }
 .card-link:hover { border-color: #2b394d; transform: translateY(-2px); }
-
-.channel-list {
-  list-style: none;
-  margin: 0.9rem 0 0;
-  padding: 0;
-  border-top: 1px solid var(--color-line-soft);
-}
-.channel {
-  display: grid;
-  grid-template-columns: minmax(0, 9rem) minmax(0, 1fr) auto;
-  gap: 0.3rem 1.1rem;
-  align-items: baseline;
-  padding: 0.72rem 0;
-  border-bottom: 1px solid var(--color-line-soft);
-}
-.channel-name { font-family: var(--font-mono); font-size: 0.8125rem; color: var(--color-accent-soft); }
-.channel-purpose { color: var(--color-muted); font-size: 0.9375rem; }
-.channel-link {
-  font-family: var(--font-mono);
-  font-size: 0.6875rem;
-  letter-spacing: 0.11em;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-.channel-link--pending { color: #93a0b3; text-decoration: none; }
-@media (max-width: 640px) {
-  .channel { grid-template-columns: 1fr auto; }
-  .channel-purpose { grid-column: 1 / -1; }
-}
-
-.social-grid {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
-  gap: 1rem;
-}
-.social-card { display: flex; flex-direction: column; }
-.social-pending {
-  font-family: var(--font-mono);
-  font-size: 0.6875rem;
-  letter-spacing: 0.11em;
-  text-transform: uppercase;
-  color: #93a0b3;
-  white-space: nowrap;
-}
 
 /* ---------------------------------------------------------------------------
    Footer
@@ -1876,7 +1868,8 @@ body.palette-open {
   border: 0;
   background: none;
   outline: none;
-  font-size: 0.9375rem;
+  /* 16px keeps iOS from zooming the whole page when the field is focused. */
+  font-size: 1rem;
   color: var(--color-ink);
 }
 .search-field input::placeholder {
@@ -2251,7 +2244,11 @@ html {
   .menu-toggle,
   .nav a,
   .footer-links a,
-  .link-list a {
+  .link-list a,
+  .search-field,
+  .select,
+  .chip,
+  .toc a {
     min-height: 2.75rem;
   }
 
@@ -2265,6 +2262,11 @@ html {
     align-items: center;
   }
 
+  .toc a {
+    display: flex;
+    align-items: center;
+  }
+
   .footer-links {
     gap: 0;
   }
@@ -2275,6 +2277,15 @@ html {
 
   .footer-links a {
     width: 100%;
+  }
+}
+
+/* iOS zooms a focused form field whose text is below 16px. Keep the compact
+   mono styling on pointer devices but never on a phone. */
+@media (max-width: 700px) {
+  .select {
+    font-size: 1rem;
+    letter-spacing: 0.04em;
   }
 }
 

@@ -98,6 +98,7 @@ const total = COMMANDS.length;
                 {commands.map((command) => (
                   <li
                     class="cmd-row"
+                    id={`cmd-${command.name}`}
                     data-cmd-row
                     data-search={`${command.name} ${command.description} ${group.label}`.toLowerCase()}
                   >
@@ -127,7 +128,7 @@ const total = COMMANDS.length;
         <ul class="cmd-list">
           {
             PLANNED_COMMANDS.map((command) => (
-              <li class="cmd-row">
+              <li class="cmd-row" id={`cmd-${command.name}`}>
                 <code class="cmd-name">/{command.name}</code>
                 <span class="cmd-desc">{command.description}</span>
                 <span class="cmd-note">{command.note}</span>

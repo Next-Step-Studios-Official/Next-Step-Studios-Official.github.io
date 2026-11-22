@@ -14,6 +14,38 @@ export type ChangelogEntry = {
 export const CHANGELOG: ChangelogEntry[] = [
   {
     date: '2026-11-22',
+    version: '3.3',
+    title: 'The touch edition',
+    summary:
+      'A mobile and keyboard pass: the policy contents now works on a phone, search results can be walked without a mouse, and form fields no longer trigger iOS zoom.',
+    changes: [
+      'On a phone, each policy now opens with a collapsible “On this page” panel above the text instead of a contents list stranded after a twenty-minute document.',
+      'On a wide screen the contents stays in view beside the document and marks the section being read with aria-current.',
+      'Search results respond to ↑, ↓, Home, End and Escape, with a short keyboard hint under the field.',
+      'Every form field uses 16px text so iOS does not zoom the page when it is focused; filter chips, reset controls and contents links reach 44px on touch screens.',
+      'Header dropdowns open with ArrowDown or ArrowUp and move through their links with the arrow keys.',
+      'Command results in search and the command palette now jump to the exact command and highlight its row, instead of returning to the top of a 51-command page.',
+      'Each policy ends with a Back to top link.',
+      'The Trust centre now points to a machine-readable security.txt at /.well-known/security.txt, and Pages publishes every file verbatim rather than running it through Jekyll.',
+    ],
+  },
+  {
+    date: '2026-11-22',
+    version: '3.2',
+    title: 'The finish pass',
+    summary:
+      'A site-wide quality pass: faster navigation, a correct devlog count, clearer team and contact wording, and cleaner markup for screen readers.',
+    changes: [
+      'Internal links prefetch on hover, so a page of plain HTML changes almost immediately without a client-side router.',
+      'The home page counts every devlog entry instead of only the three shown below.',
+      'Project and policy indexes give their card groups a real section heading for screen readers.',
+      'The 404 page is marked noindex, so a missing address cannot appear in search results.',
+      'Studio descriptions now say a five-person team, making clear the count includes the operator, and the contact page no longer implies the form and email share one inbox.',
+      'The header mark loads eagerly, print editions declare en-GB, and styles left behind by the retired social page are removed.',
+    ],
+  },
+  {
+    date: '2026-11-22',
     version: '3.1',
     title: 'The local guide edition',
     summary:

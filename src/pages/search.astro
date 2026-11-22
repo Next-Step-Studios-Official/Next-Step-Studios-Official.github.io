@@ -43,7 +43,7 @@ const indexUrl = `${import.meta.env.BASE_URL}search-index.json`;
         <span class="read-time" data-search-status aria-live="polite">Type to search</span>
       </div>
 
-      <div class="search-suggestions" data-search-suggestions hidden>
+      <div class="search-suggestions" data-search-suggestions role="group" aria-label="Spelling suggestion" hidden>
         <span class="label">Did you mean</span>
         <div class="search-suggestion-list" data-search-suggestion-list></div>
       </div>
@@ -71,8 +71,9 @@ const indexUrl = `${import.meta.env.BASE_URL}search-index.json`;
       </div>
 
       <p class="search-note">
-        The index includes full policy text and is generated at build time. It is loaded once,
-        on your first keystroke, and then held in memory for this page only.
+        Use <kbd>↑</kbd> and <kbd>↓</kbd> to move through results and <kbd>Enter</kbd> to open
+        one. The index includes full policy text and is generated at build time. It is loaded
+        once, on your first keystroke, and then held in memory for this page only.
       </p>
     </div>
   </section>
@@ -296,13 +297,52 @@ const indexUrl = `${import.meta.env.BASE_URL}search-index.json`;
         syncUrl(input.value);
       });
 
+      const resultLinks = () =>
+        Array.from(resultsEl?.querySelectorAll<HTMLAnchorElement>('.result-link') ?? []);
+
       input?.addEventListener('keydown', (event) => {
+        if (event.key === 'ArrowDown') {
+          const first = resultLinks()[0];
+          if (first) {
+            event.preventDefault();
+            first.focus();
+          }
+          return;
+        }
         if (event.key !== 'Enter') return;
-        const first = resultsEl?.querySelector<HTMLAnchorElement>('a');
+        const first = resultLinks()[0];
         if (first) {
           event.preventDefault();
           first.click();
         }
+      });
+
+      // Once a result has focus, the arrow keys keep moving through the list
+      // instead of jumping back to the browser's scroll behaviour.
+      resultsEl?.addEventListener('keydown', (event) => {
+        const keys = ['ArrowDown', 'ArrowUp', 'Home', 'End', 'Escape'];
+        if (!keys.includes(event.key)) return;
+        const links = resultLinks();
+        if (links.length === 0) return;
+        if (event.key === 'Escape') {
+          event.preventDefault();
+          input?.focus();
+          return;
+        }
+        const current = links.indexOf(document.activeElement as HTMLAnchorElement);
+        const target =
+          event.key === 'Home'
+            ? 0
+            : event.key === 'End'
+              ? links.length - 1
+              : event.key === 'ArrowDown'
+                ? (current + 1) % links.length
+                : current <= 0
+                  ? -1
+                  : current - 1;
+        event.preventDefault();
+        if (target < 0) input?.focus();
+        else links[target]?.focus();
       });
 
       typeChips.forEach((chip) => {

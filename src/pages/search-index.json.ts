@@ -96,7 +96,7 @@ export const GET: APIRoute = async () => {
       COMMANDS.filter((command) => command.group === group.id).map((command) => ({
         type: 'Command',
         title: `/${command.name}`,
-        url: '/commands',
+        url: `/commands#cmd-${command.name}`,
         section: group.label,
         text: `${command.description} ${command.note ?? ''}`,
       })),

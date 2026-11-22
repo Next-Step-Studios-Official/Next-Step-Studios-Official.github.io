@@ -97,14 +97,14 @@ const breadcrumbSchema = {
         </div>
 
         <div class="doc-actions">
-          <a class="btn btn-primary" href={`/downloads/${slugOf(entry.id)}.pdf`} download={`${slugOf(entry.id)}.pdf`}>
+          <a class="btn btn-primary" href={`/downloads/${slugOf(entry.id)}.pdf`} download={`${slugOf(entry.id)}.pdf`} data-astro-prefetch="false">
             Download PDF
             <span class="btn-arrow" aria-hidden="true">↓</span>
           </a>
-          <a class="btn" href={`/downloads/${slugOf(entry.id)}.md`} download={`${slugOf(entry.id)}.md`}>
+          <a class="btn" href={`/downloads/${slugOf(entry.id)}.md`} download={`${slugOf(entry.id)}.md`} data-astro-prefetch="false">
             Markdown
           </a>
-          <a class="btn" href={`/downloads/${slugOf(entry.id)}.txt`} download={`${slugOf(entry.id)}.txt`}>
+          <a class="btn" href={`/downloads/${slugOf(entry.id)}.txt`} download={`${slugOf(entry.id)}.txt`} data-astro-prefetch="false">
             Plain text
           </a>
           <a class="text-link doc-action-link" href={`/downloads/print/${slugOf(entry.id)}`}>
@@ -131,20 +131,23 @@ const breadcrumbSchema = {
 
   <div class="container">
     <div class="doc-layout">
-      <article class="prose" data-policy-prose>
-        <Content />
-      </article>
-
-      <aside aria-label="On this page">
-        <nav class="toc">
-          <p class="label">On this page</p>
+      <aside class="doc-aside">
+        <details class="toc" data-toc>
+          <summary class="toc-summary">
+            <span class="label">On this page</span>
+            <span class="toc-caret" aria-hidden="true">▾</span>
+          </summary>
           <ol>
             {toc.map((heading) => (
               <li><a href={`#${heading.slug}`}>{heading.text}</a></li>
             ))}
           </ol>
-        </nav>
+        </details>
       </aside>
+
+      <article class="prose" data-policy-prose>
+        <Content />
+      </article>
     </div>
 
     <nav
@@ -164,6 +167,9 @@ const breadcrumbSchema = {
             {next.data.shortTitle} →
           </a>
         )}
+      </span>
+      <span>
+        <a class="text-link" href="#main" style="font-size: 0.875rem;">Back to top ↑</a>
       </span>
     </nav>
 
@@ -272,9 +278,22 @@ const breadcrumbSchema = {
         }
 
         links.forEach((link) => {
-          link.classList.toggle('is-active', link.getAttribute('href') === `#${current}`);
+          const active = link.getAttribute('href') === `#${current}`;
+          link.classList.toggle('is-active', active);
+          if (active) link.setAttribute('aria-current', 'location');
+          else link.removeAttribute('aria-current');
         });
       };
+
+      // Choosing a section on a phone should reveal the text, not leave the
+      // expanded contents covering it.
+      links.forEach((link) =>
+        link.addEventListener('click', () => {
+          if (window.matchMedia('(max-width: 900px)').matches) {
+            toc.removeAttribute('open');
+          }
+        }),
+      );
 
       activate();
       window.addEventListener('scroll', activate, { passive: true });

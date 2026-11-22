@@ -40,8 +40,8 @@ const subjects = [
         <p class="eyebrow">Contact</p>
         <h1 class="display display--page">One address. Read by a person.</h1>
         <p class="lede">
-          Use the form below or email directly. Both reach the same inbox, and both are
-          read by the studio operator rather than a ticket queue.
+          Use the form below or email directly. Both are read by the studio operator
+          rather than a ticket queue.
         </p>
         <figure class="page-banner">
           <Image
@@ -63,7 +63,7 @@ const subjects = [
           {
             endpoint ? (
               <p class="form-intro">
-                Goes to the studio inbox. Name and email are only used to reply.
+                Goes to the studio. Name and email are only used to reply.
               </p>
             ) : (
               <p class="form-intro form-intro--offline">
@@ -269,7 +269,8 @@ const subjects = [
     background: var(--color-surface);
     color: var(--color-ink);
     font: inherit;
-    font-size: 0.9375rem;
+    /* 16px keeps iOS from zooming the page when a field is focused. */
+    font-size: 1rem;
   }
   .contact-field textarea { resize: vertical; min-height: 8rem; }
   .contact-field input:focus-visible,

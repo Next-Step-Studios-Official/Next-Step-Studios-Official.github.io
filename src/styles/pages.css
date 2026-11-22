@@ -154,9 +154,14 @@
   padding: 0.72rem clamp(1.1rem, 2.5vw, 1.6rem);
   border-top: 1px solid var(--color-line-soft);
   transition: background-color 140ms ease;
+  scroll-margin-top: 5.5rem;
 }
 .cmd-row:first-child { border-top: 0; }
 .cmd-row:hover { background: rgba(255, 255, 255, 0.014); }
+.cmd-row:target {
+  background: rgba(77, 141, 255, 0.08);
+  box-shadow: inset 2px 0 var(--color-accent);
+}
 .cmd-name {
   font-family: var(--font-mono);
   font-size: 0.8125rem;
@@ -179,6 +184,12 @@
 .cmd-note--blank { border-color: transparent; color: transparent; }
 
 .btn-reset { min-height: 2.15rem; padding: 0.35rem 0.75rem; font-size: 0.6875rem; }
+@media (pointer: coarse) {
+  .btn-reset { min-height: 2.75rem; }
+  .toolbar-reset { min-height: 2.75rem; padding-block: 0.4rem; }
+  .reading-controls button { min-width: 2.75rem; min-height: 2.75rem; }
+  .dl-actions .btn { min-height: 3rem; }
+}
 
 .callout {
   margin-top: 1.5rem;
@@ -471,9 +482,7 @@
 .links-index,
 .drawer-index,
 .footer-base,
-.faq-index,
-.channel-link--pending,
-.social-pending { color: #8b97a9; }
+.faq-index { color: #8b97a9; }
 
 .palette-input::placeholder,
 .search-field input::placeholder { color: #8b97a9; }

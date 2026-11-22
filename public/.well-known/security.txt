@@ -1,0 +1,5 @@
+Contact: mailto:nextstepstudiosofficial.contact@gmail.com
+Expires: 2027-12-31T00:00:00.000Z
+Preferred-Languages: en
+Canonical: https://next-step-studios-official.github.io/.well-known/security.txt
+Policy: https://next-step-studios-official.github.io/trust
