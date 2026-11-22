@@ -6,6 +6,7 @@ docStatus: "Draft for review. Not yet effective."
 appliesTo: "The private Next Step Studios Discord server and conduct connected to its community activities"
 order: 4
 summary: "Expected conduct in the Next Step Studios Discord server."
+plainSummary: "Treat other members with basic respect. These guidelines set expectations for conduct in the private server, separate from the bot's technical rules. They do not require everyone to agree; they require reasonable cooperation and care for other people."
 updated: 2026-11-21
 ---
 

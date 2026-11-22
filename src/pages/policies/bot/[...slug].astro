@@ -76,6 +76,13 @@ const breadcrumbSchema = {
           <span>Updated {formatDate(entry.data.updated)}</span>
         </div>
         <DraftNotice docStatus={entry.data.docStatus} version={entry.data.version} />
+        <div class="plain-summary panel panel--pad" id="plain-language">
+          <div class="plain-summary-head">
+            <p class="label">In plain language</p>
+            <span>Summary · not the document</span>
+          </div>
+          <p>{entry.data.plainSummary}</p>
+        </div>
         <div class="reading-controls" data-reading-controls aria-label="Reading options">
           <span class="label">Reading</span>
           <div class="reading-group" role="group" aria-label="Text size">
@@ -168,6 +175,38 @@ const breadcrumbSchema = {
       </p>
     </div>
   </div>
+
+  <style>
+    .plain-summary {
+      margin-top: 1rem;
+      border-left: 2px solid var(--color-accent);
+    }
+
+    .plain-summary-head {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 0.5rem 1rem;
+      margin-bottom: 0.7rem;
+    }
+
+    .plain-summary-head > span {
+      color: var(--color-muted);
+      font-family: var(--font-mono);
+      font-size: 0.625rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .plain-summary > p {
+      margin: 0;
+      max-width: 76ch;
+      color: var(--color-ink-dim);
+      font-size: 0.9375rem;
+      line-height: 1.7;
+    }
+  </style>
 
   <script>
     // Reading controls: three text sizes and two measures, remembered locally.

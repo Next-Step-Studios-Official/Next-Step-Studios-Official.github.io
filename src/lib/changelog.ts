@@ -13,6 +13,24 @@ export type ChangelogEntry = {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    date: '2026-11-22',
+    version: '3.1',
+    title: 'The local guide edition',
+    summary:
+      'Step becomes easier to use and easier to understand: follow-ups, a topic menu, page-aware starters, copyable answers, a guide page and a home-page demo. Search gains typo suggestions, policy pages gain plain-language summaries, and the complete policy set gains a ZIP.',
+    changes: [
+      'Step now offers up to three curated follow-up questions after an answer, with a Topics menu for browsing the full range.',
+      'Starter questions change with the page: commands on the command reference, policies on a policy page, and the studio basics elsewhere.',
+      'Answers have a Copy button, and Step controls and message text are larger and easier to tap.',
+      'A new /step page explains what Step can answer, how matching works, and why there is no model, API, account or stored conversation.',
+      'The home page has a Step demo that opens the panel with a sample question, and the guide is linked from the footer, search and command palette.',
+      'Search suggests a corrected phrase when a query has no matches, with a one-click retry.',
+      'All seven policy pages now start with a plain-language summary, and the policy index links to it.',
+      'The complete policy set is downloadable as one ZIP containing every Markdown document, a combined file and a README.',
+      'Mobile spacing between Step and the home-page system panel is corrected.',
+    ],
+  },
+  {
     date: '2026-11-21',
     version: '3.0',
     title: 'The live edition',

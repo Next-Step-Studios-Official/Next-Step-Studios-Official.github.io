@@ -6,6 +6,7 @@ docStatus: "Draft for review. Not yet effective."
 appliesTo: "The Next Step Studios Discord bot operating in the single private Next Step Studios Discord server"
 order: 2
 summary: "What information the Discord bot processes and stores, and how to submit a privacy request."
+plainSummary: "The bot runs in one private Discord server. This policy lists the information it may process, why each record exists, who can access it, and how to ask for access, correction or deletion. It says information is not sold or used for advertising."
 updated: 2026-11-21
 ---
 

@@ -42,6 +42,8 @@ const PAGES: IndexEntry[] = [
   { type: 'Page', title: 'Projects', url: '/projects', text: 'Every project at the stage it is actually at. Status, category, sorting and filtering.' },
   { type: 'Page', title: 'Devlog', url: '/devlog', text: 'Notes from the work. Short entries about what is being built and what is unfinished.' },
   { type: 'Page', title: 'Command reference', url: '/commands', text: 'Every slash command in the Next Step Bot, grouped by area of the server.' },
+  { type: 'Page', title: 'Search', url: '/search', text: 'Search every policy, devlog entry, command, FAQ answer and page on the site. The index is a file; nothing is sent anywhere.' },
+  { type: 'Page', title: 'How Step works', url: '/step', text: 'What Step can answer, how it handles a question, and why it is local only with no API, account or conversation storage.' },
   { type: 'Page', title: 'Brand archive', url: '/archive', text: 'Every current and retired Next Step Studios mark, at four sizes in PNG, JPG and SVG, plus the complete brand kit ZIP.' },
   { type: 'Page', title: 'Official links', url: '/links', text: 'Every official link in one place, mirroring the bot links panel.' },
   { type: 'Page', title: 'About', url: '/about', text: 'The studio, the operator, the contributors, how it works and what it is for.' },
@@ -81,7 +83,7 @@ export const GET: APIRoute = async () => {
       title: policy.data.title,
       url: `/policies/bot/${policy.id.replace(/^bot\//, '')}`,
       section: policy.data.shortTitle,
-      text: strip(`${policy.data.summary} ${policy.body ?? ''}`),
+      text: strip(`${policy.data.summary} ${policy.data.plainSummary} ${policy.body ?? ''}`),
     })),
     ...posts.map((post) => ({
       type: 'Devlog',

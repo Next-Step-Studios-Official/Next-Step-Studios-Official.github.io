@@ -22,6 +22,7 @@ const STATIC_ROUTES = [
   '/status',
   '/stack',
   '/search',
+  '/step',
   '/contact',
   '/website-privacy',
   '/modules',

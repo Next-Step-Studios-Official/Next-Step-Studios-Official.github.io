@@ -87,6 +87,8 @@ export function buildDocumentFile(entry: PolicyEntry): string {
     '',
     `> ${data.summary}`,
     '',
+    `**Plain-language summary:** ${data.plainSummary}`,
+    '',
     `**Version ${data.version}** · ${data.docStatus} · Applies to: ${data.appliesTo}`,
     '',
   ].join('\n');

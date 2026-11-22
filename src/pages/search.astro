@@ -43,6 +43,11 @@ const indexUrl = `${import.meta.env.BASE_URL}search-index.json`;
         <span class="read-time" data-search-status aria-live="polite">Type to search</span>
       </div>
 
+      <div class="search-suggestions" data-search-suggestions hidden>
+        <span class="label">Did you mean</span>
+        <div class="search-suggestion-list" data-search-suggestion-list></div>
+      </div>
+
       <div class="chip-group search-types" data-search-types>
         <button type="button" class="chip" data-type="all" aria-pressed="true">Everything</button>
         <button type="button" class="chip" data-type="Policy" aria-pressed="false">Policies</button>
@@ -80,6 +85,8 @@ const indexUrl = `${import.meta.env.BASE_URL}search-index.json`;
       const resultsEl = root.querySelector<HTMLElement>('[data-search-results]');
       const statusEl = root.querySelector<HTMLElement>('[data-search-status]');
       const emptyEl = root.querySelector<HTMLElement>('[data-search-empty]');
+      const suggestionsEl = root.querySelector<HTMLElement>('[data-search-suggestions]');
+      const suggestionList = root.querySelector<HTMLElement>('[data-search-suggestion-list]');
       const typeChips = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-search-types] .chip'));
       const indexUrl = root.dataset.indexUrl ?? '/search-index.json';
 
@@ -89,6 +96,7 @@ const indexUrl = `${import.meta.env.BASE_URL}search-index.json`;
       let loading = false;
       let activeType = 'all';
       let lastQuery = '';
+      let vocabulary: string[] = [];
 
       const escapeHtml = (value: string) =>
         value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -113,6 +121,90 @@ const indexUrl = `${import.meta.env.BASE_URL}search-index.json`;
         const start = Math.max(0, at - 90);
         const end = Math.min(text.length, at + 150);
         return `${start > 0 ? '…' : ''}${text.slice(start, end).trim()}${end < text.length ? '…' : ''}`;
+      };
+
+      const levenshtein = (left: string, right: string) => {
+        if (left === right) return 0;
+        if (!left.length) return right.length;
+        if (!right.length) return left.length;
+
+        let previous = Array.from({ length: right.length + 1 }, (_, index) => index);
+        for (let row = 1; row <= left.length; row += 1) {
+          const current = [row];
+          for (let column = 1; column <= right.length; column += 1) {
+            current[column] = Math.min(
+              previous[column] + 1,
+              current[column - 1] + 1,
+              previous[column - 1] + (left[row - 1] === right[column - 1] ? 0 : 1),
+            );
+          }
+          previous = current;
+        }
+        return previous[right.length];
+      };
+
+      const buildVocabulary = (list: Entry[]) => {
+        const words = new Set<string>();
+        for (const entry of list) {
+          const source = `${entry.title} ${entry.section ?? ''}`.toLowerCase();
+          for (const word of source.match(/[a-z][a-z0-9'-]{2,}/g) ?? []) words.add(word);
+        }
+        return [...words].sort();
+      };
+
+      const nearestWord = (term: string) => {
+        const limit = term.length < 5 ? 1 : 2;
+        let best = term;
+        let bestDistance = limit + 1;
+
+        for (const word of vocabulary) {
+          if (Math.abs(word.length - term.length) > limit) continue;
+          const distance = levenshtein(term, word);
+          if (distance < bestDistance) {
+            best = word;
+            bestDistance = distance;
+          }
+        }
+
+        return bestDistance <= limit ? best : term;
+      };
+
+      const clearSuggestions = () => {
+        if (suggestionsEl) suggestionsEl.hidden = true;
+        suggestionList?.replaceChildren();
+      };
+
+      const showSuggestions = (query: string) => {
+        if (!suggestionsEl || !suggestionList) return;
+        const stopWords = new Set([
+          'the', 'and', 'for', 'what', 'when', 'where', 'which', 'who', 'why', 'how',
+          'does', 'did', 'can', 'could', 'would', 'should', 'with', 'from', 'that', 'this',
+          'have', 'has', 'are', 'was', 'were', 'you', 'your', 'about', 'into', 'its',
+        ]);
+        const terms = query.toLowerCase().split(/\s+/).filter(Boolean);
+        const corrected = terms.map((term) =>
+          term.length >= 3 && !stopWords.has(term) ? nearestWord(term) : term,
+        );
+        if (corrected.every((term, index) => term === terms[index])) {
+          clearSuggestions();
+          return;
+        }
+
+        const phrase = corrected.join(' ');
+        suggestionList.replaceChildren();
+        const button = document.createElement('button');
+        button.className = 'search-suggestion';
+        button.type = 'button';
+        button.textContent = phrase;
+        button.addEventListener('click', () => {
+          if (!input) return;
+          input.value = phrase;
+          run(phrase);
+          syncUrl(phrase);
+          input.focus();
+        });
+        suggestionList.append(button);
+        suggestionsEl.hidden = false;
       };
 
       const render = (query: string) => {
@@ -158,6 +250,8 @@ const indexUrl = `${import.meta.env.BASE_URL}search-index.json`;
         }
 
         emptyEl?.classList.toggle('is-visible', scored.length === 0);
+        if (scored.length === 0) showSuggestions(query);
+        else clearSuggestions();
       };
 
       const run = (query: string) => {
@@ -166,6 +260,7 @@ const indexUrl = `${import.meta.env.BASE_URL}search-index.json`;
           resultsEl && (resultsEl.innerHTML = '');
           if (statusEl) statusEl.textContent = 'Type to search';
           emptyEl?.classList.remove('is-visible');
+          clearSuggestions();
           return;
         }
         render(query);
@@ -177,6 +272,7 @@ const indexUrl = `${import.meta.env.BASE_URL}search-index.json`;
         try {
           const response = await fetch(indexUrl);
           entries = (await response.json()) as Entry[];
+          vocabulary = buildVocabulary(entries);
           if (statusEl) statusEl.textContent = `${entries.length} entries indexed`;
           if (lastQuery) render(lastQuery);
         } catch {
@@ -225,4 +321,45 @@ const indexUrl = `${import.meta.env.BASE_URL}search-index.json`;
       }
     }
   </script>
+
+  <style>
+    .search-suggestions[hidden] {
+      display: none;
+    }
+
+    .search-suggestions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.5rem 0.75rem;
+      margin: 1rem 0 1.25rem;
+      padding: 0.7rem 0.85rem;
+      border: 1px solid var(--color-line);
+      border-left: 2px solid var(--color-accent);
+      border-radius: 2px;
+      background: var(--color-surface);
+    }
+
+    .search-suggestion-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+
+    .search-suggestion {
+      min-height: 2.5rem;
+      padding: 0.4rem 0.65rem;
+      border: 1px solid var(--color-line);
+      border-radius: 2px;
+      background: var(--color-surface-2);
+      color: var(--color-ink);
+      font: inherit;
+      font-size: 0.875rem;
+      text-align: left;
+    }
+
+    .search-suggestion:hover {
+      border-color: var(--color-accent);
+    }
+  </style>
 </Base>

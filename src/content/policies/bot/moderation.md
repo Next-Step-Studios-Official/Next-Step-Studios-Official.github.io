@@ -6,6 +6,7 @@ docStatus: "Draft for review. Not yet effective."
 appliesTo: "The private Next Step Studios Discord server and moderation-related Bot workflows"
 order: 5
 summary: "How moderation decisions are made and enforced."
+plainSummary: "Moderation should be consistent, proportionate and explained. The policy describes how reports and rule violations are reviewed, the kinds of outcomes that are possible, and how an appeal is handled."
 updated: 2026-11-21
 ---
 

@@ -6,6 +6,7 @@ docStatus: "Draft framework. Retention schedules and deletion procedures require
 appliesTo: "Information processed by the Next Step Studios Discord bot in the single private Next Step Studios Discord server"
 order: 6
 summary: "How long the Discord bot retains information, and how it is deleted."
+plainSummary: "This is a framework, not a finished schedule. It explains the intent to keep records only as long as they are needed, review them, and delete them on request or when they are no longer required. The specific periods and procedures still need implementation and verification."
 updated: 2026-11-21
 ---
 

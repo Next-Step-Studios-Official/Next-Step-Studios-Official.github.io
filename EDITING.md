@@ -857,6 +857,7 @@ plain-text download, print layout and PDF all come from the same file.
    appliesTo: Next Step Bot
    order: 2
    summary: What the bot stores, why, and how long it keeps it.
+   plainSummary: A plain-language version shown above the full document.
    updated: 2026-11-21
    ---
    ```
@@ -868,13 +869,15 @@ plain-text download, print layout and PDF all come from the same file.
    - `appliesTo` — what the document covers.
    - `order` — position in the policy index. Lower numbers come first.
    - `summary` — one or two sentences for cards and metadata.
+   - `plainSummary` — a short, plain-language summary shown above the full document and
+     linked from the policy index. It is a summary, not a replacement for the wording.
    - `updated` — the date this version was recorded (`YYYY-MM-DD`).
 
 3. Edit the body below the second `---`. Use normal Markdown headings (`##`) and lists.
 4. Update `version`, `updated` and, if needed, `summary`.
 5. Save.
-6. **Restart needed?** No. **Rebuild?** Yes. The build regenerates the PDFs and the
-   downloads catalogue.
+6. **Restart needed?** No. **Rebuild?** Yes. The build regenerates the PDFs, the policy
+   ZIP and the downloads catalogue.
 7. **Verify:** open `/policies`, the policy page, `/downloads` and the PDF link. The PDF
    may be cached by the browser; open it in a new tab.
 
@@ -1154,7 +1157,7 @@ npm run releases
 The ten most recent releases are recorded. Builds should be attached to GitHub Releases,
 not committed to this repository. `npm run build` refreshes the manifest automatically.
 
-### PDFs and the cheatsheet
+### PDFs, the cheatsheet and the policy ZIP
 
 The policy PDFs and command cheatsheet are generated:
 
@@ -1162,7 +1165,14 @@ The policy PDFs and command cheatsheet are generated:
 npm run pdfs
 ```
 
-Do not edit the PDFs by hand; the next build replaces them.
+The complete policy ZIP is generated separately from the Markdown sources:
+
+```powershell
+npm run policies:zip
+```
+
+Do not edit the PDFs, the cheatsheet or the policy ZIP by hand; the next build replaces
+them. The ZIP contains a README, a combined Markdown file and one file per document.
 
 ---
 
@@ -1682,7 +1692,9 @@ text. Prefer changing the shared module (`src/lib/...`) so every page follows.
 | `src/components/Header.astro` | Desktop and mobile navigation |
 | `src/components/Footer.astro` | Footer navigation and contact |
 | `src/components/Assistant.astro` | Floating Step launcher, chat panel and local loader |
-| `src/lib/assistant.ts` | Step's local question matcher and answer builder |
+| `src/lib/assistant.ts` | Step's local question matcher, topics and page starters |
+| `src/pages/step.astro` | Public guide to what Step can and cannot answer |
+| `src/pages/search.astro` | Full-text search, filters and typo suggestions |
 | `src/pages/assistant-facts.json.ts` | Curated public facts used by Step |
 | `src/pages/search-index.json.ts` | Full-text index used by Search and Step |
 | `src/lib/site.ts` | Studio name, operator, email, canonical URL |
@@ -1699,7 +1711,7 @@ text. Prefer changing the shared module (`src/lib/...`) so every page follows.
 | `src/assets/banners/` | Page banners |
 | `public/images/` | Hero and project covers |
 | `public/brand/` | Generated logo matrix and favicons |
-| `public/downloads/` | Generated PDFs and brand ZIP |
+| `public/downloads/` | Generated PDFs, brand ZIP and policy ZIP |
 | `public/og/` | Generated share cards |
 | `server/worker.mjs` | Deployed contact service |
 | `server/index.mjs` | Node contact service |
@@ -1718,6 +1730,7 @@ npm run brand        # regenerate logo matrix, favicons, manifest, ZIP
 npm run banners      # regenerate the two page banners
 npm run og           # regenerate share cards
 npm run pdfs         # policy PDFs and command cheatsheet
+npm run policies:zip # complete policy set ZIP
 npm run snapshot     # record policy version snapshots
 npm run releases     # refresh the GitHub Releases manifest
 npm run contact      # local Node contact service
@@ -1804,13 +1817,20 @@ built this way so the site can keep its “no tracking, no third parties” prom
 2. `src/lib/assistant.ts` normalises the question, handles common abbreviations and
    one-character typos, expands a small explicit synonym list, scores it against the
    facts, then searches the index for longer-tail questions.
-3. The answer is displayed as plain text, with links to the relevant public page. After
-   an answer, Step may show up to three **Continue with** chips. They are curated
-   questions tied to that fact (or a sensible fallback), and clicking one submits it
-   locally exactly as if it had been typed. They are not a separate service and are not
-   stored.
-4. If nothing is relevant, Step says it does not know and offers **Search** and
+3. The answer is displayed as plain text, with links to the relevant public page and a
+   **Copy** button. After an answer, Step may show up to three **Continue with** chips.
+   They are curated questions tied to that fact (or a sensible fallback), and clicking
+   one submits it locally exactly as if it had been typed. They are not a separate
+   service and are not stored.
+4. Before a question, the panel shows starters chosen for the current page (commands on
+   `/commands`, policies on a policy page, and the studio basics elsewhere). The
+   **Topics** button opens the full curated topic menu. Neither list is stored.
+5. If nothing is relevant, Step says it does not know and offers **Search** and
    **Contact** instead of inventing an answer.
+
+The public `/step` page explains the same behaviour, and the home page has a small
+demo that opens the panel with a sample question. Both are ordinary site pages; no
+additional service is involved.
 
 No question is sent to an AI service or an API. The only requests are for the two static
 files above, and those requests contain no question text. There is no `localStorage` or
@@ -1825,6 +1845,7 @@ cookie for the conversation; it exists in the open tab and resets on reload.
 | `src/pages/assistant-facts.json.ts` | The curated facts; generates `/assistant-facts.json` |
 | `src/pages/search-index.json.ts` | The shared full-text index; generates `/search-index.json` |
 | `src/layouts/Base.astro` | Renders `<Assistant />` once on every page |
+| `src/pages/step.astro` | Public guide: topics, limits and local-only behaviour |
 | `src/pages/website-privacy.astro` | Explains the assistant's local-only behaviour |
 
 ### Add or change an answer
@@ -1868,28 +1889,33 @@ generated id.
 ### Test Step
 
 1. Run `npm run dev` and open `http://localhost:4321/`.
-2. Open **Ask Step** in the bottom-right. Ask the five suggested questions.
-3. After an answer, click one of the **Continue with** chips. It should submit that
+2. Open **Ask Step** in the bottom-right. Ask the suggested questions.
+3. Use **Topics** to open the menu, ask one of its questions, then close and reopen the
+   menu. The starters should stay hidden after a question and return with **New**.
+4. After an answer, click one of the **Continue with** chips. It should submit that
    question and replace the old chips. Check that every chip is answerable from the
-   public site rather than a dead end.
-4. Ask something the public pages do not cover, for example “What is your favourite
+   public site rather than a dead end. Use **Copy** and confirm the clipboard text is the
+   answer, not the source label.
+5. Ask something the public pages do not cover, for example “What is your favourite
    colour?”. It should say it does not know, with Search and Contact links.
-5. Ask a policy question and a command question. Check the links open the right page.
-6. Open DevTools → Network, clear the log, then open Step. The only new requests should
+6. Ask a policy question and a command question. Check the links open the right page.
+7. Open DevTools → Network, clear the log, then open Step. The only new requests should
    be `/assistant-facts.json` and `/search-index.json`; there should be no external AI
    request.
-7. Reload the page. The conversation should be gone. Check DevTools → Application →
+8. Reload the page. The conversation should be gone. Check DevTools → Application →
    Local Storage: Step should not have added a key.
-8. At a 390 × 844 viewport, the panel should fit without sideways scrolling, and
+9. At a 390 × 844 viewport, the panel should fit without sideways scrolling, and
    `Escape` or the ✕ button should close it. Follow-up chips must wrap rather than
    overflow.
-9. Switch to light theme. The panel must be white with dark text; the home hero must
-   stay readable over its artwork; and the hero, HUD and footer must not use the
-   dark-only surfaces.
-10. With Step closed on a narrow screen, tap a footer link near the bottom edge. The
-    `.step-root` wrapper deliberately has `pointer-events: none`; only the launcher and
-    panel should receive taps.
-11. Run `npm run build` before publishing. A successful build is the check for the facts
+10. Switch to light theme. The panel must be white with dark text; the home hero must
+    stay readable over its artwork; and the hero, HUD and footer must not use the
+    dark-only surfaces.
+11. On the home page at 390 and 320 wide, Step is a compact icon at the bottom right and
+    the HUD labels, values and clock stay clear of it.
+12. With Step closed, tap a footer link near the bottom edge. The `.step-root` wrapper
+    deliberately has `pointer-events: none`; only the launcher and panel should receive
+    taps.
+13. Run `npm run build` before publishing. A successful build is the check for the facts
     route and the bundled script.
 
 ### What not to do
@@ -1900,9 +1926,13 @@ generated id.
   contact service.
 - Do not render the answer with `innerHTML`; the current code uses `textContent` so page
   content cannot inject markup.
-- Keep `Assistant.astro`'s style block marked `is:global`. Messages and follow-up chips
-  are created after Astro adds its scoped-style attribute, so a normal scoped style
-  would not reach them. Every selector in that block is namespaced with `step-`.
+- Keep `Assistant.astro`'s style block marked `is:global`. Messages, copy buttons,
+  follow-up chips and dynamically rendered starters are created after Astro adds its
+  scoped-style attribute, so a normal scoped style would not reach them. Every selector
+  in that block is namespaced with `step-`.
+- Do not rely on the `hidden` attribute alone for an element whose CSS sets `display`;
+  add a matching `[hidden] { display: none }` rule. The panel, starters, topic menu and
+  search suggestions each have one for this reason.
 - Do not include private bot configuration, private Discord channel URLs, credentials or
   internal notes in `assistant-facts.json.ts` or `search-index.json.ts`.
 

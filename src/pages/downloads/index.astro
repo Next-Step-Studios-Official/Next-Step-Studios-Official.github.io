@@ -163,12 +163,15 @@ const kinds = ['installer', 'archive', 'document', 'source', 'media'] as const;
         <div class="panel panel--pad">
           <p class="label">The complete policy set</p>
           <p class="dl-note">
-            All {documents.length} documents in one file, for archiving or reading offline.
-            Each section keeps its own version header.
+            All {documents.length} documents in one ZIP, with a README and a combined file,
+            for archiving or reading offline. Each document keeps its own version header.
           </p>
           <div class="doc-actions" style="margin-top: 0.9rem;">
-            <a class="btn btn-primary" href="/downloads/all.md" download="next-step-studios-policies.md">
-              Combined .md <span class="btn-arrow" aria-hidden="true">↓</span>
+            <a class="btn btn-primary" href="/downloads/next-step-studios-policies.zip" download="next-step-studios-policies.zip">
+              Policy set .zip <span class="btn-arrow" aria-hidden="true">↓</span>
+            </a>
+            <a class="text-link doc-action-link" href="/downloads/all.md" download="next-step-studios-policies.md">
+              Combined .md →
             </a>
             <a class="text-link doc-action-link" href="/downloads/print/privacy">Print editions →</a>
           </div>

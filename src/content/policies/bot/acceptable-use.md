@@ -6,6 +6,7 @@ docStatus: "Draft for review. Not yet effective."
 appliesTo: "The Next Step Studios Discord bot operating in the single private Next Step Studios Discord server"
 order: 3
 summary: "What is and is not permitted when using the Discord bot."
+plainSummary: "Use the bot for the private server's community and administrative work, not to abuse, disrupt or break Discord's rules. The policy names prohibited behaviour and explains that access can be limited when someone misuses the bot."
 updated: 2026-11-21
 ---
 

@@ -6,6 +6,7 @@ docStatus: "Draft for review. Not yet effective."
 appliesTo: "The Next Step Studios Discord bot operating in the single private Next Step Studios Discord server"
 order: 7
 summary: "The security and data protection practices described for the Discord bot."
+plainSummary: "The overview describes least-privilege access, restricted administrative access, secrets kept out of source, and the current single-server context. It also identifies safeguards that are not yet claimed or verified, rather than presenting them as finished."
 updated: 2026-11-21
 ---
 

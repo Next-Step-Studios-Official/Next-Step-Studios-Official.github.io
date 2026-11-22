@@ -1,6 +1,7 @@
 ---
 import { Image } from 'astro:assets';
 import logoMark from '../assets/brand/logo-mark.png';
+import { STARTER_QUESTIONS, STEP_TOPICS } from '../lib/assistant';
 
 const factsUrl = `${import.meta.env.BASE_URL}assistant-facts.json`;
 const indexUrl = `${import.meta.env.BASE_URL}search-index.json`;
@@ -8,13 +9,7 @@ const indexUrl = `${import.meta.env.BASE_URL}search-index.json`;
 const intro =
   "Hi — I'm Step, the local guide to Next Step Studios. I can answer from the studio's public pages: the studio, the bot, projects, policies, team, links and contact. What would you like to know?";
 
-const starters = [
-  'What is Next Step Studios?',
-  'What is Next Step Bot?',
-  'Who runs the studio?',
-  'How do I contact the studio?',
-  'What policies do you have?',
-];
+const starters = STARTER_QUESTIONS;
 ---
 
 <div
@@ -45,6 +40,15 @@ const starters = [
       </div>
       <div class="step-head-actions">
         <button
+          class="step-icon-button step-topics-toggle"
+          type="button"
+          data-assistant-topics
+          aria-expanded="false"
+          aria-controls="step-topics"
+        >
+          Topics
+        </button>
+        <button
           class="step-icon-button step-new"
           type="button"
           data-assistant-new
@@ -64,6 +68,25 @@ const starters = [
         </button>
       </div>
     </header>
+
+    <div class="step-topics" id="step-topics" data-assistant-topics-panel hidden>
+      <div class="step-topics-head">
+        <p class="step-kicker">Browse topics</p>
+        <a class="step-topics-guide" href="/step">How Step works →</a>
+      </div>
+      {STEP_TOPICS.map((topic) => (
+        <div class="step-topic-group">
+          <p class="step-topic-label">{topic.label}</p>
+          <div class="step-topic-list">
+            {topic.questions.map((question) => (
+              <button class="step-topic" type="button" data-question={question}>
+                {question}
+              </button>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
 
     <div class="step-log" data-assistant-log role="log" aria-live="polite" aria-relevant="additions">
       <article class="step-message step-message--assistant">
@@ -104,7 +127,8 @@ const starters = [
     </form>
 
     <p class="step-note">
-      Local only · no account · no API · resets on reload
+      Local only · no account · no API · resets on reload ·
+      <a href="/step">How Step works</a>
     </p>
   </section>
 
@@ -136,7 +160,7 @@ const starters = [
 </div>
 
 <script>
-  import { answerQuestion } from '../lib/assistant';
+  import { answerQuestion, starterQuestionsForPath } from '../lib/assistant';
   import type {
     AssistantEntry,
     AssistantFact,
@@ -157,6 +181,8 @@ const starters = [
     const suggestions = root.querySelector<HTMLElement>('[data-assistant-suggestions]');
     const newChat = root.querySelector<HTMLButtonElement>('[data-assistant-new]');
     const closeButton = root.querySelector<HTMLButtonElement>('[data-assistant-close]');
+    const topicsToggle = root.querySelector<HTMLButtonElement>('[data-assistant-topics]');
+    const topicsPanel = root.querySelector<HTMLElement>('[data-assistant-topics-panel]');
 
     const factsUrl = root.dataset.factsUrl ?? '';
     const indexUrl = root.dataset.indexUrl ?? '';
@@ -177,6 +203,31 @@ const starters = [
     const scrollLog = () => {
       if (log) log.scrollTop = log.scrollHeight;
     };
+
+    const renderStarters = (questions: string[]) => {
+      if (!suggestions) return;
+      suggestions.replaceChildren();
+      [...new Set(questions)].forEach((question) => {
+        const button = document.createElement('button');
+        button.className = 'step-suggestion';
+        button.type = 'button';
+        button.dataset.question = question;
+        button.textContent = question;
+        suggestions.append(button);
+      });
+    };
+
+    const setTopics = (open: boolean) => {
+      if (!topicsPanel || !topicsToggle) return;
+      topicsPanel.hidden = !open;
+      topicsToggle.setAttribute('aria-expanded', String(open));
+      if (open && suggestions) suggestions.hidden = true;
+      if (!open && suggestions && !log?.querySelector('.step-message--user')) {
+        suggestions.hidden = false;
+      }
+    };
+
+    renderStarters(starterQuestionsForPath(window.location.pathname));
 
     const sourceLabel = (confidence: AssistantReply['confidence']) => {
       if (confidence === 'fact') return "From the studio's public pages";
@@ -224,12 +275,34 @@ const starters = [
       }
 
       const source = role === 'assistant' && confidence ? sourceLabel(confidence) : '';
+      const meta = document.createElement('div');
+      meta.className = 'step-message-meta';
       if (source) {
         const sourceEl = document.createElement('p');
         sourceEl.className = 'step-message-source';
         sourceEl.textContent = source;
-        article.append(sourceEl);
+        meta.append(sourceEl);
       }
+      if (role === 'assistant' && confidence) {
+        const copy = document.createElement('button');
+        copy.className = 'step-message-copy';
+        copy.type = 'button';
+        copy.textContent = 'Copy';
+        copy.setAttribute('aria-label', 'Copy this answer');
+        copy.addEventListener('click', async () => {
+          try {
+            await navigator.clipboard.writeText(text);
+            copy.textContent = 'Copied';
+          } catch {
+            copy.textContent = 'Copy unavailable';
+          }
+          window.setTimeout(() => {
+            copy.textContent = 'Copy';
+          }, 1600);
+        });
+        meta.append(copy);
+      }
+      if (meta.children.length > 0) article.append(meta);
 
       if (role === 'assistant' && followUps.length > 0) {
         const followUpBox = document.createElement('div');
@@ -317,6 +390,7 @@ const starters = [
       panel.classList.remove('is-open');
       launcher.setAttribute('aria-expanded', 'false');
       document.body.classList.remove('step-open');
+      setTopics(false);
       if (returnFocus) launcher.focus();
       closeTimer = window.setTimeout(() => {
         panel.hidden = true;
@@ -327,6 +401,8 @@ const starters = [
       if (!log) return;
       log.replaceChildren();
       addMessage('assistant', intro);
+      renderStarters(starterQuestionsForPath(window.location.pathname));
+      setTopics(false);
       if (suggestions) suggestions.hidden = false;
       if (input) {
         input.value = '';
@@ -340,6 +416,7 @@ const starters = [
       if (!question) return;
 
       log?.querySelectorAll('[data-followups]').forEach((node) => node.remove());
+      setTopics(false);
       addMessage('user', question);
       if (input) input.value = '';
       if (suggestions) suggestions.hidden = true;
@@ -377,23 +454,40 @@ const starters = [
       void submit(input?.value ?? '');
     });
 
-    root.querySelectorAll<HTMLButtonElement>('[data-question]').forEach((button) => {
-      button.addEventListener('click', () => {
-        const question = button.dataset.question ?? button.textContent ?? '';
-        void submit(question);
-      });
+    topicsToggle?.addEventListener('click', () => {
+      setTopics(topicsPanel?.hidden ?? true);
     });
 
-    log?.addEventListener('click', (event) => {
+    root.addEventListener('click', (event) => {
       const target = event.target as HTMLElement;
-      const button = target.closest<HTMLButtonElement>('[data-followup]');
-      if (!button || !log.contains(button)) return;
-      void submit(button.dataset.followup ?? '');
+      const questionButton = target.closest<HTMLButtonElement>('[data-question], [data-followup]');
+      if (!questionButton || !root.contains(questionButton)) return;
+      const question = questionButton.dataset.question ?? questionButton.dataset.followup ?? '';
+      if (question) void submit(question);
+    });
+
+    document.addEventListener('click', (event) => {
+      const target = event.target as HTMLElement;
+      const button = target.closest<HTMLButtonElement>('[data-step-ask]');
+      const question = button?.dataset.stepAsk?.trim();
+      if (!question) return;
+      open();
+      void submit(question);
+    });
+
+    window.addEventListener('step:ask', (event) => {
+      const detail = (event as CustomEvent<{ question?: string }>).detail;
+      const question = detail?.question?.trim();
+      if (!question) return;
+      open();
+      void submit(question);
     });
 
     document.addEventListener('click', (event) => {
       if (!isOpen) return;
-      if (!root.contains(event.target as Node)) close(false);
+      const target = event.target as HTMLElement;
+      if (target.closest('[data-step-ask]')) return;
+      if (!root.contains(target)) close(false);
     });
 
     document.addEventListener('keydown', (event) => {
@@ -449,6 +543,12 @@ const starters = [
 
   .step-panel:not(.is-open) {
     pointer-events: none;
+  }
+
+  .step-panel[hidden],
+  .step-suggestions[hidden],
+  .step-topics[hidden] {
+    display: none;
   }
 
   .step-launcher {
@@ -609,8 +709,8 @@ const starters = [
   }
 
   .step-icon-button {
-    min-height: 2rem;
-    padding: 0.3rem 0.5rem;
+    min-height: 2.75rem;
+    padding: 0.35rem 0.55rem;
     border: 1px solid transparent;
     border-radius: 2px;
     color: var(--color-muted);
@@ -628,10 +728,79 @@ const starters = [
   }
 
   .step-close {
-    min-width: 2rem;
+    min-width: 2.75rem;
     padding-inline: 0.45rem;
     font-size: 0.9rem;
     text-transform: none;
+  }
+
+  .step-topics {
+    flex: none;
+    max-height: 16rem;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 0.8rem 0.85rem 0.9rem;
+    border-bottom: 1px solid var(--color-line);
+    background: var(--color-bg-soft);
+  }
+
+  .step-topics-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.7rem;
+  }
+
+  .step-topics-guide {
+    flex: none;
+    color: var(--color-accent-soft);
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.04em;
+    text-decoration: none;
+  }
+
+  .step-topics-guide:hover {
+    color: var(--color-ink);
+  }
+
+  .step-topic-group + .step-topic-group {
+    margin-top: 0.75rem;
+  }
+
+  .step-topic-label {
+    margin: 0 0 0.3rem;
+    color: var(--color-muted);
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .step-topic-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+
+  .step-topic {
+    min-height: 2.75rem;
+    padding: 0.45rem 0.55rem;
+    border: 1px solid var(--color-line);
+    border-radius: 2px;
+    background: var(--color-surface);
+    color: var(--color-ink-dim);
+    font-size: 0.78rem;
+    line-height: 1.35;
+    text-align: left;
+    transition: border-color 140ms ease, background-color 140ms ease, color 140ms ease;
+  }
+
+  .step-topic:hover {
+    border-color: rgba(143, 182, 255, 0.5);
+    background: var(--color-surface-2);
+    color: var(--color-ink);
   }
 
   .step-log {
@@ -680,8 +849,8 @@ const starters = [
   .step-message-text {
     margin: 0;
     color: var(--color-ink-dim);
-    font-size: 0.88rem;
-    line-height: 1.6;
+    font-size: 0.9375rem;
+    line-height: 1.62;
     white-space: pre-wrap;
     overflow-wrap: anywhere;
   }
@@ -700,8 +869,8 @@ const starters = [
   .step-message-link {
     display: inline-flex;
     align-items: center;
-    min-height: 2rem;
-    padding: 0.32rem 0.52rem;
+    min-height: 2.75rem;
+    padding: 0.38rem 0.55rem;
     border: 1px solid var(--color-line);
     border-radius: 2px;
     background: var(--color-surface);
@@ -720,13 +889,39 @@ const starters = [
     color: #fff;
   }
 
+  .step-message-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem 0.8rem;
+    margin-top: 0.5rem;
+  }
+
   .step-message-source {
-    margin: 0.45rem 0 0;
+    margin: 0;
     color: #7d899b;
     font-family: var(--font-mono);
     font-size: 0.54rem;
     letter-spacing: 0.08em;
     text-transform: uppercase;
+  }
+
+  .step-message-copy {
+    min-height: 2.75rem;
+    padding: 0.35rem 0.55rem;
+    border: 1px solid var(--color-line);
+    border-radius: 2px;
+    color: var(--color-muted);
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .step-message-copy:hover {
+    border-color: rgba(143, 182, 255, 0.5);
+    background: var(--color-surface);
+    color: var(--color-ink);
   }
 
   .step-suggestions {
@@ -739,12 +934,12 @@ const starters = [
   }
 
   .step-suggestion {
-    min-height: 2rem;
-    padding: 0.35rem 0.55rem;
+    min-height: 2.75rem;
+    padding: 0.45rem 0.6rem;
     border: 1px solid var(--color-line);
     border-radius: 2px;
     color: var(--color-ink-dim);
-    font-size: 0.73rem;
+    font-size: 0.78rem;
     line-height: 1.35;
     text-align: left;
     transition: border-color 140ms ease, background-color 140ms ease, color 140ms ease;
@@ -779,12 +974,12 @@ const starters = [
   }
 
   .step-followup {
-    min-height: 2.15rem;
-    padding: 0.35rem 0.52rem;
+    min-height: 2.75rem;
+    padding: 0.45rem 0.58rem;
     border: 1px solid var(--color-line);
     border-radius: 2px;
     color: var(--color-ink-dim);
-    font-size: 0.74rem;
+    font-size: 0.78rem;
     line-height: 1.35;
     text-align: left;
     transition: border-color 140ms ease, background-color 140ms ease, color 140ms ease;
@@ -818,13 +1013,13 @@ const starters = [
   .step-input {
     min-width: 0;
     flex: 1;
-    height: 2.65rem;
+    height: 2.9rem;
     padding: 0.55rem 0.65rem;
     border: 1px solid var(--color-control-line);
     border-radius: 2px;
     background: var(--color-bg);
     color: var(--color-ink);
-    font-size: 0.86rem;
+    font-size: 0.95rem;
     outline: none;
   }
 
@@ -840,8 +1035,8 @@ const starters = [
   .step-send {
     display: grid;
     place-items: center;
-    width: 2.65rem;
-    height: 2.65rem;
+    width: 2.9rem;
+    height: 2.9rem;
     flex: none;
     border: 1px solid transparent;
     border-radius: 2px;
@@ -873,6 +1068,12 @@ const starters = [
     letter-spacing: 0.04em;
     line-height: 1.5;
     text-align: center;
+  }
+
+  .step-note a {
+    color: var(--color-accent-soft);
+    text-decoration: underline;
+    text-underline-offset: 2px;
   }
 
   @keyframes step-in {
@@ -908,27 +1109,24 @@ const starters = [
     .step-launcher {
       align-self: flex-end;
       min-height: 2.9rem;
-      padding: 0.35rem 0.55rem 0.35rem 0.4rem;
-      gap: 0.45rem;
+      padding: 0.4rem;
+      gap: 0;
     }
 
     .step-launcher-icon {
-      width: 1.95rem;
-      height: 1.95rem;
+      width: 2.2rem;
+      height: 2.2rem;
     }
 
-    .step-launcher-label {
-      font-size: 0.64rem;
-      letter-spacing: 0.09em;
-    }
-
-    .step-launcher-sub,
+    .step-launcher-copy,
     .step-live-dot {
       display: none;
     }
 
-    .step-followup {
-      font-size: 0.72rem;
+    .step-followup,
+    .step-topic,
+    .step-suggestion {
+      font-size: 0.76rem;
     }
 
     body.step-open {

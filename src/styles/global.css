@@ -1314,6 +1314,17 @@ body.palette-open {
   .hero-grid { grid-template-columns: minmax(0, 1fr); }
 }
 
+/* Keep the HUD's labels, values and clock clear of the compact Step launcher
+   while the panel is closed. The launcher is fixed at the bottom right on
+   small screens, so the HUD reserves that corner rather than sitting under it. */
+@media (max-width: 560px) {
+  .hud .hud-head,
+  .hud .hud-rows > div,
+  .hud .hud-foot {
+    padding-right: 4.75rem;
+  }
+}
+
 .hud {
   position: relative;
   overflow: hidden;

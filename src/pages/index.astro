@@ -8,6 +8,7 @@ import { BOT_MODULES } from '../lib/modules';
 import { COMMANDS, COMMAND_GROUPS } from '../lib/commands';
 import { TEAM_SIZE, TEAM_WORD } from '../lib/contributors';
 import { numberWord } from '../lib/words';
+import { STARTER_QUESTIONS } from '../lib/assistant';
 
 const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
 const featured = projects.find((project) => project.data.featured) ?? projects[0];
@@ -24,6 +25,8 @@ const formatDate = (date: Date) =>
   new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }).format(date);
 
 const pad = (value: number) => String(value).padStart(2, '0');
+
+const stepDemo = [STARTER_QUESTIONS[0], STARTER_QUESTIONS[1], 'What policies do you have?'];
 
 const tickerItems = [
   'Static build · no server',
@@ -207,6 +210,43 @@ const routes = [
     featured && (
       <section class="section">
         <div class="container">
+          <div class="panel step-demo">
+            <div class="step-demo-main">
+              <p class="eyebrow">Step · Local studio guide</p>
+              <h2 class="section-title">Ask the site a question.</h2>
+              <p class="section-sub">
+                Step reads a fact file generated from these pages and answers in the corner of the
+                screen. It runs in this browser only: no account, no API, no model and no stored
+                conversation.
+              </p>
+              <div class="step-demo-questions" role="group" aria-label="Sample questions for Step">
+                {stepDemo.map((question) => (
+                  <button class="step-demo-question" type="button" data-step-ask={question}>
+                    {question}
+                    <span aria-hidden="true">↗</span>
+                  </button>
+                ))}
+              </div>
+              <p class="step-demo-note">
+                <a class="text-link" href="/step">What Step can answer, and what it cannot →</a>
+              </p>
+            </div>
+            <aside class="step-demo-aside" aria-label="Step's privacy boundary">
+              <p class="label">It never asks for</p>
+              <ul>
+                <li>An account or email address</li>
+                <li>Permission to send your question</li>
+                <li>An API key or third-party service</li>
+                <li>Anything beyond this tab</li>
+              </ul>
+              <p class="step-demo-stamp">Local only · resets on reload</p>
+            </aside>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="container">
           <div class="section-head">
             <div>
               <p class="eyebrow">Current focus</p>
@@ -320,6 +360,124 @@ const routes = [
       </ul>
     </div>
   </section>
+
+  <style>
+    .step-demo {
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(15rem, 0.65fr);
+      gap: 1.5rem;
+      padding: clamp(1.25rem, 3vw, 2.25rem);
+      border-color: rgba(143, 182, 255, 0.24);
+      background:
+        linear-gradient(110deg, rgba(77, 141, 255, 0.08), rgba(167, 139, 250, 0.04)),
+        var(--color-surface);
+    }
+
+    .step-demo .section-title {
+      margin-top: 0.75rem;
+    }
+
+    .step-demo .section-sub {
+      max-width: 58ch;
+    }
+
+    .step-demo-questions {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      margin-top: 1.15rem;
+      max-width: 34rem;
+    }
+
+    .step-demo-question {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      min-height: 2.75rem;
+      padding: 0.55rem 0.7rem;
+      border: 1px solid var(--color-line);
+      border-radius: 2px;
+      background: var(--color-bg);
+      color: var(--color-ink-dim);
+      font: inherit;
+      font-size: 0.8125rem;
+      line-height: 1.4;
+      text-align: left;
+    }
+
+    .step-demo-question span {
+      flex: none;
+      color: var(--color-accent-soft);
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+    }
+
+    .step-demo-question:hover {
+      border-color: var(--color-accent);
+      background: var(--color-surface-2);
+      color: var(--color-ink);
+    }
+
+    .step-demo-note {
+      margin: 0.9rem 0 0;
+      font-size: 0.8125rem;
+    }
+
+    .step-demo-aside {
+      padding-left: 1.5rem;
+      border-left: 1px solid var(--color-line);
+    }
+
+    .step-demo-aside ul {
+      display: flex;
+      flex-direction: column;
+      gap: 0.55rem;
+      margin: 0.8rem 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .step-demo-aside li {
+      position: relative;
+      padding-left: 1rem;
+      color: var(--color-muted);
+      font-size: 0.8125rem;
+      line-height: 1.5;
+    }
+
+    .step-demo-aside li::before {
+      content: '×';
+      position: absolute;
+      left: 0;
+      color: var(--color-muted);
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+    }
+
+    .step-demo-stamp {
+      margin: 1.25rem 0 0;
+      color: var(--color-muted);
+      font-family: var(--font-mono);
+      font-size: 0.625rem;
+      letter-spacing: 0.06em;
+      line-height: 1.5;
+      text-transform: uppercase;
+    }
+
+    @media (max-width: 760px) {
+      .step-demo {
+        grid-template-columns: 1fr;
+        gap: 1.25rem;
+      }
+
+      .step-demo-aside {
+        padding: 1.1rem 0 0;
+        border-top: 1px solid var(--color-line);
+        border-left: 0;
+      }
+    }
+  </style>
 
   <script>
     const clock = document.querySelector<HTMLTimeElement>('[data-clock]');

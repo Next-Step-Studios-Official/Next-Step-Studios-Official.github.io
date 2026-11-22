@@ -55,6 +55,8 @@ const policies = defineCollection({
     appliesTo: z.string(),
     order: z.number().default(100),
     summary: z.string(),
+    /** Plain-language summary shown above the full document. */
+    plainSummary: z.string().max(600),
     /** Date this version was recorded, used for version history. */
     updated: z.coerce.date(),
   }),

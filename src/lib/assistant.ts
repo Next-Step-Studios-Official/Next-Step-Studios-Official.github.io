@@ -569,3 +569,98 @@ export const STARTER_QUESTIONS = [
   'How do I contact the studio?',
   'What policies do you have?',
 ];
+
+/** Topic groups used by the panel menu and the public Step guide. */
+export const STEP_TOPICS: Array<{ label: string; questions: string[] }> = [
+  {
+    label: 'Studio',
+    questions: ['What is Next Step Studios?', 'Who runs the studio?', 'What are you building?'],
+  },
+  {
+    label: 'The bot',
+    questions: ['What is Next Step Bot?', 'What commands does the bot have?', 'Which modules are tested?'],
+  },
+  {
+    label: 'Policies and data',
+    questions: ['What policies do you have?', 'How do I request my data?', 'Does the website track me?'],
+  },
+  {
+    label: 'Links and contact',
+    questions: ['Where are your official links?', 'How do I join the Discord?', 'How do I contact the studio?'],
+  },
+];
+
+/**
+ * Starters are chosen from the current path so the first screen is relevant.
+ * Prefix matching covers child pages such as /policies/bot/privacy.
+ */
+const PAGE_STARTERS: Array<{ prefix: string; questions: string[] }> = [
+  {
+    prefix: '/commands',
+    questions: ['What commands does the bot have?', 'Which modules are tested?', 'What is Next Step Bot?'],
+  },
+  {
+    prefix: '/modules',
+    questions: ['What modules does the bot have?', 'Which modules are tested?', 'What commands does the bot have?'],
+  },
+  {
+    prefix: '/projects',
+    questions: ['What projects exist?', 'What is Next Step Bot?', 'What games are planned?'],
+  },
+  {
+    prefix: '/policies',
+    questions: ['What policies do you have?', 'Why are the policies still drafts?', 'How do I request my data?'],
+  },
+  {
+    prefix: '/devlog',
+    questions: ['What changed recently?', 'What is on the roadmap?', 'What is the status?'],
+  },
+  {
+    prefix: '/team',
+    questions: ['Who runs the studio?', 'Who is on the team?', 'What are you building?'],
+  },
+  {
+    prefix: '/about',
+    questions: ['Who runs the studio?', 'What is Next Step Studios?', 'What are you building?'],
+  },
+  {
+    prefix: '/contact',
+    questions: ['How do I contact the studio?', 'Does the website track me?', 'How do I request my data?'],
+  },
+  {
+    prefix: '/links',
+    questions: ['Where are your official links?', 'How do I join the Discord?', 'What social accounts are official?'],
+  },
+  {
+    prefix: '/roadmap',
+    questions: ['What is on the roadmap?', 'What is the release date?', 'What projects are planned?'],
+  },
+  {
+    prefix: '/website-privacy',
+    questions: ['Does the website track me?', 'Does Step store my questions?', 'What data does the bot store?'],
+  },
+  {
+    prefix: '/status',
+    questions: ['Is the website live?', 'What is the status?', 'What is on the roadmap?'],
+  },
+  {
+    prefix: '/downloads',
+    questions: ['What policies are available?', 'Is there a press kit?', 'What is Next Step Bot?'],
+  },
+  {
+    prefix: '/step',
+    questions: ['What can you do?', 'Do you save my messages?', 'Are you an AI model?'],
+  },
+  {
+    prefix: '/search',
+    questions: ['What can you do?', 'What policies do you have?', 'Where should I start?'],
+  },
+];
+
+export const starterQuestionsForPath = (path: string): string[] => {
+  const normal = path.replace(/\/+$/, '') || '/';
+  return (
+    PAGE_STARTERS.find(({ prefix }) => normal === prefix || normal.startsWith(`${prefix}/`))?.questions ??
+    STARTER_QUESTIONS
+  );
+};
