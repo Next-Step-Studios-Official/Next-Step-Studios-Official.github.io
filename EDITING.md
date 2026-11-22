@@ -1678,6 +1678,7 @@ text. Prefer changing the shared module (`src/lib/...`) so every page follows.
 | --- | --- |
 | `src/pages/` | Every route |
 | `src/layouts/Base.astro` | Page shell, metadata, favicons, schema |
+| `src/styles/theme.css` | Light palette and light-only surface overrides |
 | `src/components/Header.astro` | Desktop and mobile navigation |
 | `src/components/Footer.astro` | Footer navigation and contact |
 | `src/components/Assistant.astro` | Floating Step launcher, chat panel and local loader |
@@ -1800,8 +1801,9 @@ built this way so the site can keep its “no tracking, no third parties” prom
    - `/assistant-facts.json` — curated facts about the studio, projects, policies, team
      and links, generated at build time;
    - `/search-index.json` — the same full-text index used by the Search page.
-2. `src/lib/assistant.ts` normalises the question, scores it against the facts, then
-   searches the index for longer-tail questions.
+2. `src/lib/assistant.ts` normalises the question, handles common abbreviations and
+   one-character typos, expands a small explicit synonym list, scores it against the
+   facts, then searches the index for longer-tail questions.
 3. The answer is displayed as plain text, with links to the relevant public page. The
    browser receives the question text only through the form; it is not put in a URL or
    sent to a server.
@@ -1868,8 +1870,14 @@ summary.
    Local Storage: Step should not have added a key.
 7. At a 390 × 844 viewport, the panel should fit without sideways scrolling, and
    `Escape` or the ✕ button should close it.
-8. Run `npm run build` before publishing. A successful build is the check for the facts
-   route and the bundled script.
+8. Switch to light theme. The panel must be white with dark text; the home hero must
+   stay readable over its artwork; and the hero, HUD and footer must not use the
+   dark-only surfaces.
+9. With Step closed on a narrow screen, tap a footer link near the bottom edge. The
+   `.step-root` wrapper deliberately has `pointer-events: none`; only the launcher and
+   panel should receive taps.
+10. Run `npm run build` before publishing. A successful build is the check for the facts
+    route and the bundled script.
 
 ### What not to do
 

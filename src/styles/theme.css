@@ -223,3 +223,152 @@ html[data-theme='light'] :focus-visible {
   outline-color: var(--color-accent);
   outline-offset: 2px;
 }
+
+/* The home hero image was lit for the dark page. Wash it back so the dark
+   headline and body text keep their contrast on paper-white. */
+html[data-theme='light'] .hero-art img {
+  opacity: 0.42;
+  filter: saturate(0.55) brightness(1.15);
+}
+
+html[data-theme='light'] .hero-art::after {
+  background:
+    linear-gradient(180deg, rgba(246, 247, 250, 0.58), var(--color-bg) 94%),
+    linear-gradient(90deg, rgba(246, 247, 250, 0.94) 0%, rgba(246, 247, 250, 0.7) 58%, rgba(246, 247, 250, 0.88) 100%);
+}
+
+/* Small hard-coded details that were tuned for a dark strip or surface. */
+html[data-theme='light'] .ticker {
+  background: var(--color-bg-soft);
+}
+
+html[data-theme='light'] .wordmark-logo {
+  border-color: var(--color-line);
+  box-shadow: 0 0 18px -10px rgba(255, 80, 60, 0.35);
+}
+
+html[data-theme='light'] .hud-live {
+  color: #12634a;
+}
+
+html[data-theme='light'] .cmd-note {
+  color: #7a4c00;
+  background: rgba(196, 130, 0, 0.08);
+  border-color: rgba(196, 130, 0, 0.3);
+}
+
+html[data-theme='light'] .changelog-latest {
+  color: #12634a;
+  border-color: rgba(16, 138, 100, 0.28);
+  background: rgba(16, 138, 100, 0.07);
+}
+
+html[data-theme='light'] .route-index,
+html[data-theme='light'] .links-index,
+html[data-theme='light'] .hud-rows dt,
+html[data-theme='light'] .footer-base,
+html[data-theme='light'] .palette-meta {
+  color: var(--color-muted);
+}
+
+html[data-theme='light'] .stat:hover,
+html[data-theme='light'] .entry:hover,
+html[data-theme='light'] .cmd-row:hover,
+html[data-theme='light'] .result-link:hover,
+html[data-theme='light'] .link-row:hover {
+  background: rgba(16, 21, 32, 0.025);
+}
+
+html[data-theme='light'] .tool-btn,
+html[data-theme='light'] .search-field,
+html[data-theme='light'] .tool-kbd {
+  background: var(--color-surface-2);
+}
+
+/* Step: the panel had dark-only surfaces while its text followed the light
+   page tokens, which made answers nearly disappear. Restate the full surface
+   treatment here, then keep its accent controls readable on white. */
+html[data-theme='light'] .step-launcher {
+  border-color: rgba(26, 92, 208, 0.24);
+  background:
+    linear-gradient(110deg, rgba(26, 92, 208, 0.07), rgba(103, 67, 209, 0.035)),
+    var(--color-surface);
+  box-shadow:
+    0 18px 45px -28px rgba(22, 30, 48, 0.35),
+    0 0 0 1px rgba(26, 92, 208, 0.04);
+}
+
+html[data-theme='light'] .step-launcher-icon {
+  border-color: rgba(26, 92, 208, 0.2);
+  background: var(--color-surface-2);
+  color: var(--color-accent);
+}
+
+html[data-theme='light'] .step-panel {
+  border-color: var(--color-line);
+  background:
+    linear-gradient(180deg, rgba(26, 92, 208, 0.025), transparent 32%),
+    var(--color-surface);
+  box-shadow:
+    0 36px 100px -34px rgba(22, 30, 48, 0.32),
+    0 0 0 1px rgba(26, 92, 208, 0.06),
+    0 0 60px -30px rgba(26, 92, 208, 0.22);
+}
+
+html[data-theme='light'] .step-head,
+html[data-theme='light'] .step-form {
+  background: var(--color-surface-2);
+}
+
+html[data-theme='light'] .step-avatar {
+  background: var(--color-surface);
+}
+
+html[data-theme='light'] .step-message--user {
+  border-color: rgba(26, 92, 208, 0.2);
+  background: rgba(26, 92, 208, 0.07);
+}
+
+html[data-theme='light'] .step-message--assistant {
+  border-left-color: rgba(26, 92, 208, 0.48);
+}
+
+html[data-theme='light'] .step-message-link {
+  border-color: var(--color-line);
+  background: var(--color-surface-2);
+  color: var(--color-accent);
+}
+
+html[data-theme='light'] .step-message-link:hover {
+  border-color: rgba(26, 92, 208, 0.42);
+  background: #e4ecfa;
+  color: var(--color-ink);
+}
+
+html[data-theme='light'] .step-message-source,
+html[data-theme='light'] .step-note,
+html[data-theme='light'] .step-input::placeholder {
+  color: var(--color-muted);
+}
+
+html[data-theme='light'] .step-suggestion:hover {
+  background: var(--color-surface-2);
+}
+
+html[data-theme='light'] .step-input {
+  border-color: var(--color-control-line);
+  background: var(--color-surface);
+}
+
+html[data-theme='light'] .step-send {
+  color: #ffffff;
+  background: var(--color-accent);
+}
+
+html[data-theme='light'] .step-send:hover {
+  background: #134bb0;
+}
+
+html[data-theme='light'] .step-log {
+  scrollbar-color: #b8c2d2 transparent;
+}

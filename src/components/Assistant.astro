@@ -398,6 +398,18 @@ const starters = [
     gap: 0.7rem;
     font-family: var(--font-sans);
     color: var(--color-ink);
+    /* The root can span the viewport on small screens. Only its controls
+       should receive taps; otherwise it blocks links underneath it. */
+    pointer-events: none;
+  }
+
+  .step-panel,
+  .step-launcher {
+    pointer-events: auto;
+  }
+
+  .step-panel:not(.is-open) {
+    pointer-events: none;
   }
 
   .step-launcher {
@@ -803,6 +815,7 @@ const starters = [
       align-items: stretch;
     }
 
+
     .step-panel {
       position: fixed;
       left: 0.75rem;
@@ -815,6 +828,24 @@ const starters = [
 
     .step-launcher {
       align-self: flex-end;
+      min-height: 2.9rem;
+      padding: 0.35rem 0.55rem 0.35rem 0.4rem;
+      gap: 0.45rem;
+    }
+
+    .step-launcher-icon {
+      width: 1.95rem;
+      height: 1.95rem;
+    }
+
+    .step-launcher-label {
+      font-size: 0.64rem;
+      letter-spacing: 0.09em;
+    }
+
+    .step-launcher-sub,
+    .step-live-dot {
+      display: none;
     }
 
     :global(body.step-open) {

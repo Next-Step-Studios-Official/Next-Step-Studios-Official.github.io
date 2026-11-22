@@ -118,11 +118,31 @@ const STOP_WORDS = new Set([
   'yours',
 ]);
 
+const WORD_ALIASES: Record<string, string> = {
+  whats: 'what is',
+  whos: 'who is',
+  wheres: 'where is',
+  hows: 'how is',
+  dont: 'do not',
+  doesnt: 'does not',
+  cant: 'cannot',
+  im: 'i am',
+  ur: 'your',
+  u: 'you',
+  r: 'are',
+  pls: 'please',
+  plz: 'please',
+  thx: 'thanks',
+};
+
 const normalize = (value: string): string =>
   value
     .toLowerCase()
     .replace(/[’']/g, '')
     .replace(/[^a-z0-9\s/+.#-]/g, ' ')
+    .split(' ')
+    .flatMap((word) => (WORD_ALIASES[word] ?? word).split(' '))
+    .join(' ')
     .replace(/\s+/g, ' ')
     .trim();
 
@@ -142,6 +162,75 @@ const stem = (word: string): string => {
   if (word.length > 4 && word.endsWith('ses')) return word.slice(0, -2);
   if (word.length > 3 && word.endsWith('s') && !word.endsWith('ss')) return word.slice(0, -1);
   return word;
+};
+
+/**
+ * A small, explicit thesaurus. It lets “creator” reach the operator fact and
+ * “pricing” reach the pricing answer without pretending to understand
+ * arbitrary language. Synonyms score below a direct word match.
+ */
+const SYNONYM_GROUPS = [
+  ['owner', 'creator', 'created', 'founder', 'founded', 'runs', 'run', 'started', 'made', 'operator'],
+  ['cost', 'price', 'pricing', 'fee', 'free', 'paid'],
+  ['contact', 'email', 'reach', 'message', 'enquire', 'inquiry'],
+  ['delete', 'remove', 'erase', 'deletion', 'access', 'correct'],
+  ['rules', 'rule', 'guideline', 'guidelines', 'policy', 'policies', 'terms'],
+  ['team', 'staff', 'people', 'contributors', 'employees', 'members'],
+  ['game', 'games', 'title', 'platform', 'engine'],
+  ['bot', 'discord', 'commands'],
+  ['download', 'downloads', 'pdf', 'file', 'markdown'],
+  ['privacy', 'data', 'tracking', 'cookies', 'analytics'],
+  ['start', 'begin', 'first', 'explore'],
+  ['apply', 'application', 'applications', 'interview', 'hiring'],
+  ['suggest', 'suggestion', 'suggestions', 'feedback', 'idea'],
+  ['release', 'released', 'launch', 'date', 'dates', 'timeline'],
+  ['help', 'support', 'issue', 'problem'],
+];
+
+const SYNONYM_STEMS = new Map<string, Set<string>>();
+for (const group of SYNONYM_GROUPS) {
+  const stems = group.map(stem);
+  for (const value of stems) {
+    const set = SYNONYM_STEMS.get(value) ?? new Set<string>();
+    stems.forEach((other) => other !== value && set.add(other));
+    SYNONYM_STEMS.set(value, set);
+  }
+}
+
+const editDistance = (a: string, b: string): number => {
+  const previous = Array.from({ length: b.length + 1 }, (_, index) => index);
+  for (let row = 1; row <= a.length; row += 1) {
+    let diagonal = previous[0];
+    previous[0] = row;
+    for (let column = 1; column <= b.length; column += 1) {
+      const saved = previous[column];
+      previous[column] = Math.min(
+        previous[column] + 1,
+        previous[column - 1] + 1,
+        diagonal + (a[row - 1] === b[column - 1] ? 0 : 1),
+      );
+      diagonal = saved;
+    }
+  }
+  return previous[b.length];
+};
+
+const isNearWord = (a: string, b: string): boolean => {
+  if (a === b) return true;
+  if (a.length < 5 || b.length < 5) return false;
+  const allowed = Math.max(a.length, b.length) >= 8 ? 2 : 1;
+  return editDistance(a, b) <= allowed;
+};
+
+const queryTerms = (value: string): { direct: string[]; related: string[] } => {
+  const direct = [...new Set(queryWords(value).map(stem))];
+  const related = new Set<string>();
+  direct.forEach((term) => {
+    SYNONYM_STEMS.get(term)?.forEach((synonym) => {
+      if (!direct.includes(synonym)) related.add(synonym);
+    });
+  });
+  return { direct, related: [...related] };
 };
 
 const uniqueLinks = (links: AssistantLink[]): AssistantLink[] => {
@@ -167,17 +256,21 @@ const phraseScore = (query: string, phrases: string[]): number => {
 };
 
 const factScore = (fact: AssistantFact, query: string): number => {
-  const queryStems = [...new Set(queryWords(query).map(stem))];
+  const { direct, related } = queryTerms(query);
   const targetStems = new Set(
     rawWords(`${fact.title} ${fact.aliases.join(' ')}`).map(stem),
   );
-  const overlap = queryStems.filter((word) => targetStems.has(word));
-  if (overlap.length === 0) return 0;
+  const directHits = direct.filter((word) => targetStems.has(word));
+  const relatedHits = related.filter((word) => targetStems.has(word));
+  const nearHits = direct.filter(
+    (word) => !targetStems.has(word) && [...targetStems].some((target) => isNearWord(word, target)),
+  );
+  if (directHits.length === 0 && relatedHits.length === 0 && nearHits.length === 0) return 0;
 
-  let score = overlap.length * 8;
+  let score = directHits.length * 8 + relatedHits.length * 4 + nearHits.length * 10;
   score += phraseScore(query, [fact.title, ...fact.aliases]);
   if (fact.priority) score += fact.priority;
-  if (queryStems.length > 1) score -= (queryStems.length - overlap.length) * 2;
+  if (direct.length > 1) score -= (direct.length - directHits.length) * 2;
   return score;
 };
 
@@ -207,7 +300,7 @@ const snippet = (text: string, terms: string[], limit = 300): string => {
 };
 
 const searchReply = (query: string, entries: AssistantEntry[]): AssistantReply | null => {
-  const queryStems = [...new Set(queryWords(query).map(stem))];
+  const queryStems = queryTerms(query).direct;
   if (queryStems.length === 0) return null;
   const normal = normalize(query);
 
@@ -321,14 +414,35 @@ const greeting = (): AssistantReply => ({
 const assistantIdentity = (): AssistantReply => ({
   text:
     "I'm Step, a local knowledge assistant built into this site. I answer from Next Step Studios' " +
-    'public pages with keyword retrieval — not a cloud model, and no API key. The conversation stays ' +
-    'in this tab and resets when you reload. If the public pages do not cover something, I say so.',
+    'public pages with local keyword matching, synonym handling and a little typo tolerance — not a ' +
+    'cloud model, and no API key. The conversation stays in this tab and resets when you reload. ' +
+    'If the public pages do not cover something, I say so.',
   links: [],
+  confidence: 'smalltalk',
+});
+
+const capabilities = (): AssistantReply => ({
+  text:
+    'I can answer from the public site: the studio and team, Next Step Bot, projects, commands and ' +
+    'modules, policies and privacy, community links, downloads, the roadmap and the devlog. I can ' +
+    'also search the full site index when a question is worded differently. I cannot read private ' +
+    'studio information, Discord messages or anything that is not on a public page.',
+  links: [
+    { href: '/projects', label: 'Projects' },
+    { href: '/policies', label: 'Policies' },
+    { href: '/search', label: 'Search the site' },
+  ],
   confidence: 'smalltalk',
 });
 
 const thanks = (): AssistantReply => ({
   text: "You're welcome. Ask another question whenever you like.",
+  links: [],
+  confidence: 'smalltalk',
+});
+
+const farewell = (): AssistantReply => ({
+  text: 'Thanks for stopping by. You can reopen Step from the bottom-right corner whenever you need it.',
   links: [],
   confidence: 'smalltalk',
 });
@@ -355,15 +469,22 @@ export const answerQuestion = (
   if (/^(thanks|thank you|thanks a lot|cheers|great|perfect|got it|okay|ok)$/.test(normal)) {
     return thanks();
   }
+  if (/^(bye|goodbye|see you|see ya|good night)$/.test(normal)) {
+    return farewell();
+  }
   if (
-    /^(who are you|what are you|are you (an? )?(ai|bot|human|person)|what model|how do you work)$/.test(
+    /^(who are you|what are you|who made you|who built you|are you (an? )?(ai|bot|human|person|real)|what model|how do you work)$/.test(
       normal,
     )
   ) {
     return assistantIdentity();
   }
-  if (/^(help|what can you do|how can you help|what do you do)$/.test(normal)) {
-    return assistantIdentity();
+  if (
+    /^(help|help me|what can you do|what can i ask|what do you know|how can you help|what do you do)$/.test(
+      normal,
+    )
+  ) {
+    return capabilities();
   }
 
   const match = bestFact(facts, trimmed);
