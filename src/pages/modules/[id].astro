@@ -45,6 +45,15 @@ const POLICY_BY_MODULE: Record<string, string[]> = {
 };
 
 const policySlugs = POLICY_BY_MODULE[module.id] ?? [];
+
+// The summary is authored for the card and falls outside the sensible range of a
+// meta description, so it is extended or trimmed here rather than in the module data.
+const metaDescription =
+  module.summary.length > 170
+    ? `${module.summary.slice(0, 155).trimEnd()}…`
+    : module.summary.length >= 60
+      ? module.summary
+      : `${module.summary} One of ${BOT_MODULES.length} modules documented for the Next Step Studios Discord bot.`;
 const relatedCommands = COMMANDS.filter((command) =>
   (module.commands ?? []).some((name) => `/${command.name}` === name),
 );
@@ -76,7 +85,7 @@ const touchpoints = [
 
 <Base
   title={`${module.name} module`}
-  description={module.summary}
+  description={metaDescription}
   path={`/modules/${module.id}`}
 >
   <section class="page-head">

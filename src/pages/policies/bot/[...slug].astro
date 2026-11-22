@@ -27,6 +27,12 @@ const slugOf = (id: string) => id.replace(/^bot\//, '');
 const toc = headings.filter((heading) => heading.depth === 2);
 const versions = snapshotsFor(slugOf(entry.id));
 
+// Policy summaries are short by design; the meta description carries a little more.
+const metaDescription =
+  entry.data.summary.length >= 60
+    ? entry.data.summary
+    : `${entry.data.summary} Read the full ${entry.data.shortTitle.toLowerCase()}, version ${entry.data.version}.`;
+
 const formatDate = (date: Date) =>
   new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }).format(date);
 
@@ -55,8 +61,8 @@ const breadcrumbSchema = {
 
 <Base
   title={entry.data.shortTitle}
-  description={entry.data.summary}
-  path="/policies"
+  description={metaDescription}
+  path={`/policies/bot/${slugOf(entry.id)}`}
   schema={[articleSchema, breadcrumbSchema]}
   ogImage={`og/policy-${slugOf(entry.id)}.png`}
   ogAlt={`${entry.data.shortTitle} — Next Step Studios`}

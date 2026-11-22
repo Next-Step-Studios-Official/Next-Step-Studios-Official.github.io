@@ -22,6 +22,8 @@ export default defineConfig({
   },
   redirects: {
     '/social': '/links',
+    '/brand': '/press#guidelines',
+    '/archive': '/press#archive',
   },
   build: {
     format: 'directory',

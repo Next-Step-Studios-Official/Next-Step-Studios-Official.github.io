@@ -17,6 +17,7 @@ const { Content } = await render(entry);
 const { title, tagline, status, category, summary } = entry.data;
 
 const isBot = entry.id === 'next-step-bot';
+const metaDescription = summary.length > 170 ? `${summary.slice(0, 155).trimEnd()}…` : summary;
 const groups = modulesByGroup();
 
 const projectSchema = {
@@ -35,7 +36,7 @@ const formatDate = (date: Date) =>
 
 <Base
   title={title}
-  description={summary}
+  description={metaDescription}
   path={`/projects/${entry.id}`}
   schema={projectSchema}
   ogImage={`og/project-${entry.id}.png`}

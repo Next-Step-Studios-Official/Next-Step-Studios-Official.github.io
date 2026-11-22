@@ -212,8 +212,9 @@ recolour, stretch, rotate or crop it, and do not add effects. Leave clear space
 of at least one quarter of the mark's height on every side. Do not use it to
 imply endorsement, partnership or sponsorship.
 
-The full rules are at /brand. Retired marks are never overwritten or deleted;
-they live at /archive with the retirement date in the filename.
+The full rules are at /press#guidelines. Retired marks are never overwritten or
+deleted; they live at /press#archive with the retirement date in the filename.
+The old /brand and /archive addresses redirect there.
 
 HOW THIS KIT IS BUILT
 

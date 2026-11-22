@@ -360,7 +360,8 @@ hr {
   background: currentColor;
   box-shadow: 0 0 7px currentColor;
 }
-.status--dev { color: #8fb6ff; background: rgba(77, 141, 255, 0.08); border-color: rgba(143, 182, 255, 0.32); }
+.status--dev,
+.status--info { color: #8fb6ff; background: rgba(77, 141, 255, 0.08); border-color: rgba(143, 182, 255, 0.32); }
 .status--prototype { color: #b9a6ff; background: rgba(167, 139, 250, 0.08); border-color: rgba(167, 139, 250, 0.32); }
 .status--testing { color: #7ee0c0; background: rgba(45, 212, 168, 0.07); border-color: rgba(126, 224, 192, 0.3); }
 .status--planned { color: #9aa6ba; background: rgba(154, 166, 186, 0.07); border-color: rgba(154, 166, 186, 0.28); }

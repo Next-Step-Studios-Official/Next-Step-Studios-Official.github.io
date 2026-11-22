@@ -3,7 +3,6 @@ import { Image } from 'astro:assets';
 import logoMark from '../assets/brand/logo-mark.png';
 import { SITE } from '../lib/site';
 import { discordInvite, DISCORD } from '../lib/discord';
-import { TEAM_WORD } from '../lib/contributors';
 
 const year = new Date().getFullYear();
 const invite = discordInvite();
@@ -16,7 +15,7 @@ const studioLinks = [
   { href: '/search', label: 'Search' },
   { href: '/step', label: 'How Step works' },
   { href: '/team', label: 'Team' },
-  { href: '/archive', label: 'Archive' },
+  { href: '/now', label: 'Now' },
   { href: '/links', label: 'Official links' },
 ];
 
@@ -27,8 +26,7 @@ const referenceLinks = [
   { href: '/stack', label: 'Stack' },
   { href: '/faq', label: 'FAQ' },
   { href: '/glossary', label: 'Glossary' },
-  { href: '/press', label: 'Press kit' },
-  { href: '/brand', label: 'Brand' },
+  { href: '/press', label: 'Press & brand' },
   { href: '/sitemap', label: 'Sitemap' },
 ];
 
@@ -51,8 +49,8 @@ const policyLinks = [
           <span>Next Step <span class="wordmark-dim">Studios</span></span>
         </a>
         <p class="footer-note">
-          An independent creative and software studio of {TEAM_WORD} people, run by
-          {SITE.operator}. No accounts, no tracking, no advertising.
+          An independent creative and software studio run by {SITE.operator}, with volunteer
+          contributors. No accounts, no tracking, no advertising.
         </p>
         <a class="footer-mail" href={`mailto:${SITE.contactEmail}`}>{SITE.contactEmail}</a>
         {invite && (

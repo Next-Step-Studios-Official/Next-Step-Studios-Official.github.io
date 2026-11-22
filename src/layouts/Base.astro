@@ -12,7 +12,6 @@ import Assistant from '../components/Assistant.astro';
 import { BOT_MODULES } from '../lib/modules';
 import { SITE } from '../lib/site';
 import { COMMANDS, COMMAND_GROUPS } from '../lib/commands';
-import { TEAM_WORD } from '../lib/contributors';
 import { sameAsLinks } from '../lib/links';
 import { getCollection, render } from 'astro:content';
 
@@ -70,6 +69,7 @@ const policySections = (
 /** Everything the command palette can jump to, built once at build time. */
 const searchItems = [
   { title: 'Home', href: '/', kind: 'Page', meta: 'Studio overview' },
+  { title: 'Now', href: '/now', kind: 'Page', meta: 'What is being built this month' },
   { title: 'Projects', href: '/projects', kind: 'Page', meta: 'Current work' },
   { title: 'Devlog', href: '/devlog', kind: 'Page', meta: 'Notes from the work' },
   { title: 'Command reference', href: '/commands', kind: 'Page', meta: `${COMMANDS.length} commands` },
@@ -86,9 +86,7 @@ const searchItems = [
   { title: 'Bot modules', href: '/modules', kind: 'Page', meta: `${BOT_MODULES.length} modules` },
   { title: 'Trust centre', href: '/trust', kind: 'Page', meta: 'Data, security, requests' },
   { title: 'Glossary', href: '/glossary', kind: 'Page', meta: 'Terms defined' },
-  { title: 'Press kit', href: '/press', kind: 'Page', meta: 'Logos and facts' },
-  { title: 'Brand guidelines', href: '/brand', kind: 'Page', meta: 'Logo usage' },
-  { title: 'Brand archive', href: '/archive', kind: 'Page', meta: 'Current and retired marks' },
+  { title: 'Press & brand', href: '/press', kind: 'Page', meta: 'Facts, files and the archive' },
   { title: 'Sitemap', href: '/sitemap', kind: 'Page', meta: 'Every page' },
   { title: 'Policies', href: '/policies', kind: 'Page', meta: 'Discord bot documents' },
   { title: 'Downloads', href: '/downloads', kind: 'Page', meta: 'Every document as a file' },
@@ -140,8 +138,7 @@ const structuredData = {
       url: origin.origin,
       email: SITE.contactEmail,
       founder: { '@type': 'Person', name: SITE.operator },
-      description:
-        `An independent creative and software studio of ${TEAM_WORD} people, run by Candler Shaw.`,
+      description: 'An independent creative and software studio run by Candler Shaw.',
       sameAs,
 
     },

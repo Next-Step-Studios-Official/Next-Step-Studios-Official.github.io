@@ -139,7 +139,8 @@ html[data-theme='light'] .accent-text {
 }
 
 /* Status badges: dark-mode pastels fail on white, so they are re-mixed ---- */
-html[data-theme='light'] .status--dev {
+html[data-theme='light'] .status--dev,
+html[data-theme='light'] .status--info {
   color: #12457f;
   background: rgba(26, 92, 208, 0.08);
   border-color: rgba(26, 92, 208, 0.3);

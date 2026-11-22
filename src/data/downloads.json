@@ -19,7 +19,7 @@
   {
     "slug": "brand-kit",
     "title": "Brand kit",
-    "summary": "Every logo format in one zip — transparent and light sets at 1024, 512, 256 and 128 in PNG and SVG, JPGs, the archive, the site favicons and a README of the usage rules.",
+    "summary": "Every current and retired mark in one zip — transparent and light sets at four sizes in PNG and SVG, JPGs, the superseded white-tile edition, the site favicons and a README of the usage rules.",
     "category": "files",
     "platforms": ["any"],
     "kinds": ["archive"],
@@ -30,7 +30,7 @@
         "href": "/downloads/next-step-studios-brand-kit.zip",
         "download": true
       },
-      { "label": "Press kit", "href": "/press" }
+      { "label": "Press & brand", "href": "/press" }
     ]
   },
   {

@@ -106,7 +106,7 @@ const pages = [
   { file: 'commands.png', title: 'Every command, named exactly as it runs', eyebrow: 'Command reference' },
   { file: 'modules.png', title: 'The bot, module by module', eyebrow: 'Module register' },
   { file: 'trust.png', title: 'Everything that answers “is this safe?”', eyebrow: 'Trust centre' },
-  { file: 'press.png', title: 'Everything needed to write about the studio', eyebrow: 'Press kit' },
+  { file: 'press.png', title: 'Press, brand and every mark', eyebrow: 'Press & brand' },
   { file: 'glossary.png', title: 'The words, defined once', eyebrow: 'Glossary' },
   { file: 'roadmap.png', title: 'What is next, without invented dates', eyebrow: 'Roadmap' },
   { file: 'faq.png', title: 'Questions, answered without spin', eyebrow: 'FAQ' },

@@ -36,7 +36,7 @@ browser.
 - **Roadmap and changelog** — what is planned and what has changed.
 - **Status** — the latest bot status when a feed is available.
 - **Stack, FAQ and glossary** — the tools used and plain-language explanations.
-- **Press kit, brand guidelines and archive** — downloadable marks and usage rules.
+- **Press & brand** — boilerplate, quick facts, downloadable marks, usage rules, colours and the permanent archive, all on one page.
 
 ### Bot documentation
 
@@ -66,7 +66,7 @@ served by GitHub Pages.
 The visual identity is built around the current pixel-art ninja mark. The full lockup is
 used where the wordmark can be read; the head alone is used in the header and footer,
 and a tighter face crop is used for the browser-tab icons so the bandana and eyes stay
-readable at 16px. The press kit contains the transparent and light-outline versions,
+readable at 16px. The Press & brand page contains the transparent and light-outline versions,
 the favicons and the retired marks.
 
 The contact form posts to a small separate service because GitHub Pages cannot run

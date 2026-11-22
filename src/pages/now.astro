@@ -1,0 +1,241 @@
+---
+import Base from '../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+import { SITE } from '../lib/site';
+import { COMMANDS } from '../lib/commands';
+import { BOT_MODULES } from '../lib/modules';
+
+const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
+const featured = projects.find((project) => project.data.featured) ?? projects[0];
+const policies = await getCollection('policies');
+
+const threads = [
+  {
+    state: 'In development',
+    tone: 'dev',
+    title: featured?.data.title ?? 'Next Step Bot',
+    body:
+      featured?.data.summary ??
+      'A private Discord bot for one community server, with applications, tickets, announcements and moderation.',
+    meta: `${BOT_MODULES.length} modules · ${COMMANDS.length} documented commands`,
+    href: featured ? `/projects/${featured.id}` : '/projects',
+    cta: 'Read the project',
+  },
+  {
+    state: 'Draft for review',
+    tone: 'draft',
+    title: 'Public policy documents',
+    body:
+      `The ${policies.length} documents are published in full, versioned and downloadable, but they are still drafts. None claims to be in force or legally reviewed.`,
+    meta: `v${policies[0]?.data.version ?? '0.2.0'} · all drafts`,
+    href: '/policies',
+    cta: 'Read the documents',
+  },
+  {
+    state: 'Live',
+    tone: 'info',
+    title: 'This website',
+    body:
+      'Static HTML, a local search index and a local assistant. No accounts, analytics, advertising or third-party embeds. The code and copy are maintained in the open repository.',
+    meta: 'Static build · no server',
+    href: '/stack',
+    cta: 'How it is built',
+  },
+  {
+    state: 'Live',
+    tone: 'info',
+    title: 'Press & brand',
+    body:
+      'The press kit, logo files, usage rules and mark archive now live on one page, with the old /brand and /archive addresses redirecting into it.',
+    meta: 'One page · one ZIP',
+    href: '/press',
+    cta: 'Open Press & brand',
+  },
+];
+
+const notStarted = [
+  {
+    state: 'Planned',
+    tone: 'planned',
+    title: 'Games',
+    body: 'Unreal Engine, Unity and Roblox Studio work is the direction, not a current project. Nothing has been published.',
+  },
+  {
+    state: 'Planned',
+    tone: 'planned',
+    title: 'Studio tools',
+    body: 'Small software tools are planned. No build, repository or release date exists yet.',
+  },
+  {
+    state: 'Not planned',
+    tone: 'hold',
+    title: 'Analytics and accounts',
+    body: 'No visitor analytics, advertising, tracking or account system is planned for this site.',
+  },
+];
+---
+
+<Base
+  title="Now"
+  description="Dated November 2026 snapshot: the Discord bot, the public documents, this website, Press & brand, and what has deliberately not started."
+  path="/now"
+>
+  <section class="page-head">
+    <div class="container">
+      <div class="page-head-stack">
+        <p class="eyebrow">Now · November 2026</p>
+        <h1 class="display display--page">What is being worked on now.</h1>
+        <p class="lede">
+          A dated snapshot, not a promise. It records what is actually in progress, what is
+          published and what has deliberately not started. If the date goes stale, that is the
+          honest signal — not a reason to invent progress.
+        </p>
+        <div class="meta-bar">
+          <span>Updated <time datetime="2026-11-22">22 November 2026</time></span>
+          <span>Statuses, not dates</span>
+          <span>{threads.length} active threads</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--flush">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">In progress</p>
+          <h2 class="section-title">The work with a real address.</h2>
+          <p class="section-sub">
+            Everything below can be opened, read or checked. Nothing here is a private roadmap
+            with a countdown attached.
+          </p>
+        </div>
+      </div>
+
+      <div class="card-grid">
+        {threads.map((thread) => (
+          <a class="panel panel-link panel--pad now-card" href={thread.href}>
+            <div class="now-card-head">
+              <span class={`status status--${thread.tone}`}>{thread.state}</span>
+              <span class="label">{thread.meta}</span>
+            </div>
+            <h3>{thread.title}</h3>
+            <p>{thread.body}</p>
+            <span class="project-card-foot">
+              {thread.cta} <span class="card-arrow" aria-hidden="true">↗</span>
+            </span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="split" style="align-items: start;">
+        <div class="prose">
+          <h2 style="margin-top: 0; padding-top: 0; border-top: 0;">What this page is for</h2>
+          <p>
+            Studio updates tend to turn into either a launch announcement or a list of promises.
+            This page is neither. It is a short, dated answer to “what are you doing right now?”
+            that can be checked against the project pages, the documents and the devlog.
+          </p>
+          <p>
+            The <a href="/roadmap">roadmap</a> describes the longer direction. The
+            <a href="/devlog">devlog</a> records what changed and why. This page is the
+            month-sized view between the two.
+          </p>
+          <p>
+            When something moves from planned to in development, it gets a project page. When
+            it ships, the project page says so. When it stalls, the status says that too.
+          </p>
+
+          <h2>What has not started</h2>
+          <p>
+            Being clear about this is part of the point. The following are directions, not
+            current work.
+          </p>
+        </div>
+
+        <div class="now-side">
+          {notStarted.map((item) => (
+            <div class="panel panel--pad now-side-card">
+              <div class="now-card-head">
+                <span class={`status status--${item.tone}`}>{item.state}</span>
+              </div>
+              <h3>{item.title}</h3>
+              <p>{item.body}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="panel panel--pad now-follow">
+        <div>
+          <p class="label">Follow the work</p>
+          <h2 class="section-title">The record, not a newsletter.</h2>
+          <p class="section-sub">
+            There is no mailing list and no notification permission prompt. The devlog has an
+            RSS feed, and the public pages are the source.
+          </p>
+        </div>
+        <div class="hero-actions" style="margin: 0;">
+          <a class="btn btn-primary" href="/devlog">Read the devlog</a>
+          <a class="btn" href="/rss.xml">Devlog RSS</a>
+          <a class="btn" href="/roadmap">Roadmap</a>
+          <a class="btn" href="/contact">Contact the studio</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <style>
+    .now-card {
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+    }
+
+    .now-card-head {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem 1rem;
+    }
+
+    .now-card h3,
+    .now-side-card h3 {
+      font-family: var(--font-display);
+      font-size: 1.3rem;
+      letter-spacing: -0.02em;
+    }
+
+    .now-card p,
+    .now-side-card p {
+      color: var(--color-muted);
+      font-size: 0.9375rem;
+      line-height: 1.65;
+    }
+
+    .now-card .project-card-foot { margin-top: auto; padding-top: 0.9rem; }
+
+    .now-side { display: grid; gap: 1rem; }
+
+    .now-side-card { display: flex; flex-direction: column; gap: 0.5rem; }
+
+    .now-follow {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+    }
+
+    .now-follow > div:first-child { max-width: 52ch; }
+  </style>
+</Base>

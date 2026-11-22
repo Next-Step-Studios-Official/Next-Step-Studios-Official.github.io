@@ -65,7 +65,8 @@ const FOLLOW_UPS: Record<string, string[]> = {
   brand: ['Where is the press kit?', 'What are the brand guidelines?', 'How do I contact the studio?'],
   'site-tech': ['Does the website track me?', 'Does Step store my questions?', 'Where is the source code?'],
   status: ['Is the website live?', 'What is the status?', 'What is on the roadmap?'],
-  roadmap: ['What is the release date?', 'What projects are planned?', 'What are you building now?'],
+  roadmap: ['What is the release date?', 'What projects are planned?', 'What are you working on now?'],
+  now: ['What is Next Step Bot?', 'What is on the roadmap?', 'What changed recently?'],
   search: ['What can you do?', 'What policies do you have?', 'Where should I start?'],
   assistant: ['Do you save my messages?', 'What can you do?', 'Are you an AI model?'],
   'assistant-storage': ['What can you do?', 'Does the website track me?', 'How do I contact the studio?'],
@@ -121,7 +122,7 @@ export const GET: APIRoute = async () => {
 
   const teamAnswer = CONTRIBUTORS_CONFIRMED
     ? `${SITE.operator} runs Next Step Studios. The team page lists the operator and ${CONTRIBUTOR_WORD} contributors, ${TEAM_WORD} people in total: ${CONTRIBUTORS.map((person) => `${contributorName(person)} (${person.role})`).join(', ')}.`
-    : `${SITE.operator} runs Next Step Studios and is its only legal operator. The site describes a team of ${TEAM_WORD} people in total, including ${CONTRIBUTOR_WORD} contributors, but their names and roles are still being confirmed. The team page does not claim unconfirmed details as facts.`;
+    : `${SITE.operator} runs Next Step Studios and is its only legal operator. The contributor roster is still being confirmed. The team page labels ${CONTRIBUTOR_WORD} example entries rather than presenting them as real people, and the site does not claim unconfirmed details as facts.`;
 
   const facts: AssistantFact[] = [
     fact(
@@ -135,7 +136,7 @@ export const GET: APIRoute = async () => {
         'who is next step studios',
         'what does the studio do',
       ],
-      `Next Step Studios is an independent creative and software studio of ${TEAM_WORD} people, run by ${SITE.operator}. It is a public-facing name rather than a registered company. The current work is Next Step Bot; games and studio tools are planned, not released.`,
+      `Next Step Studios is an independent creative and software studio run by ${SITE.operator}, with volunteer contributors whose credits are still being confirmed. It is a public-facing name rather than a registered company. The current work is Next Step Bot; games and studio tools are planned, not released.`,
       [link('/about', 'About the studio'), link('/team', 'Team')],
       8,
     ),
@@ -153,7 +154,7 @@ export const GET: APIRoute = async () => {
         'founder',
         'operator',
       ],
-      `${SITE.operator} runs Next Step Studios and is its only legal operator. The studio is a public-facing name, not a registered company. The other people involved contribute to specific projects voluntarily and without pay.`,
+      `${SITE.operator} runs Next Step Studios and is its only legal operator. The studio is a public-facing name, not a registered company. Contributor credits are still being confirmed; no unconfirmed person is presented as a team member. Contributions are voluntary and unpaid.`,
       [link('/about', 'About the studio'), link('/team', 'Team')],
       7,
     ),
@@ -479,10 +480,10 @@ export const GET: APIRoute = async () => {
     ),
     fact(
       'brand',
-      'Brand and press',
-      ['brand', 'logo', 'logos', 'press kit', 'press', 'brand guidelines', 'can i use your logo', 'favicon'],
-      `The press kit has transparent and light-outline logos, favicons and retired marks. The brand guidelines explain clear space, minimum size, backgrounds and misuse. The current mark is the pixel-art ninja.`,
-      [link('/press', 'Press kit'), link('/brand', 'Brand guidelines'), link('/archive', 'Brand archive')],
+      'Press & brand',
+      ['brand', 'logo', 'logos', 'press kit', 'press', 'brand guidelines', 'brand archive', 'brand kit', 'can i use your logo', 'favicon', 'colours', 'boilerplate'],
+      `The Press & brand page at /press has the boilerplate, quick facts, every current logo file, the palette and type guidance, the usage rules, the retired neon emblem and the superseded white-tile edition. One ZIP contains the complete kit. The old /brand and /archive addresses redirect into the page. The current mark is the pixel-art ninja.`,
+      [link('/press', 'Press & brand'), link('/press#archive', 'Mark archive')],
       6,
     ),
     fact(
@@ -507,6 +508,14 @@ export const GET: APIRoute = async () => {
       ['roadmap', 'what is next', 'future plans', 'planned', 'what are you working on next'],
       `The roadmap uses statuses, not dates. It lists Next Step Bot and the public documentation as in development or draft, this website and live status as live, games and studio tools as planned, and analytics and accounts as not planned.`,
       [link('/roadmap', 'Roadmap')],
+      6,
+    ),
+    fact(
+      'now',
+      'Now',
+      ['now', 'what are you working on now', 'current work', 'current focus', 'this month'],
+      `The Now page is a dated snapshot of current work, not a promise. As of 22 November 2026: Next Step Bot is in development, the public policies are drafts, the website and status page are live, the Press & brand page has just been consolidated, and games and studio tools are planned rather than started.`,
+      [link('/now', 'Now'), link('/roadmap', 'Roadmap')],
       6,
     ),
     fact(

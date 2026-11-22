@@ -14,7 +14,11 @@ import {
 
 <Base
   title="Team"
-  description={`The ${TEAM_WORD} people behind Next Step Studios: Candler Shaw, who runs the studio, and ${CONTRIBUTOR_WORD} volunteer contributors.`}
+  description={
+    CONTRIBUTORS_CONFIRMED
+      ? `The ${TEAM_WORD} people behind Next Step Studios: Candler Shaw, who runs the studio, and ${CONTRIBUTOR_WORD} volunteer contributors.`
+      : 'The operator and the clearly labelled example contributor entries behind Next Step Studios, while credits are confirmed.'
+  }
   path="/team"
 >
   <section class="page-head">
@@ -23,13 +27,25 @@ import {
         <p class="eyebrow"><a class="text-link" href="/about">About</a> · Team</p>
         <h1 class="display display--page">The people behind the work.</h1>
         <p class="lede">
-          Next Step Studios is run by {SITE.operator}, with {CONTRIBUTOR_WORD} people
-          contributing across its projects — {TEAM_WORD} people in total. Everyone involved is a
-          volunteer: nobody is employed, contracted or paid.
+          {CONTRIBUTORS_CONFIRMED ? (
+            <>
+              Next Step Studios is run by {SITE.operator}, with {CONTRIBUTOR_WORD} people
+              contributing across its projects — {TEAM_WORD} people in total. Everyone involved
+              is a volunteer: nobody is employed, contracted or paid.
+            </>
+          ) : (
+            <>
+              Next Step Studios is run by {SITE.operator}. The contributor roster is still being
+              confirmed: every entry below is a clearly labelled example, not a person who has
+              agreed to be credited.
+            </>
+          )}
         </p>
         <div class="meta-bar">
-          <span>{TEAM_SIZE} people</span>
-          <span>{CONTRIBUTOR_COUNT} contributors</span>
+          <span>{CONTRIBUTORS_CONFIRMED ? `${TEAM_SIZE} people` : '1 confirmed operator'}</span>
+          <span>
+            {CONTRIBUTOR_COUNT} {CONTRIBUTORS_CONFIRMED ? 'contributors' : 'example entries'}
+          </span>
           <span>All voluntary</span>
           <span>Not a registered company</span>
         </div>
@@ -42,10 +58,13 @@ import {
       {
         !CONTRIBUTORS_CONFIRMED && (
           <div class="notice notice--neutral" role="note">
-            <span class="status status--draft">Being confirmed</span>
+            <span class="status status--draft">Example roster</span>
             <p class="notice-body">
-              The names, handles and roles below are placeholders until each person confirms
-              how they want to be credited. This page will show the real list once they have.
+              The {CONTRIBUTOR_WORD} cards below are examples, not real people. Only
+              {SITE.operator} is confirmed. The “{TEAM_WORD} people” figure describes the
+              intended roster, not {TEAM_WORD} people who have agreed to be listed. This page
+              will show the real list once each contributor confirms how they want to be
+              credited.
             </p>
           </div>
         )
@@ -55,7 +74,10 @@ import {
         {
           CONTRIBUTORS.map((person) => (
             <article class="panel panel--pad">
-              <span class="label">{person.role}</span>
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.75rem;">
+                <span class="label">{person.role}</span>
+                {!CONTRIBUTORS_CONFIRMED && <span class="status status--draft">Example</span>}
+              </div>
               <h2 style="font-size: 1.15rem; margin-top: 0.75rem;">{contributorName(person)}</h2>
               {person.name && (
                 <p class="mono" style="font-size: 0.8125rem; color: var(--color-muted); margin-top: 0.35rem;">
@@ -82,9 +104,10 @@ import {
             the Discord bot, this website and the policy documents are all handled there.
           </p>
           <p>
-            The people listed above contribute to specific parts of the work, set out on
-            each entry. Contributions are voluntary and unpaid, and being a contributor does
-            not make someone an employee, a contractor or a legal operator of the studio.
+            The example entries above show the kinds of contribution the roster is being built
+            around. Contributions are voluntary and unpaid, and being a contributor does not
+            make someone an employee, a contractor or a legal operator of the studio. No entry
+            becomes a credit until the person has agreed to it.
           </p>
 
           <h2>How credits work</h2>
@@ -100,8 +123,8 @@ import {
           <h2>Where else this appears</h2>
           <p>
             The <a href="/about">About page</a> carries a short version of this list, and the
-            <a href="/press">press kit</a> has the studio's boilerplate description for
-            anyone writing about it.
+            <a href="/press">Press &amp; brand page</a> has the studio's boilerplate
+            description for anyone writing about it.
           </p>
         </div>
 
@@ -114,7 +137,9 @@ import {
             </div>
             <div class="fact" style="border-left: 0; padding-left: 0;">
               <dt>Contributors</dt>
-              <dd>{CONTRIBUTOR_COUNT} · all voluntary</dd>
+              <dd>
+                {CONTRIBUTOR_COUNT} · {CONTRIBUTORS_CONFIRMED ? 'all voluntary' : 'example entries'}
+              </dd>
             </div>
             <div class="fact" style="border-left: 0; padding-left: 0;">
               <dt>Company status</dt>

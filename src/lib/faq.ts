@@ -3,7 +3,7 @@
  * Where the honest answer is "not yet", the answer says so.
  */
 
-import { CONTRIBUTOR_WORD, TEAM_WORD } from './contributors';
+import { CONTRIBUTORS_CONFIRMED, CONTRIBUTOR_WORD, TEAM_WORD } from './contributors';
 
 export type FaqEntry = {
   question: string;
@@ -81,8 +81,9 @@ export const FAQ: FaqEntry[] = [
   },
   {
     question: 'Who runs Next Step Studios?',
-    answer:
-      `Candler Shaw runs the studio and is its only legal operator, with ${CONTRIBUTOR_WORD} contributors helping across specific projects — ${TEAM_WORD} people in total, all voluntarily. Nobody is employed, contracted or paid. It is still a public-facing name rather than a registered company, and the team page lists everyone involved and what they work on.`,
+    answer: CONTRIBUTORS_CONFIRMED
+      ? `Candler Shaw runs the studio and is its only legal operator, with ${CONTRIBUTOR_WORD} contributors helping across specific projects — ${TEAM_WORD} people in total, all voluntarily. Nobody is employed, contracted or paid. It is still a public-facing name rather than a registered company, and the team page lists everyone involved and what they work on.`
+      : `Candler Shaw runs the studio and is its only legal operator. The contributor roster is still being confirmed: the team page currently labels ${CONTRIBUTOR_WORD} example entries so they are not mistaken for real people. Nobody is employed, contracted or paid, and it is still a public-facing name rather than a registered company.`,
     link: { href: '/team', label: 'The team' },
   },
 ];

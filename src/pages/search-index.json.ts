@@ -44,7 +44,7 @@ const PAGES: IndexEntry[] = [
   { type: 'Page', title: 'Command reference', url: '/commands', text: 'Every slash command in the Next Step Bot, grouped by area of the server.' },
   { type: 'Page', title: 'Search', url: '/search', text: 'Search every policy, devlog entry, command, FAQ answer and page on the site. The index is a file; nothing is sent anywhere.' },
   { type: 'Page', title: 'How Step works', url: '/step', text: 'What Step can answer, how it handles a question, and why it is local only with no API, account or conversation storage.' },
-  { type: 'Page', title: 'Brand archive', url: '/archive', text: 'Every current and retired Next Step Studios mark, at four sizes in PNG, JPG and SVG, plus the complete brand kit ZIP.' },
+  { type: 'Page', title: 'Press & brand', url: '/press', text: 'Press boilerplate, quick facts, every current logo file at four sizes in PNG, JPG and SVG, the palette, type guidance, usage rules, the retired neon emblem, the superseded white-tile edition and the complete brand kit ZIP.' },
   { type: 'Page', title: 'Official links', url: '/links', text: 'Every official link in one place, mirroring the bot links panel.' },
   { type: 'Page', title: 'About', url: '/about', text: 'The studio, the operator, the contributors, how it works and what it is for.' },
   { type: 'Page', title: 'Team', url: '/team', text: 'The people who contribute to Next Step Studios: the operator and the volunteer contributors, with what each one works on.' },
@@ -59,8 +59,7 @@ const PAGES: IndexEntry[] = [
   { type: 'Page', title: 'Website privacy', url: '/website-privacy', text: 'What this website does and does not collect.' },
   { type: 'Page', title: 'Module register', url: '/modules', text: 'Every module in the Next Step Bot source with its commands, status and data touchpoints.' },
   { type: 'Page', title: 'Trust centre', url: '/trust', text: 'Policies, security, retention, data requests, status and how to verify the claims.' },
-  { type: 'Page', title: 'Press kit', url: '/press', text: 'Logos in PNG, JPG, WebP and SVG, colours, typefaces, boilerplate and retired marks.' },
-  { type: 'Page', title: 'Brand guidelines', url: '/brand', text: 'Clear space, minimum size, backgrounds, misuse and the palette.' },
+  { type: 'Page', title: 'Now', url: '/now', text: 'A dated snapshot of what Next Step Studios is working on now: the Discord bot, the public documents, this website, and what has deliberately not started.' },
   { type: 'Page', title: 'Glossary', url: '/glossary', text: 'Plain-language definitions of ticket, escalation, retention, transcript, infraction and more.' },
 ];
 

@@ -2,17 +2,29 @@
 import Base from '../layouts/Base.astro';
 import brandAssets from '../data/brand-assets.json';
 import { SITE } from '../lib/site';
-import { TEAM_SIZE, TEAM_WORD } from '../lib/contributors';
+import { statSync } from 'node:fs';
 
 const current = brandAssets.marks.find((mark) => mark.id === 'logo')!;
 const retired = brandAssets.marks.find((mark) => mark.id === 'neon-emblem-2026-07-25')!;
 
-const fileFor = (size: number, format: string, variant = 'standard') =>
-  current.files.find(
+const fileFor = (
+  mark: (typeof brandAssets.marks)[number],
+  size: number,
+  format: string,
+  variant = 'standard',
+) =>
+  mark.files.find(
     (file) => file.size === size && file.format === format && file.variant === variant,
   );
 
 const kb = (bytes: number) => `${Math.max(1, Math.round(bytes / 1024))} KB`;
+
+const zipPath = 'public/downloads/next-step-studios-brand-kit.zip';
+const zipBytes = statSync(zipPath).size;
+const zipSize = `${(zipBytes / 1024 / 1024).toFixed(2)} MB`;
+
+const whiteTile = '/brand/archive/logo-white-tile-2026-11-21.png';
+const whiteTileBytes = statSync(`public${whiteTile}`).size;
 
 const colours = [
   { name: 'Base', value: '#07080B', role: 'Background' },
@@ -22,53 +34,108 @@ const colours = [
   { name: 'Magenta', value: '#FF64D8', role: 'Rare highlight' },
 ];
 
+const typefaces = [
+  { name: 'Space Grotesk', role: 'Display and headings', sample: 'One careful step' },
+  { name: 'Inter', role: 'Body text and interface copy', sample: 'A studio, described accurately.' },
+  { name: 'JetBrains Mono', role: 'Code, labels and figures', sample: 'v0.2.0 · 51 commands' },
+];
+
 const facts = [
   { label: 'Studio', value: SITE.name },
-  { label: 'Team', value: `${TEAM_SIZE} people` },
   { label: 'Operator', value: SITE.operator },
+  { label: 'Team', value: 'Operator plus volunteer contributors' },
   { label: 'Focus', value: 'A private Discord bot; games and tools next' },
   { label: 'Contact', value: SITE.contactEmail },
+  { label: 'Current mark', value: 'Pixel-art ninja, since 25 July 2026' },
+];
+
+const boilerplate =
+  `Next Step Studios is an independent creative and software studio run by ${SITE.operator}, ` +
+  'with volunteer contributors. It builds a private Discord bot for one community server, and ' +
+  'games and tools are the direction it is working toward.';
+
+const sections = [
+  { href: '#press', label: 'Press kit' },
+  { href: '#downloads', label: 'Logo files' },
+  { href: '#guidelines', label: 'Guidelines' },
+  { href: '#colours', label: 'Colours & type' },
+  { href: '#archive', label: 'Archive' },
 ];
 ---
 
 <Base
-  title="Press kit"
-  description="Transparent logos at four sizes in PNG, JPG and SVG, the colours, a description you can quote, and a permanent archive of retired marks."
+  title="Press & brand"
+  description="Press boilerplate, quick facts, every current logo file, the palette, type guidance, usage rules and a permanent archive of retired marks — all on one page."
   path="/press"
   ogImage="og/press.png"
 >
   <section class="page-head">
     <div class="container">
       <div class="page-head-stack">
-        <p class="eyebrow">Press kit</p>
-        <h1 class="display display--page">Everything needed to write about the studio.</h1>
+        <p class="eyebrow">Press &amp; brand</p>
+        <h1 class="display display--page">Everything about the studio, on one page.</h1>
         <p class="lede">
-          Transparent logos at four sizes in three formats, the colours and typefaces, a
-          description you can quote, and a permanent archive of retired marks. No sign-up, no
-          request form.
+          Boilerplate and quick facts for a story, every current logo file, the palette and
+          type, the rules for using the mark, and the retired artwork the studio refuses to
+          erase. No sign-up, no request form, no separate brand microsite.
         </p>
+        <div class="meta-bar">
+          <span>{current.files.length} current files</span>
+          <span>{retired.files.length} retired files</span>
+          <span>{zipSize} complete kit</span>
+          <span>Nothing overwritten</span>
+        </div>
         <div class="hero-actions">
           <a class="btn btn-primary" href="/downloads/next-step-studios-brand-kit.zip" download>
-            Download all assets (.zip) <span class="btn-arrow" aria-hidden="true">↓</span>
+            Download the brand kit (.zip) <span class="btn-arrow" aria-hidden="true">↓</span>
           </a>
-          <a class="btn" href="/archive">Browse the archive</a>
+          <a class="btn" href="#archive">Jump to the archive</a>
         </div>
       </div>
     </div>
   </section>
 
-  <section class="section section--flush">
+  <nav class="brand-toc" aria-label="On this page">
+    <div class="container brand-toc-inner">
+      <span class="label">On this page</span>
+      {sections.map((section) => <a href={section.href}>{section.label}</a>)}
+    </div>
+  </nav>
+
+  <section class="section section--flush" id="press">
     <div class="container">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Press kit</p>
+          <h2 class="section-title">What to say, and who to ask.</h2>
+          <p class="section-sub">
+            A description written to be accurate rather than flattering, and the facts most
+            stories need first.
+          </p>
+        </div>
+        <a class="text-link" href={`mailto:${SITE.contactEmail}`}>Press enquiries →</a>
+      </div>
+
       <div class="press-layout">
-        <div class="panel press-logo-panel">
+        <div class="panel press-panel">
           <p class="label">Current mark</p>
           <div class="press-previews">
             <figure class="press-preview press-preview--light">
-              <img src="/brand/press/logo-512.png" width="512" height="512" alt="Next Step Studios logo, transparent" />
+              <img
+                src="/brand/press/logo-512.png"
+                width="512"
+                height="512"
+                alt="Next Step Studios logo, transparent"
+              />
               <figcaption>Transparent</figcaption>
             </figure>
             <figure class="press-preview press-preview--dark">
-              <img src="/brand/press/logo-light-512.png" width="512" height="512" alt="Next Step Studios logo with a light outline for dark backgrounds" />
+              <img
+                src="/brand/press/logo-light-512.png"
+                width="512"
+                height="512"
+                alt="Next Step Studios logo with a light outline for dark backgrounds"
+              />
               <figcaption>For dark surfaces</figcaption>
             </figure>
           </div>
@@ -79,38 +146,45 @@ const facts = [
         </div>
 
         <div>
-          <h2>Boilerplate</h2>
-          <p class="press-quote">
-            “Next Step Studios is an independent creative and software studio made up of
-            {TEAM_WORD} people. It builds a private Discord bot for one community server, and
-            games and tools are the direction it is working toward.”
-          </p>
+          <div class="copy-head">
+            <p class="label">Boilerplate</p>
+            <button
+              type="button"
+              class="copy-btn"
+              data-copy={boilerplate}
+              data-label="Boilerplate"
+              aria-label="Copy the studio boilerplate"
+            >
+              Copy
+            </button>
+          </div>
+          <blockquote class="press-quote">“{boilerplate}”</blockquote>
           <p class="muted">Use it whole; it is written to be accurate rather than flattering.</p>
 
-          <h2 style="margin-top: 2rem;">Quick facts</h2>
+          <h3 class="fact-title">Quick facts</h3>
           <dl class="fact-grid fact-grid--press">
-            {
-              facts.map((fact) => (
-                <div class="fact">
-                  <dt>{fact.label}</dt>
-                  <dd>{fact.value}</dd>
-                </div>
-              ))
-            }
+            {facts.map((fact) => (
+              <div class="fact">
+                <dt>{fact.label}</dt>
+                <dd>{fact.value}</dd>
+              </div>
+            ))}
           </dl>
+          <p class="copy-status" data-copy-status role="status" aria-live="polite"></p>
         </div>
       </div>
     </div>
   </section>
 
-  <section class="section">
+  <section class="section" id="downloads">
     <div class="container">
       <div class="section-head">
         <div>
-          <h2>Logo downloads</h2>
+          <p class="eyebrow">Logo files</p>
+          <h2 class="section-title">Every current file, direct.</h2>
           <p class="section-sub">
-            Every size in PNG and SVG, plus a JPG flattened on the studio's dark background.
-            Links are direct downloads; nothing is zipped in your browser.
+            PNG, SVG and JPG at four sizes. Links download the file itself; the ZIP is there
+            for anyone who wants all of it at once.
           </p>
         </div>
         <span class="label">{current.files.length} files · {brandAssets.sizes.join(' / ')}</span>
@@ -129,33 +203,25 @@ const facts = [
             </tr>
           </thead>
           <tbody>
-            {
-              brandAssets.sizes.map((size) => (
-                <tr>
-                  <th scope="row">{size} × {size}</th>
-                  {[
-                    ['png', 'standard'],
-                    ['jpg', 'light'],
-                    ['svg', 'standard'],
-                    ['png', 'light'],
-                    ['svg', 'light'],
-                  ].map(([format, variant]) => {
-                    const file = fileFor(size, format, variant);
-                    return (
-                      <td>
-                        {file ? (
-                          <a href={file.path} download>
-                            {kb(file.bytes)}
-                          </a>
-                        ) : (
-                          '—'
-                        )}
-                      </td>
-                    );
-                  })}
-                </tr>
-              ))
-            }
+            {brandAssets.sizes.map((size) => (
+              <tr>
+                <th scope="row">{size} × {size}</th>
+                {[
+                  ['png', 'standard'],
+                  ['jpg', 'light'],
+                  ['svg', 'standard'],
+                  ['png', 'light'],
+                  ['svg', 'light'],
+                ].map(([format, variant]) => {
+                  const file = fileFor(current, size, format, variant);
+                  return (
+                    <td>
+                      {file ? <a href={file.path} download>{kb(file.bytes)}</a> : '—'}
+                    </td>
+                  );
+                })}
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
@@ -163,74 +229,353 @@ const facts = [
       <div class="notice notice--neutral" style="margin-top: 1.25rem;">
         <span class="status status--info">About these files</span>
         <p class="notice-body">
-          The PNGs are genuinely transparent: the white tile was removed by flooding inward from
-          the edges, so white details enclosed by the artwork survive. The JPGs cannot store
-          transparency, so they are flattened on <code>#07080B</code> using the light-outline
-          treatment. The SVGs embed the transparent PNG at each size; they scale in layout, but
-          they are not a vector redraw of the mark.
+          The PNGs are genuinely transparent: the white tile was removed by flooding inward
+          from the edges, so white details enclosed by the artwork survive. The JPGs cannot
+          store transparency, so they are flattened on <code>#07080B</code> using the
+          light-outline treatment. The SVGs embed the transparent PNG at each size; they
+          scale in layout, but they are not a vector redraw of the mark.
         </p>
       </div>
+
+      <div class="split" style="margin-top: 1.25rem;">
+        <div class="panel panel--pad">
+          <p class="label">One download</p>
+          <p class="archive-copy archive-copy--muted">
+            The ZIP contains every current file, the favicons, both archived editions and a
+            README explaining what to use where. {zipSize}, no form.
+          </p>
+          <a
+            class="btn btn-primary"
+            href="/downloads/next-step-studios-brand-kit.zip"
+            download
+            style="margin-top: 1rem;"
+          >
+            Brand kit .zip <span class="btn-arrow" aria-hidden="true">↓</span>
+          </a>
+        </div>
+        <div class="panel panel--pad">
+          <p class="label">Need another format?</p>
+          <p class="archive-copy archive-copy--muted">
+            The kit is the complete set, not a limit on what can exist. If a placement needs
+            something it does not cover, ask before improvising with the mark.
+          </p>
+          <a class="btn" href={`mailto:${SITE.contactEmail}`} style="margin-top: 1rem;">
+            Email the studio
+          </a>
+        </div>
+      </div>
     </div>
   </section>
 
-  <section class="section">
-    <div class="container">
-      <div class="section-head">
-        <h2>Colours and type</h2>
-        <a class="text-link" href="/brand">Full guidelines →</a>
-      </div>
-      <div class="swatch-grid">
-        {
-          colours.map((colour) => (
-            <div class="swatch">
-              <span class="swatch-chip" style={`background:${colour.value}`} aria-hidden="true" />
-              <span class="swatch-name">{colour.name}</span>
-              <code>{colour.value}</code>
-              <span class="muted">{colour.role}</span>
-            </div>
-          ))
-        }
-      </div>
-      <p class="muted" style="margin-top: 1rem;">
-        Typefaces: Space Grotesk for display, Inter for body, JetBrains Mono for code and labels.
-      </p>
-    </div>
-  </section>
-
-  <section class="section">
+  <section class="section" id="guidelines">
     <div class="container">
       <div class="section-head">
         <div>
-          <h2>Archive</h2>
+          <p class="eyebrow">Guidelines</p>
+          <h2 class="section-title">Use the mark without breaking it.</h2>
           <p class="section-sub">
-            Retired marks and superseded editions, kept at permanent addresses. The archive is
-            its own page now.
+            A short, practical set of rules. They exist so the studio looks like one thing
+            wherever it appears — not to make anyone read a manual.
           </p>
         </div>
-        <a class="btn" href="/archive">Open the archive</a>
       </div>
-      <div class="archive-grid">
-        <div class="panel archive-card">
-          <img src="/brand/archive/neon-emblem-2026-07-25-512.png" width="320" height="320" alt="Retired neon orbit emblem" loading="lazy" />
-          <div>
-            <p class="label">Retired · 25 July 2026</p>
-            <h3>Neon orbit emblem</h3>
+
+      <div class="brand-grid">
+        <article class="prose brand-prose">
+          <h2>The logo</h2>
+          <p>
+            The mark is a pixel-art lockup supplied as a transparent raster master at 1024px,
+            with smaller files at 512, 256 and 128. Use the largest size the placement allows
+            and let it scale down, never up: enlarging a raster mark is the fastest way to make
+            it look cheap.
+          </p>
+
+          <h3>Two treatments, not two logos</h3>
+          <p>
+            The standard transparent file is for light surfaces. On a dark surface the black
+            ninja and the black “STUDIOS” line disappear, so a second treatment adds a light
+            outline grown from the artwork itself. Use the light-outline file on dark, and the
+            standard file on light. They are the same mark.
+          </p>
+
+          <h3>Clear space</h3>
+          <p>
+            Leave clear space around the mark equal to at least one quarter of its height on
+            every side. Nothing — text, other logos, a border — enters that space.
+          </p>
+
+          <h3>Minimum size</h3>
+          <p>
+            24px high on screen, 10mm high in print. Below that the detail inside the mark
+            stops resolving and it becomes a smudge.
+          </p>
+
+          <h3>Backgrounds</h3>
+          <p>
+            The PNGs are genuinely transparent, so the mark can sit on any flat colour. Use
+            the light treatment on dark backgrounds and the standard treatment on light ones.
+            Never place the mark on a busy photograph, and never add a plate behind it to make
+            it work.
+          </p>
+
+          <h3>JPG files</h3>
+          <p>
+            JPG cannot store transparency. The JPGs in the kit are therefore flattened on the
+            studio's dark base <code>#07080B</code>, using the light-outline treatment. If you
+            need the mark on white, use the transparent PNG over white rather than a flattened
+            JPG.
+          </p>
+
+          <h2>What not to do</h2>
+          <ul>
+            <li>Do not recolour, gradient or outline the mark.</li>
+            <li>Do not stretch, squash or rotate it.</li>
+            <li>Do not add effects, shadows or glow.</li>
+            <li>Do not crop the mark or place text inside its clear space.</li>
+            <li>Do not use it to suggest endorsement, partnership or sponsorship.</li>
+            <li>Do not use the transparent file on dark and call the black areas “subtle”.</li>
+          </ul>
+        </article>
+
+        <aside class="brand-aside">
+          <div class="panel pad">
+            <p class="label">At a glance</p>
+            <dl class="brand-facts">
+              <div><dt>Current since</dt><dd>25 July 2026</dd></div>
+              <div><dt>Master</dt><dd>1024px transparent PNG</dd></div>
+              <div><dt>Treatments</dt><dd>Standard and light outline</dd></div>
+              <div><dt>SVG</dt><dd>Embedded raster, not a redraw</dd></div>
+              <div><dt>Minimum</dt><dd>24px screen · 10mm print</dd></div>
+              <div><dt>Clear space</dt><dd>¼ of the mark's height</dd></div>
+            </dl>
+          </div>
+
+          <div class="panel pad">
+            <p class="label">A note on the SVG</p>
             <p class="muted">
-              The mark used before the current logo. Kept because old posts, videos and documents
-              still show it.
-            </p>
-            <p class="archive-links">
-              <a class="text-link" href="/brand/archive/neon-emblem-2026-07-25-1024.png" download>PNG · 1024px</a>
-              <a class="text-link" href="/archive">All sizes and formats →</a>
+              The SVG files wrap the transparent PNG at each size so layout scales cleanly,
+              but a true vector master is still to be produced. When it is, it will be
+              published alongside — not in place of — today's files.
             </p>
           </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="colours">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Colours &amp; type</p>
+          <h2 class="section-title">The palette, with the values.</h2>
+          <p class="section-sub">
+            Five colours and three typefaces. Copy a hex value directly; the name is there so
+            nobody has to memorise the code.
+          </p>
         </div>
       </div>
-      <p class="muted" style="margin-top: 1rem;">
-        Archived marks live under <code>/brand/archive/</code> with the date in the filename. They
-        are never overwritten and never deleted, so a link in an old article keeps working.
-        The retired emblem has {retired.files.length} files; the full list is on the archive page.
-      </p>
+
+      <div class="swatch-grid brand-swatches">
+        {colours.map((colour) => (
+          <div class="swatch brand-swatch">
+            <span class="swatch-chip" style={`background:${colour.value}`} aria-hidden="true" />
+            <span class="swatch-name">{colour.name}</span>
+            <code>{colour.value}</code>
+            <span class="muted">{colour.role}</span>
+            <button
+              type="button"
+              class="copy-btn copy-btn--compact"
+              data-copy={colour.value}
+              data-label={`${colour.name} hex`}
+              aria-label={`Copy ${colour.name} hex ${colour.value}`}
+            >
+              Copy hex
+            </button>
+          </div>
+        ))}
+      </div>
+
+      <div class="type-list">
+        {typefaces.map((typeface) => (
+          <div class="type-row">
+            <div>
+              <p class="swatch-name">{typeface.name}</p>
+              <p class="muted">{typeface.role}</p>
+            </div>
+            <p class={`type-sample type-sample--${typeface.name.toLowerCase().replace(/\s+/g, '-')}`}>
+              {typeface.sample}
+            </p>
+          </div>
+        ))}
+      </div>
+
+      <p class="copy-status" data-copy-status role="status" aria-live="polite"></p>
+    </div>
+  </section>
+
+  <section class="section" id="archive">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Archive</p>
+          <h2 class="section-title">Every mark, kept.</h2>
+          <p class="section-sub">
+            Old logos do not stop appearing because a studio replaced them. Each mark keeps a
+            permanent address, in every size and format, so an article written years ago still
+            points at the file it described.
+          </p>
+        </div>
+        <span class="label">{retired.files.length} retired · 1 superseded</span>
+      </div>
+
+      <div class="panel panel--pad archive-key">
+        <div>
+          <p class="label">Current · since 25 July 2026</p>
+          <h3 class="archive-title">The ninja mark</h3>
+          <p class="archive-copy">
+            A transparent PNG master cut from the original artwork, with white removed from the
+            outside only. White details inside the mark — the eyes, the highlights — are still
+            there. The JPGs are flattened on <code>#07080B</code> and use the light-outline
+            treatment, because a black ninja on a near-black background otherwise disappears.
+          </p>
+          <p class="archive-copy archive-copy--muted">
+            The current files are in the <a class="text-link" href="#downloads">download table
+            above</a>. The SVG files wrap the transparent PNG at each size; they scale in
+            layout without a blurry browser resize, but they are not a vector redraw.
+          </p>
+        </div>
+        <dl class="archive-stats">
+          <div><dt>Current</dt><dd>{current.files.length} files</dd></div>
+          <div><dt>Retired</dt><dd>{retired.files.length} files</dd></div>
+          <div><dt>Superseded</dt><dd>1 white-tile PNG</dd></div>
+        </dl>
+      </div>
+
+      <div class="section-head archive-mark-head">
+        <div>
+          <p class="eyebrow">Retired · 25 July 2026</p>
+          <h3 class="section-title">Neon orbit emblem</h3>
+        </div>
+        <span class="label">{retired.files.length} files</span>
+      </div>
+
+      <div class="retired-grid">
+        <div class="panel retired-preview">
+          <img
+            src="/brand/archive/neon-emblem-2026-07-25-512.png"
+            width="512"
+            height="512"
+            alt="Retired neon orbit emblem"
+            loading="lazy"
+          />
+        </div>
+        <div>
+          <p class="archive-copy">
+            The mark used before the current logo. Kept because old posts, videos and documents
+            still show it, and a press kit that erases its own history is not much of an
+            archive. Its white background has been removed the same way, and the bright artwork
+            needs no light-outline treatment.
+          </p>
+          <p class="archive-copy archive-copy--muted">
+            The original flattened 1024px file is still at
+            <a class="text-link" href="/brand/archive/neon-emblem-2026-07-25.png" download>
+              neon-emblem-2026-07-25.png
+            </a>
+            and has not been touched.
+          </p>
+        </div>
+      </div>
+
+      <div class="asset-block">
+        <div class="asset-table-wrap">
+          <table class="asset-table">
+            <thead>
+              <tr>
+                <th scope="col">Size</th>
+                <th scope="col">PNG</th>
+                <th scope="col">JPG · dark</th>
+                <th scope="col">SVG</th>
+              </tr>
+            </thead>
+            <tbody>
+              {brandAssets.sizes.map((size) => (
+                <tr>
+                  <th scope="row">{size} × {size}</th>
+                  {[
+                    ['png', 'standard'],
+                    ['jpg', 'light'],
+                    ['svg', 'standard'],
+                  ].map(([format, variant]) => {
+                    const file = fileFor(retired, size, format, variant);
+                    return (
+                      <td>
+                        {file ? <a href={file.path} download>{kb(file.bytes)}</a> : '—'}
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="section-head archive-mark-head">
+        <div>
+          <p class="eyebrow">Superseded · 21 November 2026</p>
+          <h3 class="section-title">The white-tile edition</h3>
+        </div>
+      </div>
+
+      <div class="retired-grid">
+        <div class="panel retired-preview retired-preview--white">
+          <img
+            src={whiteTile}
+            width="1024"
+            height="1024"
+            alt="The superseded white-tile version of the Next Step Studios logo"
+            loading="lazy"
+          />
+        </div>
+        <div>
+          <p class="archive-copy">
+            The logo as it appeared before transparency: the same artwork on a solid white tile.
+            The live files were replaced in place, so this flattened copy is the record of how
+            the mark used to look.
+          </p>
+          <p class="archive-links">
+            <a class="text-link" href={whiteTile} download>PNG · 1024px · {kb(whiteTileBytes)}</a>
+          </p>
+        </div>
+      </div>
+
+      <div class="split archive-notes">
+        <div class="panel panel--pad">
+          <p class="label">How the archive works</p>
+          <p class="archive-copy archive-copy--muted">
+            A mark is never overwritten once it has been superseded. New artwork gets a new
+            filename; the old files stay where they are. That is why the retired emblem still
+            resolves, and why the white-tile edition is kept as a dated file.
+          </p>
+        </div>
+        <div class="panel panel--pad">
+          <p class="label">Download everything</p>
+          <p class="archive-copy archive-copy--muted">
+            One ZIP with every mark on this page, the site's favicons and a README explaining
+            what to use where. {zipSize}, {current.files.length + retired.files.length} mark
+            files plus the superseded tile.
+          </p>
+          <a
+            class="btn btn-primary"
+            href="/downloads/next-step-studios-brand-kit.zip"
+            download
+            style="margin-top: 1rem;"
+          >
+            Brand kit .zip <span class="btn-arrow" aria-hidden="true">↓</span>
+          </a>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -239,53 +584,382 @@ const facts = [
       <div class="notice notice--neutral">
         <span class="status status--info">Usage</span>
         <p class="notice-body">
-          Use the mark to refer to Next Step Studios in editorial work. Do not alter it, recolour it,
-          stretch it, or use it to imply endorsement. The
-          <a class="text-link" href="/brand">brand guidelines</a> give the exact rules, and
-          <a class="text-link" href="/contact">contact</a> is open if something is unclear.
+          Use the mark to refer to Next Step Studios in editorial work. Do not alter it,
+          recolour it, stretch it, or use it to imply endorsement. The
+          <a class="text-link" href="#guidelines">guidelines above</a> give the exact rules,
+          and <a class="text-link" href="/contact">contact</a> is open if something is unclear.
         </p>
       </div>
     </div>
   </section>
+
+  <script>
+    const copyText = async (text: string) => {
+      if (navigator.clipboard?.writeText) {
+        try {
+          await navigator.clipboard.writeText(text);
+          return true;
+        } catch {
+          // Fall through to the textarea method when clipboard permission is unavailable.
+        }
+      }
+
+      const area = document.createElement('textarea');
+      area.value = text;
+      area.setAttribute('readonly', '');
+      area.style.position = 'fixed';
+      area.style.opacity = '0';
+      document.body.append(area);
+      area.select();
+      const copied = document.execCommand('copy');
+      area.remove();
+      return copied;
+    };
+
+    document.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach((button) => {
+      button.addEventListener('click', async () => {
+        const label = button.dataset.label ?? 'Text';
+        const copied = await copyText(button.dataset.copy ?? '');
+        const original = button.textContent;
+        button.dataset.copied = String(copied);
+        button.textContent = copied ? 'Copied' : 'Copy failed';
+        const status = button
+          .closest('section')
+          ?.querySelector<HTMLElement>('[data-copy-status]');
+        if (status) {
+          status.textContent = copied
+            ? `${label} copied to the clipboard.`
+            : `Could not copy ${label.toLowerCase()}. Select it manually.`;
+        }
+        window.setTimeout(() => {
+          delete button.dataset.copied;
+          button.textContent = original;
+        }, 1800);
+      });
+    });
+  </script>
+
+  <style>
+    .brand-toc {
+      position: sticky;
+      top: 4.15rem;
+      z-index: 30;
+      border-block: 1px solid var(--color-line-soft);
+      background: var(--color-bg);
+    }
+
+    .brand-toc-inner {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem 1.25rem;
+      overflow-x: auto;
+      padding-block: 0.35rem;
+      scrollbar-width: none;
+    }
+
+    .brand-toc-inner::-webkit-scrollbar { display: none; }
+
+    .brand-toc .label { flex: none; margin-right: 0.25rem; }
+
+    .brand-toc a {
+      display: inline-flex;
+      align-items: center;
+      flex: none;
+      min-height: 2.75rem;
+      color: var(--color-muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .brand-toc a:hover,
+    .brand-toc a:focus-visible { color: var(--color-ink); }
+
+    #press,
+    #downloads,
+    #guidelines,
+    #colours,
+    #archive { scroll-margin-top: 8.5rem; }
+
+    .press-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 0.9rem;
+      padding: 1.5rem;
+    }
+
+    .press-previews {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+    }
+
+    .press-preview {
+      margin: 0;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--color-line);
+    }
+
+    .press-preview img { display: block; width: 100%; height: auto; }
+
+    .press-preview figcaption {
+      padding: 0.45rem 0.6rem;
+      border-top: 1px solid var(--color-line-soft);
+      color: var(--color-muted);
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .press-preview--light {
+      background-color: #e9eef7;
+      background-image:
+        linear-gradient(45deg, #d3dae6 25%, transparent 25%),
+        linear-gradient(-45deg, #d3dae6 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #d3dae6 75%),
+        linear-gradient(-45deg, transparent 75%, #d3dae6 75%);
+      background-size: 20px 20px;
+      background-position: 0 0, 0 10px, 10px -10px, -10px 0;
+    }
+
+    .press-preview--dark { background: #07080b; }
+
+    .copy-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .copy-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex: none;
+      min-height: 2.75rem;
+      padding: 0.45rem 0.8rem;
+      border: 1px solid var(--color-line);
+      border-radius: 2px;
+      background: var(--color-surface);
+      color: var(--color-ink-dim);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .copy-btn:hover,
+    .copy-btn:focus-visible {
+      border-color: var(--color-accent);
+      color: var(--color-ink);
+    }
+
+    .copy-btn[data-copied='true'] {
+      border-color: var(--color-accent);
+      color: var(--color-ink);
+    }
+
+    .copy-btn--compact { min-height: 2.35rem; margin-top: 0.45rem; }
+
+    .copy-status {
+      min-height: 1.2em;
+      margin-top: 0.6rem;
+      color: var(--color-muted);
+      font-size: 0.8rem;
+    }
+
+    .fact-title {
+      margin-top: 2rem;
+      font-family: var(--font-display);
+      font-size: 1.3rem;
+      letter-spacing: -0.02em;
+    }
+
+    .asset-table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--color-line);
+      border-radius: 12px;
+    }
+
+    .asset-table { width: 100%; border-collapse: collapse; min-width: 680px; }
+
+    .asset-table th,
+    .asset-table td {
+      padding: 0.8rem 1rem;
+      border-bottom: 1px solid var(--color-line-soft);
+      text-align: left;
+      font-size: 0.875rem;
+    }
+
+    .asset-table thead th {
+      background: var(--color-panel);
+      color: var(--color-muted);
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .asset-table tbody tr:last-child th,
+    .asset-table tbody tr:last-child td { border-bottom: 0; }
+
+    .asset-table tbody th {
+      color: var(--color-ink);
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+    }
+
+    .asset-table td a { color: var(--color-accent-soft); text-decoration: none; }
+    .asset-table td a:hover { text-decoration: underline; }
+
+    .brand-facts { display: grid; gap: 0.75rem; margin-top: 1rem; }
+    .brand-facts div { display: flex; justify-content: space-between; gap: 1rem; }
+    .brand-facts dt {
+      color: var(--color-muted);
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .brand-facts dd { color: var(--color-ink); font-size: 0.875rem; text-align: right; }
+
+    .brand-swatches { margin-top: 0.5rem; }
+
+    .brand-swatch {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.25rem;
+      padding: 0.9rem;
+      border: 1px solid var(--color-line-soft);
+      border-radius: 0.6rem;
+      background: var(--color-surface);
+      font-size: 0.8rem;
+    }
+
+    .brand-swatch .copy-btn { margin-top: auto; }
+
+    .type-list {
+      display: grid;
+      gap: 0;
+      margin-top: 2rem;
+      border-top: 1px solid var(--color-line-soft);
+    }
+
+    .type-row {
+      display: grid;
+      grid-template-columns: minmax(9rem, 0.35fr) minmax(0, 1fr);
+      gap: 1rem 2rem;
+      align-items: center;
+      padding: 1.1rem 0;
+      border-bottom: 1px solid var(--color-line-soft);
+    }
+
+    .type-row p { margin: 0; }
+
+    .type-sample {
+      color: var(--color-ink);
+      font-size: clamp(1.3rem, 3vw, 1.9rem);
+      line-height: 1.25;
+    }
+
+    .type-sample--space-grotesk { font-family: var(--font-display); letter-spacing: -0.03em; }
+    .type-sample--inter { font-family: var(--font-body); }
+    .type-sample--jetbrains-mono { font-family: var(--font-mono); font-size: 1.1rem; }
+
+    .archive-key {
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(14rem, 0.6fr);
+      gap: 2rem;
+      align-items: center;
+      margin-bottom: 2.5rem;
+    }
+
+    .archive-title {
+      margin-top: 0.5rem;
+      font-family: var(--font-display);
+      font-size: clamp(1.6rem, 3vw, 2.2rem);
+      letter-spacing: -0.03em;
+    }
+
+    .archive-copy {
+      margin-top: 0.9rem;
+      color: var(--color-ink-dim);
+      font-size: 0.975rem;
+      line-height: 1.65;
+    }
+
+    .archive-copy--muted { color: var(--color-muted); font-size: 0.9rem; }
+
+    .archive-stats {
+      display: grid;
+      gap: 1px;
+      overflow: hidden;
+      border: 1px solid var(--color-line-soft);
+      border-radius: 0.5rem;
+      background: var(--color-line-soft);
+    }
+
+    .archive-stats div {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0.75rem 0.9rem;
+      background: var(--color-bg-soft);
+    }
+
+    .archive-stats dt {
+      color: var(--color-muted);
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .archive-stats dd { color: var(--color-ink); font-size: 0.9rem; }
+
+    .archive-mark-head { margin-top: 2.5rem; }
+
+    .retired-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+      gap: clamp(1.5rem, 4vw, 3rem);
+      align-items: center;
+      margin-top: 1.5rem;
+    }
+
+    .retired-preview {
+      display: grid;
+      place-items: center;
+      padding: 1rem;
+      background: #07080b;
+    }
+
+    .retired-preview--white { background: #ffffff; }
+    .retired-preview img { display: block; max-width: 100%; height: auto; }
+
+    .asset-block { margin-top: 1.5rem; }
+
+    .archive-notes { margin-top: 2.5rem; }
+
+    @media (max-width: 860px) {
+      .brand-toc { position: static; }
+      #press,
+      #downloads,
+      #guidelines,
+      #colours,
+      #archive { scroll-margin-top: 5rem; }
+      .archive-key,
+      .retired-grid { grid-template-columns: 1fr; }
+      .type-row { grid-template-columns: 1fr; gap: 0.4rem; }
+    }
+
+    @media (max-width: 520px) {
+      .press-previews { grid-template-columns: 1fr; }
+    }
+  </style>
 </Base>
-
-<style>
-  .press-previews { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin: 0.75rem 0 1rem; }
-
-  .press-preview { margin: 0; border-radius: 12px; overflow: hidden; border: 1px solid var(--color-line); }
-  .press-preview img { display: block; width: 100%; height: auto; }
-
-  .press-preview figcaption {
-    padding: 0.45rem 0.6rem;
-    font-family: var(--font-mono);
-    font-size: 0.6rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--color-muted);
-    border-top: 1px solid var(--color-line-soft);
-  }
-
-  .press-preview--light {
-    background-color: #e9eef7;
-    background-image:
-      linear-gradient(45deg, #d3dae6 25%, transparent 25%),
-      linear-gradient(-45deg, #d3dae6 25%, transparent 25%),
-      linear-gradient(45deg, transparent 75%, #d3dae6 75%),
-      linear-gradient(-45deg, transparent 75%, #d3dae6 75%);
-    background-size: 20px 20px;
-    background-position: 0 0, 0 10px, 10px -10px, -10px 0;
-  }
-
-  .press-preview--dark { background: #07080b; }
-
-  .asset-table-wrap { overflow-x: auto; border: 1px solid var(--color-line); border-radius: 12px; }
-  .asset-table { width: 100%; border-collapse: collapse; min-width: 680px; }
-  .asset-table th,
-  .asset-table td { padding: 0.8rem 1rem; text-align: left; border-bottom: 1px solid var(--color-line-soft); font-size: 0.875rem; }
-  .asset-table thead th { font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-muted); background: var(--color-panel); }
-  .asset-table tbody tr:last-child th,
-  .asset-table tbody tr:last-child td { border-bottom: 0; }
-  .asset-table tbody th { font-family: var(--font-mono); font-size: 0.78rem; color: var(--color-ink); }
-  .asset-table td a { color: var(--color-accent-soft); text-decoration: none; }
-  .asset-table td a:hover { text-decoration: underline; }
-</style>

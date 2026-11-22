@@ -14,6 +14,24 @@ export type ChangelogEntry = {
 export const CHANGELOG: ChangelogEntry[] = [
   {
     date: '2026-11-22',
+    version: '3.4',
+    title: 'The one-page brand edition',
+    summary:
+      'The press kit, brand guidelines and mark archive become one Press & brand page, with working redirects, copy buttons, a Now page and a clearer example roster.',
+    changes: [
+      'The separate /press, /brand and /archive pages are now one page at /press. The old addresses redirect to the relevant sections, and every existing logo file keeps its address.',
+      'The page combines the boilerplate, quick facts, every current logo file, the palette, type guidance, usage rules, the retired neon emblem and the superseded white-tile edition, with an on-page contents and one ZIP.',
+      'Hex values and the studio boilerplate have copy buttons with a visible confirmation.',
+      'The header, footer, search index, command palette, sitemap and Step now point at one brand destination instead of three.',
+      'A new /now page records what is being worked on in November 2026, and what has deliberately not started.',
+      'The About and Team pages label the four placeholder contributors as examples, and public copy no longer presents the unconfirmed roster as five real people.',
+      'The home page gives the primary action to Projects and the bot instead of the policy shelf.',
+      'The brand kit README now points at the combined page and the redirects.',
+      'A new devlog entry records the merge; the old logo entry carries a correction about its embedded-raster SVGs. No policy text changed.',
+    ],
+  },
+  {
+    date: '2026-11-22',
     version: '3.3',
     title: 'The touch edition',
     summary:

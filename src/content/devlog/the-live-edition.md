@@ -17,11 +17,17 @@ same sizes flattened onto the site's near-black, and a second treatment with a l
 outline for dark surfaces. The favicons and the Apple touch icon come from the same master.
 Each file has a permanent address.
 
-Two decisions are worth writing down. First, the SVG is a real vector, not a PNG wrapped in
-an SVG element. Second, the old white tile is not deleted. It is labelled as the superseded
-version and kept on `/archive`, because links to it exist and pretending otherwise would
-break them. The archive has its own page now, and the whole set is available as one ZIP, so
-nobody has to download twenty files one at a time.
+Two decisions are worth writing down. First, the SVG embeds the transparent PNG at each
+size rather than being a vector redraw; a true vector master is still to be produced.
+Second, the old white tile is not deleted. It is labelled as the superseded version and kept
+on the Press & brand page at `/press#archive` (the old `/archive` address redirects there),
+because links to it exist and pretending otherwise would break them. The archive lives
+inside that page now, and the whole set is available as one ZIP, so nobody has to download
+twenty files one at a time.
+
+**Correction, 22 November 2026:** an earlier version of this entry called the SVGs real
+vectors. They embed a PNG at each size, not a vector redraw. The brand page states this
+plainly.
 
 ## The status page is actually live
 
