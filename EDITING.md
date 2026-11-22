@@ -1804,9 +1804,11 @@ built this way so the site can keep its “no tracking, no third parties” prom
 2. `src/lib/assistant.ts` normalises the question, handles common abbreviations and
    one-character typos, expands a small explicit synonym list, scores it against the
    facts, then searches the index for longer-tail questions.
-3. The answer is displayed as plain text, with links to the relevant public page. The
-   browser receives the question text only through the form; it is not put in a URL or
-   sent to a server.
+3. The answer is displayed as plain text, with links to the relevant public page. After
+   an answer, Step may show up to three **Continue with** chips. They are curated
+   questions tied to that fact (or a sensible fallback), and clicking one submits it
+   locally exactly as if it had been typed. They are not a separate service and are not
+   stored.
 4. If nothing is relevant, Step says it does not know and offers **Search** and
    **Contact** instead of inventing an answer.
 
@@ -1818,8 +1820,8 @@ cookie for the conversation; it exists in the open tab and resets on reload.
 
 | File | Purpose |
 | --- | --- |
-| `src/components/Assistant.astro` | Launcher, panel, messages, loading and keyboard behaviour |
-| `src/lib/assistant.ts` | Tokenising, fact scoring, index search and answer templates |
+| `src/components/Assistant.astro` | Launcher, panel, messages, follow-up chips, loading and keyboard behaviour |
+| `src/lib/assistant.ts` | Tokenising, fact scoring, index search, answer templates and fallback follow-ups |
 | `src/pages/assistant-facts.json.ts` | The curated facts; generates `/assistant-facts.json` |
 | `src/pages/search-index.json.ts` | The shared full-text index; generates `/search-index.json` |
 | `src/layouts/Base.astro` | Renders `<Assistant />` once on every page |
@@ -1856,27 +1858,38 @@ projects, devlog entries, commands, modules, FAQ entries, roadmap items and glos
 terms, so those do not need a separate fact unless the common answer needs a direct
 summary.
 
+Follow-up chips come from the `FOLLOW_UPS` object at the top of the same file, keyed by
+the fact `id`. Keep two or three per important fact, phrase them as questions, and make
+sure the public pages can answer each one. A link or claim that is not answerable is
+worse than showing no chip. Dynamic facts (projects, policies, FAQ entries, devlog
+entries and social accounts) use the generic fallback unless you add an entry for their
+generated id.
+
 ### Test Step
 
 1. Run `npm run dev` and open `http://localhost:4321/`.
 2. Open **Ask Step** in the bottom-right. Ask the five suggested questions.
-3. Ask something the public pages do not cover, for example “What is your favourite
+3. After an answer, click one of the **Continue with** chips. It should submit that
+   question and replace the old chips. Check that every chip is answerable from the
+   public site rather than a dead end.
+4. Ask something the public pages do not cover, for example “What is your favourite
    colour?”. It should say it does not know, with Search and Contact links.
-4. Ask a policy question and a command question. Check the links open the right page.
-5. Open DevTools → Network, clear the log, then open Step. The only new requests should
+5. Ask a policy question and a command question. Check the links open the right page.
+6. Open DevTools → Network, clear the log, then open Step. The only new requests should
    be `/assistant-facts.json` and `/search-index.json`; there should be no external AI
    request.
-6. Reload the page. The conversation should be gone. Check DevTools → Application →
+7. Reload the page. The conversation should be gone. Check DevTools → Application →
    Local Storage: Step should not have added a key.
-7. At a 390 × 844 viewport, the panel should fit without sideways scrolling, and
-   `Escape` or the ✕ button should close it.
-8. Switch to light theme. The panel must be white with dark text; the home hero must
+8. At a 390 × 844 viewport, the panel should fit without sideways scrolling, and
+   `Escape` or the ✕ button should close it. Follow-up chips must wrap rather than
+   overflow.
+9. Switch to light theme. The panel must be white with dark text; the home hero must
    stay readable over its artwork; and the hero, HUD and footer must not use the
    dark-only surfaces.
-9. With Step closed on a narrow screen, tap a footer link near the bottom edge. The
-   `.step-root` wrapper deliberately has `pointer-events: none`; only the launcher and
-   panel should receive taps.
-10. Run `npm run build` before publishing. A successful build is the check for the facts
+10. With Step closed on a narrow screen, tap a footer link near the bottom edge. The
+    `.step-root` wrapper deliberately has `pointer-events: none`; only the launcher and
+    panel should receive taps.
+11. Run `npm run build` before publishing. A successful build is the check for the facts
     route and the bundled script.
 
 ### What not to do
@@ -1887,6 +1900,9 @@ summary.
   contact service.
 - Do not render the answer with `innerHTML`; the current code uses `textContent` so page
   content cannot inject markup.
+- Keep `Assistant.astro`'s style block marked `is:global`. Messages and follow-up chips
+  are created after Astro adds its scoped-style attribute, so a normal scoped style
+  would not reach them. Every selector in that block is namespaced with `step-`.
 - Do not include private bot configuration, private Discord channel URLs, credentials or
   internal notes in `assistant-facts.json.ts` or `search-index.json.ts`.
 

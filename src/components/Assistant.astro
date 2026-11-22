@@ -190,6 +190,7 @@ const starters = [
       text: string,
       links: AssistantLink[] = [],
       confidence?: AssistantReply['confidence'],
+      followUps: string[] = [],
     ) => {
       if (!log) return;
       const article = document.createElement('article');
@@ -228,6 +229,32 @@ const starters = [
         sourceEl.className = 'step-message-source';
         sourceEl.textContent = source;
         article.append(sourceEl);
+      }
+
+      if (role === 'assistant' && followUps.length > 0) {
+        const followUpBox = document.createElement('div');
+        followUpBox.className = 'step-message-followups';
+        followUpBox.dataset.followups = '';
+        followUpBox.setAttribute('role', 'group');
+        followUpBox.setAttribute('aria-label', 'Suggested follow-up questions');
+
+        const followUpLabel = document.createElement('p');
+        followUpLabel.className = 'step-message-followup-label';
+        followUpLabel.textContent = 'Continue with';
+        followUpBox.append(followUpLabel);
+
+        const followUpList = document.createElement('div');
+        followUpList.className = 'step-message-followup-list';
+        [...new Set(followUps)].slice(0, 3).forEach((question) => {
+          const followUp = document.createElement('button');
+          followUp.className = 'step-followup';
+          followUp.type = 'button';
+          followUp.dataset.followup = question;
+          followUp.textContent = question;
+          followUpList.append(followUp);
+        });
+        followUpBox.append(followUpList);
+        article.append(followUpBox);
       }
 
       log.append(article);
@@ -312,6 +339,7 @@ const starters = [
       const question = raw.trim();
       if (!question) return;
 
+      log?.querySelectorAll('[data-followups]').forEach((node) => node.remove());
       addMessage('user', question);
       if (input) input.value = '';
       if (suggestions) suggestions.hidden = true;
@@ -332,7 +360,7 @@ const starters = [
 
       if (!facts || !entries) return;
       const reply = answerQuestion(question, facts, entries);
-      addMessage('assistant', reply.text, reply.links, reply.confidence);
+      addMessage('assistant', reply.text, reply.links, reply.confidence, reply.followUps);
       input?.focus();
     };
 
@@ -354,6 +382,13 @@ const starters = [
         const question = button.dataset.question ?? button.textContent ?? '';
         void submit(question);
       });
+    });
+
+    log?.addEventListener('click', (event) => {
+      const target = event.target as HTMLElement;
+      const button = target.closest<HTMLButtonElement>('[data-followup]');
+      if (!button || !log.contains(button)) return;
+      void submit(button.dataset.followup ?? '');
     });
 
     document.addEventListener('click', (event) => {
@@ -386,7 +421,11 @@ const starters = [
   }
 </script>
 
-<style>
+<style is:global>
+  /* Messages and follow-up chips are created in JavaScript, after Astro has
+     added its scoped-style attribute to the template. Keep this component
+     global and namespace every selector with `step-` so those generated
+     elements receive the same styling as the panel itself. */
   .step-root {
     position: fixed;
     right: max(1rem, env(safe-area-inset-right));
@@ -538,7 +577,7 @@ const starters = [
     background: var(--color-bg);
   }
 
-  .step-avatar :global(img) {
+  .step-avatar img {
     width: 1.65rem;
     height: 1.65rem;
     object-fit: contain;
@@ -717,6 +756,46 @@ const starters = [
     color: var(--color-ink);
   }
 
+  .step-message-followups {
+    margin-top: 0.7rem;
+    padding-top: 0.55rem;
+    border-top: 1px solid var(--color-line-soft);
+  }
+
+  .step-message-followup-label {
+    margin: 0 0 0.35rem;
+    color: var(--color-muted);
+    font-family: var(--font-mono);
+    font-size: 0.57rem;
+    letter-spacing: 0.1em;
+    line-height: 1.3;
+    text-transform: uppercase;
+  }
+
+  .step-message-followup-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+  }
+
+  .step-followup {
+    min-height: 2.15rem;
+    padding: 0.35rem 0.52rem;
+    border: 1px solid var(--color-line);
+    border-radius: 2px;
+    color: var(--color-ink-dim);
+    font-size: 0.74rem;
+    line-height: 1.35;
+    text-align: left;
+    transition: border-color 140ms ease, background-color 140ms ease, color 140ms ease;
+  }
+
+  .step-followup:hover {
+    border-color: rgba(143, 182, 255, 0.5);
+    background: var(--color-surface);
+    color: var(--color-ink);
+  }
+
   .step-status {
     margin: 0;
     padding: 0 0.85rem 0.6rem;
@@ -848,7 +927,11 @@ const starters = [
       display: none;
     }
 
-    :global(body.step-open) {
+    .step-followup {
+      font-size: 0.72rem;
+    }
+
+    body.step-open {
       overflow: hidden;
     }
   }

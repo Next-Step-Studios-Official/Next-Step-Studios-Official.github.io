@@ -355,6 +355,22 @@ html[data-theme='light'] .step-suggestion:hover {
   background: var(--color-surface-2);
 }
 
+html[data-theme='light'] .step-message-followups {
+  border-top-color: var(--color-line-soft);
+}
+
+html[data-theme='light'] .step-followup {
+  border-color: var(--color-line);
+  background: var(--color-surface-2);
+  color: var(--color-ink-dim);
+}
+
+html[data-theme='light'] .step-followup:hover {
+  border-color: rgba(26, 92, 208, 0.42);
+  background: #e4ecfa;
+  color: var(--color-ink);
+}
+
 html[data-theme='light'] .step-input {
   border-color: var(--color-control-line);
   background: var(--color-surface);

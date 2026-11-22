@@ -24,6 +24,59 @@ const link = (href: string, label: string, external = false): AssistantLink => (
   external,
 });
 
+/**
+ * Follow-up questions are curated beside the facts they belong to. Each one
+ * must be answerable from the public site, so a visitor never follows a chip
+ * into a dead end. Generic fallbacks live in src/lib/assistant.ts.
+ */
+const FOLLOW_UPS: Record<string, string[]> = {
+  studio: ['What projects are in development?', 'Who runs the studio?', 'How do I contact the studio?'],
+  operator: ['Who is on the team?', 'What are you building?', 'How do I contact the studio?'],
+  team: ['Who runs the studio?', 'Are there open roles?', 'What are you building?'],
+  company: ['Who runs the studio?', 'What is Next Step Studios?', 'How do I contact the studio?'],
+  careers: ['Who is on the team?', 'Can I volunteer?', 'How do I contact the studio?'],
+  projects: ['What is Next Step Bot?', 'What games are planned?', 'What is on the roadmap?'],
+  bot: ['Is the bot public?', 'Which modules does it have?', 'What policies cover the bot?'],
+  tickets: ['How do I contact support?', 'Which modules are tested?', 'What data does the bot store?'],
+  'bot-public': ['What is Next Step Bot?', 'When will it be released?', 'Can I join the Discord?'],
+  games: ['What projects are planned?', 'Is there a release date?', 'What is on the roadmap?'],
+  tools: ['What projects are planned?', 'What is Next Step Bot?', 'What is on the roadmap?'],
+  policies: ['What does the Privacy Policy cover?', 'Why are the policies still drafts?', 'How do I request my data?'],
+  'privacy-overview': ['Does the website track me?', 'Does Step store my questions?', 'How do I request data deletion?'],
+  'privacy-website': ['Does Step store my questions?', 'What about the bot privacy policy?', 'How do I contact the studio?'],
+  'privacy-bot': ['How do I delete my data?', 'What does the retention policy say?', 'How do I contact the studio?'],
+  'data-deletion': ['What data does the bot store?', 'What does the retention policy say?', 'How do I contact the studio?'],
+  appeals: ['What is the moderation policy?', 'How do I open a ticket?', 'How do I contact the studio?'],
+  security: ['What data does the bot store?', 'Why are the policies drafts?', 'How do I contact the studio?'],
+  location: ['How do I contact the studio?', 'Who runs the studio?', 'What is Next Step Studios?'],
+  contact: ['What policies do you have?', 'Where is the studio located?', 'Where are your official links?'],
+  start: ['What is Next Step Bot?', 'What policies do you have?', 'What is on the roadmap?'],
+  rules: ['How do I appeal a moderation decision?', 'Can I join the Discord?', 'How do I contact the studio?'],
+  applications: ['Which modules are tested?', 'Can I suggest a feature?', 'How do I contact the studio?'],
+  suggestions: ['How do I contact the studio?', 'Which modules are tested?', 'What is on the roadmap?'],
+  pricing: ['Is the bot public?', 'What projects exist?', 'How do I contact the studio?'],
+  'release-dates': ['What is on the roadmap?', 'What projects are planned?', 'Is the bot public?'],
+  discord: ['What are the server rules?', 'What is Next Step Bot?', 'Where are your official links?'],
+  socials: ['Where are your official links?', 'How do I join the Discord?', 'How do I contact the studio?'],
+  'official-links': ['What social accounts are official?', 'How do I join the Discord?', 'How do I contact the studio?'],
+  commands: ['What modules does the bot have?', 'Why are some commands not verified?', 'What is Next Step Bot?'],
+  modules: ['Which modules are tested?', 'What commands does the bot have?', 'What policies cover the bot?'],
+  downloads: ['What policies are available?', 'Is there a press kit?', 'How do I read the policies?'],
+  brand: ['Where is the press kit?', 'What are the brand guidelines?', 'How do I contact the studio?'],
+  'site-tech': ['Does the website track me?', 'Does Step store my questions?', 'Where is the source code?'],
+  status: ['Is the website live?', 'What is the status?', 'What is on the roadmap?'],
+  roadmap: ['What is the release date?', 'What projects are planned?', 'What are you building now?'],
+  search: ['What can you do?', 'What policies do you have?', 'Where should I start?'],
+  assistant: ['Do you save my messages?', 'What can you do?', 'Are you an AI model?'],
+  'assistant-storage': ['What can you do?', 'Does the website track me?', 'How do I contact the studio?'],
+  devlog: ['What changed recently?', 'What is on the roadmap?', 'What is the status?'],
+  changelog: ['What is the latest devlog?', 'What is on the roadmap?', 'What is the status?'],
+  source: ['What is this site built with?', 'Why are the policies drafts?', 'What can you do?'],
+  'project-next-step-bot': ['Is the bot public?', 'Which modules does it have?', 'What policies cover the bot?'],
+  'project-first-game': ['What games are planned?', 'What is on the roadmap?', 'What projects exist?'],
+  'project-studio-tools': ['What projects are planned?', 'What is on the roadmap?', 'What is Next Step Bot?'],
+};
+
 const fact = (
   id: string,
   title: string,
@@ -31,7 +84,7 @@ const fact = (
   answer: string,
   links: AssistantLink[] = [],
   priority = 0,
-): AssistantFact => ({ id, title, aliases, answer, links, priority });
+): AssistantFact => ({ id, title, aliases, answer, links, followUps: FOLLOW_UPS[id], priority });
 
 const policyPath = (id: string) => `/policies/bot/${id.replace(/^bot\//, '')}`;
 const projectPath = (id: string) => `/projects/${id}`;
@@ -211,7 +264,17 @@ export const GET: APIRoute = async () => {
     fact(
       'data-deletion',
       'Delete personal data',
-      ['delete my data', 'delete my information', 'data deletion', 'remove my data', 'privacy request', 'access my data', 'correct my data'],
+      [
+        'delete my data',
+        'delete my information',
+        'data deletion',
+        'remove my data',
+        'privacy request',
+        'access my data',
+        'correct my data',
+        'request my data',
+        'request data deletion',
+      ],
       `Send a privacy request through the contact form or email, with the subject “Privacy Request” and your Discord user ID so the right records can be identified. Say whether you want access, correction or deletion. Some moderation and audit records have a stated retention period and cannot be deleted early.`,
       [link('/contact#privacy-requests', 'Privacy requests'), link('/policies/bot/data-retention', 'Data Retention and Deletion Policy')],
       9,
@@ -489,7 +552,16 @@ export const GET: APIRoute = async () => {
     fact(
       'assistant-storage',
       'Does this assistant store anything?',
-      ['does this assistant store anything', 'do you save my messages', 'conversation history', 'do you log this chat'],
+      [
+        'does this assistant store anything',
+        'do you save my messages',
+        'conversation history',
+        'do you log this chat',
+        'what does step store',
+        'does step store anything',
+        'does step keep my messages',
+        'does step store my questions',
+      ],
       `No. The conversation exists only in this browser tab and is discarded on reload. The assistant loads two static files from this site when it opens; it sends no question to a server, uses no API key, and does not write to local storage.`,
       [link('/website-privacy', 'Website privacy notice')],
       9,

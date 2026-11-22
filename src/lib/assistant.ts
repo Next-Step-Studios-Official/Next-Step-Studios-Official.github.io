@@ -19,6 +19,8 @@ export type AssistantFact = {
   aliases: string[];
   answer: string;
   links?: AssistantLink[];
+  /** Optional follow-up questions shown beneath this answer. */
+  followUps?: string[];
   /** Higher wins when two facts are equally relevant. */
   priority?: number;
 };
@@ -35,6 +37,8 @@ export type AssistantReply = {
   text: string;
   links: AssistantLink[];
   confidence: 'fact' | 'index' | 'unknown' | 'smalltalk';
+  /** Short, answerable questions the visitor can try next. */
+  followUps?: string[];
 };
 
 const STOP_WORDS = new Set([
@@ -299,6 +303,58 @@ const snippet = (text: string, terms: string[], limit = 300): string => {
   return `${start > 0 ? '…' : ''}${clean.slice(start, end).trim()}${end < clean.length ? '…' : ''}`;
 };
 
+const DEFAULT_FOLLOW_UPS = [
+  'What projects exist?',
+  'What policies do you have?',
+  'How do I contact the studio?',
+];
+
+const FOLLOW_UPS_BY_ENTRY_TYPE: Record<string, string[]> = {
+  Policy: [
+    'Why are the policies still drafts?',
+    'How do I request my data?',
+    'How do I contact the studio?',
+  ],
+  Command: [
+    'Which modules are tested?',
+    'What policies cover the bot?',
+    'What is Next Step Bot?',
+  ],
+  Module: [
+    'What commands does the bot have?',
+    'Which modules are tested?',
+    'What policies cover the bot?',
+  ],
+  Project: [
+    'What projects are planned?',
+    'What is on the roadmap?',
+    'Is the bot public?',
+  ],
+  FAQ: [
+    'What policies do you have?',
+    'What is on the roadmap?',
+    'How do I contact the studio?',
+  ],
+  Devlog: [
+    'What changed recently?',
+    'What is on the roadmap?',
+    'What is the status?',
+  ],
+  Roadmap: [
+    'What projects are planned?',
+    'Is the bot public?',
+    'What is the release date?',
+  ],
+  Glossary: [
+    'What policies do you have?',
+    'What is Next Step Bot?',
+    'How do I contact the studio?',
+  ],
+};
+
+const followUpsForEntry = (entry: AssistantEntry): string[] =>
+  FOLLOW_UPS_BY_ENTRY_TYPE[entry.type] ?? DEFAULT_FOLLOW_UPS;
+
 const searchReply = (query: string, entries: AssistantEntry[]): AssistantReply | null => {
   const queryStems = queryTerms(query).direct;
   if (queryStems.length === 0) return null;
@@ -386,6 +442,7 @@ const searchReply = (query: string, entries: AssistantEntry[]): AssistantReply |
         : []),
     ]),
     confidence: 'index',
+    followUps: followUpsForEntry(best.entry),
   };
 };
 
@@ -400,6 +457,7 @@ const unknownReply = (query: string): AssistantReply => {
       { href: '/contact', label: 'Contact the studio' },
     ],
     confidence: 'unknown',
+    followUps: ['What can you do?', 'What is Next Step Studios?', 'How do I contact the studio?'],
   };
 };
 
@@ -409,6 +467,7 @@ const greeting = (): AssistantReply => ({
     'pages: the studio, the bot, projects, policies, team, links and contact. What would you like to know?',
   links: [],
   confidence: 'smalltalk',
+  followUps: ['What can you do?', 'What is Next Step Bot?', 'How do I contact the studio?'],
 });
 
 const assistantIdentity = (): AssistantReply => ({
@@ -419,6 +478,7 @@ const assistantIdentity = (): AssistantReply => ({
     'If the public pages do not cover something, I say so.',
   links: [],
   confidence: 'smalltalk',
+  followUps: ['Do you save my messages?', 'What can you do?', 'How do I contact the studio?'],
 });
 
 const capabilities = (): AssistantReply => ({
@@ -433,6 +493,7 @@ const capabilities = (): AssistantReply => ({
     { href: '/search', label: 'Search the site' },
   ],
   confidence: 'smalltalk',
+  followUps: ['What is Next Step Bot?', 'What policies do you have?', 'How do I contact the studio?'],
 });
 
 const thanks = (): AssistantReply => ({
@@ -493,6 +554,7 @@ export const answerQuestion = (
       text: match.fact.answer,
       links: uniqueLinks(match.fact.links ?? []),
       confidence: 'fact',
+      followUps: match.fact.followUps ?? DEFAULT_FOLLOW_UPS,
     };
   }
 
