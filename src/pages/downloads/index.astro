@@ -319,9 +319,6 @@ const kinds = ['installer', 'archive', 'document', 'source', 'media'] as const;
     font-size: 1rem;
   }
   .dl-select--search input { min-width: 12rem; }
-  @media (pointer: coarse) {
-    .dl-chip { min-height: 2.75rem; }
-  }
   .dl-legend {
     margin-top: 1rem;
     border: 1px solid var(--color-line-soft);
@@ -426,6 +423,16 @@ const kinds = ['installer', 'archive', 'document', 'source', 'media'] as const;
     margin-top: auto;
   }
   .dl-card[hidden] { display: none; }
+
+  @media (pointer: coarse) {
+    .dl-chip,
+    .dl-reset,
+    .dl-legend > summary,
+    .dl-select select,
+    .dl-select input {
+      min-height: 2.75rem;
+    }
+  }
 </style>
 
   <script>

@@ -47,10 +47,11 @@ const indexUrl = `${import.meta.env.BASE_URL}search-index.json`;
           <input
             type="search"
             data-search-input
-            placeholder="Try “retention”, “ticket”, “analytics”…"
+            placeholder="Search the site…"
             aria-label="Search the site"
             autocomplete="off"
-            autofocus
+            enterkeyhint="search"
+            spellcheck="false"
           />
         </label>
         <span class="read-time" data-search-status aria-live="polite">Type to search</span>
@@ -62,7 +63,7 @@ const indexUrl = `${import.meta.env.BASE_URL}search-index.json`;
       </div>
 
       <div class="search-filter-row">
-        <div class="chip-group search-types" data-search-types>
+        <div class="chip-group search-types" role="group" aria-label="Filter by type" data-search-types>
           <button type="button" class="chip" data-type="all" aria-pressed="true">
             Everything <span class="chip-count" data-type-count></span>
           </button>
@@ -498,7 +499,7 @@ const indexUrl = `${import.meta.env.BASE_URL}search-index.json`;
     }
 
     .search-suggestion {
-      min-height: 2.5rem;
+      min-height: 2.75rem;
       padding: 0.4rem 0.65rem;
       border: 1px solid var(--color-line);
       border-radius: 2px;

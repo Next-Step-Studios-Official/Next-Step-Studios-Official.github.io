@@ -14,6 +14,21 @@ export type ChangelogEntry = {
 export const CHANGELOG: ChangelogEntry[] = [
   {
     date: '2026-11-23',
+    version: '3.11',
+    title: 'The touch edition',
+    summary:
+      'The search page no longer opens a keyboard on arrival, its type filters are named as a group, and the remaining small controls get room for a thumb.',
+    changes: [
+      'Search no longer autofocuses its field on load, so a phone does not open the keyboard and cover the page before the visitor chooses to search.',
+      'The Search type chips are announced as a “Filter by type” group, like the filters on the other pages.',
+      'Downloads reset, platform/file-type fields and legend summary now meet the 44px touch target, as do devlog tag links.',
+      'Search typo suggestions now meet the same touch target, and the theme toggle has a matching tooltip alongside its screen-reader label.',
+      'The search placeholder is shorter, so it is not clipped on a phone.',
+      'EDITING.md lists the header and shared touch-target styles.',
+    ],
+  },
+  {
+    date: '2026-11-23',
     version: '3.10',
     title: 'The next-step edition',
     summary:

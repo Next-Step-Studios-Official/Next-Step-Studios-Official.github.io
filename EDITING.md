@@ -27,6 +27,8 @@ Every path below is relative to that folder unless it starts with `D:\`.
 | Official links page | `D:\NextStepStudios\next-step-studios-website\src\pages\links.astro` |
 | Team page | `D:\NextStepStudios\next-step-studios-website\src\pages\team.astro` |
 | Shared filter note style | `D:\NextStepStudios\next-step-studios-website\src\styles\global.css` |
+| Shared touch-target styles | `D:\NextStepStudios\next-step-studios-website\src\styles\pages.css` |
+| Header and theme toggle | `D:\NextStepStudios\next-step-studios-website\src\components\Header.astro` |
 | Breadcrumb navigation used by detail pages | `D:\NextStepStudios\next-step-studios-website\src\components\Breadcrumbs.astro` |
 | A policy document page | `D:\NextStepStudios\next-step-studios-website\src\pages\policies\[scope]\[slug].astro` |
 | Policy version history | `D:\NextStepStudios\next-step-studios-website\src\pages\policies\versions\[slug].astro` |
@@ -438,6 +440,14 @@ also want the route gone.
 The footer has `studioLinks`, `referenceLinks` and `policyLinks`. Add or remove entries
 the same way. The footer is not generated from the header, so a page can appear in one
 and not the other; keep them intentional.
+
+### Theme toggle
+
+The sun/moon button sits in the header and is defined in `src/components/Header.astro`.
+It carries both a screen-reader label and a hover tooltip; the small script updates both
+when the theme changes. Keep the wording in step if you rename it.
+
+**Full path:** `D:\NextStepStudios\next-step-studios-website\src\components\Header.astro`
 
 ### Breadcrumbs on detail pages
 
@@ -1823,6 +1833,7 @@ full paths for the policy filter and breadcrumb files are at the top of this gui
 | `src/pages/downloads/index.astro` | Download catalogue, category chips and platform/type/search filters |
 | `src/pages/projects/index.astro` | Project list, search, status/category filters and sort |
 | `src/styles/global.css` | Base styles, including the shared filter note |
+| `src/styles/pages.css` | Page-specific layout and shared touch-target rules |
 | `src/components/Footer.astro` | Footer navigation and contact |
 | `src/components/Assistant.astro` | Floating Step launcher, chat panel and local loader |
 | `src/lib/assistant.ts` | Step's local question matcher, topics and page starters |

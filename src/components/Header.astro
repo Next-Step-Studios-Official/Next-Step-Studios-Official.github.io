@@ -117,6 +117,7 @@ const isGroupActive = (group: NavGroup) => group.links.some((link) => isActive(l
         data-theme-toggle
         aria-pressed="false"
         aria-label="Switch to light theme"
+        title="Switch to light theme"
       >
         <svg class="theme-icon theme-icon--sun" viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <circle cx="12" cy="12" r="4.1" stroke="currentColor" stroke-width="1.6" />
@@ -380,6 +381,10 @@ const isGroupActive = (group: NavGroup) => group.links.some((link) => isActive(l
     themeToggle?.setAttribute('aria-pressed', String(theme === 'light'));
     themeToggle?.setAttribute(
       'aria-label',
+      theme === 'light' ? 'Switch to dark theme' : 'Switch to light theme',
+    );
+    themeToggle?.setAttribute(
+      'title',
       theme === 'light' ? 'Switch to dark theme' : 'Switch to light theme',
     );
     themeColor?.setAttribute('content', theme === 'light' ? '#f6f7fa' : '#07080b');
