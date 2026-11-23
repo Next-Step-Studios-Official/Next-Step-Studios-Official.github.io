@@ -39,13 +39,14 @@ export const GET: APIRoute = async ({ site }) => {
     .join('\n');
 
   const body = `<?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0">
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Next Step Studios — Policies</title>
     <link>${base}/policies</link>
     <description>Changes to the public policy documents for the Next Step Studios Discord bot and website.</description>
     <language>en-GB</language>
     <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
+    <atom:link href="${base}/policies/rss.xml" rel="self" type="application/rss+xml" />
 ${items}
   </channel>
 </rss>

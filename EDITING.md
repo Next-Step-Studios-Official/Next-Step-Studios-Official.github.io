@@ -1190,6 +1190,8 @@ Each item looks like:
   The downloads page filters by these and explains each in its legend.
 - `platforms` must use `windows`, `linux`, `macos`, `android` or `any`.
 - `kinds` must use `installer`, `archive`, `document`, `source` or `media`.
+- The downloads filters are held in the address (`category`, `platform`, `kind`, `q`)
+  and restored on load. The Reset filters button clears them.
 - `size` is display text, not calculated; check it is accurate.
 
 This file is only for hand-written entries such as the complete policy ZIP, the brand

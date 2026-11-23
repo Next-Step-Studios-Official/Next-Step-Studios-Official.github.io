@@ -2,7 +2,7 @@
 import Base from '../layouts/Base.astro';
 import { COMMANDS } from '../lib/commands';
 import { FAQ } from '../lib/faq';
-import { getDocuments } from '../lib/documents';
+import { getDocuments, isDraftDocument } from '../lib/documents';
 import {
   STATUS_FALLBACK_URL,
   STATUS_FEED_URL,
@@ -13,6 +13,8 @@ import {
 } from '../lib/status';
 
 const documents = await getDocuments();
+const draftDocuments = documents.filter((document) => isDraftDocument(document.docStatus)).length;
+const currentDocuments = documents.length - draftDocuments;
 const buildDate = new Intl.DateTimeFormat('en-GB', {
   day: 'numeric',
   month: 'long',
@@ -35,9 +37,9 @@ const rows = [
   },
   {
     name: 'Policy documents',
-    state: 'draft',
-    detail: `${documents.length} documents published at version 0.2.0. Complete, downloadable, not legally reviewed.`,
-    meta: 'Draft',
+    state: 'mixed',
+    detail: `${documents.length} documents in two sets: ${currentDocuments} current, ${draftDocuments} draft. Complete and downloadable, not legally reviewed.`,
+    meta: 'Draft & current',
   },
   {
     name: 'Discord bot',
@@ -69,6 +71,7 @@ const rows = [
 const stateLabel: Record<string, string> = {
   live: 'Operational',
   draft: 'Draft',
+  mixed: 'Draft & current',
   dev: 'In development',
   none: 'Not present',
 };
@@ -76,6 +79,7 @@ const stateLabel: Record<string, string> = {
 const stateClass: Record<string, string> = {
   live: 'status status--testing',
   draft: 'status status--draft',
+  mixed: 'status status--draft',
   dev: 'status status--dev',
   none: 'status status--planned',
 };

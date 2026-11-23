@@ -52,7 +52,7 @@ export const FAQ: FaqEntry[] = [
   {
     question: 'Why are the policies still drafts?',
     answer:
-      'Because they have not been through a legal review, and calling them final would claim something that is not true. They are versioned 0.2.0, published in full, downloadable, and mirrored to GitHub so every change is visible.',
+      'Because most of them have not been through a legal review, and calling them final would claim something that is not true. The website privacy notice and security overview describe the published site and are marked current; the rest are drafts at their own versions. Every document is published in full and downloadable, and the bot set is mirrored to GitHub so every change is visible.',
     link: { href: '/policies', label: 'All documents' },
   },
   {

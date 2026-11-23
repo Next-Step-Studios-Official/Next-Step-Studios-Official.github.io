@@ -53,6 +53,8 @@ const indexUrl = `${import.meta.env.BASE_URL}search-index.json`;
         <button type="button" class="chip" data-type="Policy" aria-pressed="false">Policies</button>
         <button type="button" class="chip" data-type="Command" aria-pressed="false">Commands</button>
         <button type="button" class="chip" data-type="Module" aria-pressed="false">Modules</button>
+        <button type="button" class="chip" data-type="Project" aria-pressed="false">Projects</button>
+        <button type="button" class="chip" data-type="Roadmap" aria-pressed="false">Roadmap</button>
         <button type="button" class="chip" data-type="Devlog" aria-pressed="false">Devlog</button>
         <button type="button" class="chip" data-type="FAQ" aria-pressed="false">FAQ</button>
         <button type="button" class="chip" data-type="Glossary" aria-pressed="false">Glossary</button>
@@ -73,7 +75,8 @@ const indexUrl = `${import.meta.env.BASE_URL}search-index.json`;
       <p class="search-note">
         Use <kbd>↑</kbd> and <kbd>↓</kbd> to move through results and <kbd>Enter</kbd> to open
         one. The index includes full policy text and is generated at build time. It is loaded
-        once, on your first keystroke, and then held in memory for this page only.
+        once, on your first keystroke, and then held in memory for this page only. The query
+        and type filter stay in the address, so a search can be linked.
       </p>
     </div>
   </section>
@@ -95,7 +98,9 @@ const indexUrl = `${import.meta.env.BASE_URL}search-index.json`;
 
       let entries: Entry[] | null = null;
       let loading = false;
-      let activeType = 'all';
+      const validType = (value: string | null) =>
+        value && typeChips.some((chip) => chip.dataset.type === value) ? value : 'all';
+      let activeType = validType(new URLSearchParams(window.location.search).get('type'));
       let lastQuery = '';
       let vocabulary: string[] = [];
 
@@ -287,6 +292,8 @@ const indexUrl = `${import.meta.env.BASE_URL}search-index.json`;
         const url = new URL(window.location.href);
         if (query.trim().length >= 2) url.searchParams.set('q', query);
         else url.searchParams.delete('q');
+        if (activeType === 'all') url.searchParams.delete('type');
+        else url.searchParams.set('type', activeType);
         window.history.replaceState({}, '', url);
       };
 
@@ -350,7 +357,12 @@ const indexUrl = `${import.meta.env.BASE_URL}search-index.json`;
           activeType = chip.dataset.type ?? 'all';
           typeChips.forEach((other) => other.setAttribute('aria-pressed', String(other === chip)));
           run(input?.value ?? '');
+          syncUrl(input?.value ?? '');
         });
+      });
+
+      typeChips.forEach((chip) => {
+        chip.setAttribute('aria-pressed', String(chip.dataset.type === activeType));
       });
 
       const initial = new URLSearchParams(window.location.search).get('q') ?? '';

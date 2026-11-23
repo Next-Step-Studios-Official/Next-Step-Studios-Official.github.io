@@ -14,6 +14,22 @@ export type ChangelogEntry = {
 export const CHANGELOG: ChangelogEntry[] = [
   {
     date: '2026-11-23',
+    version: '3.6',
+    title: 'The two-set catch-up',
+    summary:
+      'The site’s own copy catches up with the split policy collection, downloads and search gain filters that survive a reload, and the home page stops describing the documents as bot-only.',
+    changes: [
+      'The home page now describes the bot and website policy sets together, and the paragraph under “Where to find the official documents” no longer says the documents cover the bot only.',
+      'The status table lists the real document mix — nine drafts and two current documents — instead of reporting every document at one bot version.',
+      'The FAQ explains that the website privacy notice and security overview are current, while the rest of the collection is still draft.',
+      'Downloads keeps the category, platform, file type and search in the address, with a reset control, so a filtered list can be linked or reloaded.',
+      'Search keeps its type filter in the address and gains Projects and Roadmap filters, so a typed search can be shared as one link.',
+      'The search index now includes the sitemap page, which was the only public page missing from it.',
+      'A new devlog entry records the policy split and the corrections that followed it.',
+    ],
+  },
+  {
+    date: '2026-11-23',
     version: '3.5',
     title: 'The two-set edition',
     summary:

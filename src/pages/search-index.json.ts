@@ -66,6 +66,7 @@ const PAGES: IndexEntry[] = [
   { type: 'Page', title: 'Trust centre', url: '/trust', text: 'Policies, security, retention, data requests, status and how to verify the claims.' },
   { type: 'Page', title: 'Now', url: '/now', text: 'A dated snapshot of what Next Step Studios is working on now: the Discord bot, the public documents, this website, and what has deliberately not started.' },
   { type: 'Page', title: 'Glossary', url: '/glossary', text: 'Plain-language definitions of ticket, escalation, retention, transcript, infraction and more.' },
+  { type: 'Page', title: 'Sitemap', url: '/sitemap', text: 'Every page on the site in one list, including projects, policy documents, bot modules, devlog entries and the machine-readable exports.' },
 ];
 
 export const GET: APIRoute = async () => {

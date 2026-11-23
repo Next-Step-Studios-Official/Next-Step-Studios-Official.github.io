@@ -39,6 +39,7 @@ ${post.data.tags.map((tag) => `      <category>${escapeXml(tag)}</category>`).jo
     <link>${new URL('/devlog', base).toString()}</link>
     <description>Notes from the work at ${escapeXml(SITE.name)}.</description>
     <language>en-gb</language>
+    <lastBuildDate>${(posts[0]?.data.date ?? new Date()).toUTCString()}</lastBuildDate>
     <atom:link href="${new URL('/rss.xml', base).toString()}" rel="self" type="application/rss+xml" />
 ${items}
   </channel>

@@ -117,6 +117,10 @@ const kinds = ['installer', 'archive', 'document', 'source', 'media'] as const;
         </div>
       </div>
 
+      <p class="dl-note dl-url-note">
+        The filters are kept in the address, so a filtered list can be linked or reloaded.
+      </p>
+
       <details class="dl-legend">
         <summary>
           <span class="label">What each category means</span>
@@ -132,7 +136,10 @@ const kinds = ['installer', 'archive', 'document', 'source', 'media'] as const;
         </div>
       </details>
 
-      <p class="dl-status" data-dl-status aria-live="polite">{catalogue.length} items shown</p>
+      <div class="dl-state">
+        <p class="dl-status" data-dl-status aria-live="polite">{catalogue.length} items shown</p>
+        <button type="button" class="dl-reset" data-dl-reset hidden>Reset filters</button>
+      </div>
 
       <div class="dl-grid" data-dl-grid>
         {
@@ -331,14 +338,38 @@ const kinds = ['installer', 'archive', 'document', 'source', 'media'] as const;
     padding: 0 1rem 1rem;
   }
   .dl-legend-grid p { margin: 0; }
-  .dl-status {
+  .dl-state {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem 1rem;
     margin: 1rem 0;
+  }
+  .dl-status {
+    margin: 0;
     color: var(--color-muted);
     font-family: var(--font-mono);
     font-size: 0.6875rem;
     letter-spacing: 0.08em;
     text-transform: uppercase;
   }
+  .dl-reset {
+    min-height: 2.3rem;
+    padding: 0.35rem 0.75rem;
+    border: 1px solid var(--color-line);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--color-ink-dim);
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+  .dl-reset:hover { color: var(--color-ink); border-color: var(--color-accent); }
+  .dl-reset[hidden] { display: none; }
+  .dl-url-note { margin: 0.65rem 0 0; }
   .dl-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
@@ -389,77 +420,168 @@ const kinds = ['installer', 'archive', 'document', 'source', 'media'] as const;
   .dl-card[hidden] { display: none; }
 </style>
 
-<script>
-  const filters = document.querySelector<HTMLElement>('[data-dl-filters]');
-  const grid = document.querySelector<HTMLElement>('[data-dl-grid]');
-  const empty = document.querySelector<HTMLElement>('[data-dl-empty]');
-  const status = document.querySelector<HTMLElement>('[data-dl-status]');
+  <script>
+    const filters = document.querySelector<HTMLElement>('[data-dl-filters]');
+    const grid = document.querySelector<HTMLElement>('[data-dl-grid]');
+    const empty = document.querySelector<HTMLElement>('[data-dl-empty]');
+    const status = document.querySelector<HTMLElement>('[data-dl-status]');
+    const reset = document.querySelector<HTMLButtonElement>('[data-dl-reset]');
 
-  if (filters && grid) {
-    const cards = Array.from(grid.querySelectorAll<HTMLElement>('[data-dl-item]'));
-    const chips = Array.from(filters.querySelectorAll<HTMLButtonElement>('[data-dl-cat]'));
-    const platform = filters.querySelector<HTMLSelectElement>('[data-dl-platform]');
-    const kind = filters.querySelector<HTMLSelectElement>('[data-dl-kind]');
-    const search = filters.querySelector<HTMLInputElement>('[data-dl-search]');
-    const emptyDefault = empty?.textContent?.trim() ?? '';
+    if (filters && grid) {
+      const cards = Array.from(grid.querySelectorAll<HTMLElement>('[data-dl-item]'));
+      const chips = Array.from(filters.querySelectorAll<HTMLButtonElement>('[data-dl-cat]'));
+      const platform = filters.querySelector<HTMLSelectElement>('[data-dl-platform]');
+      const kind = filters.querySelector<HTMLSelectElement>('[data-dl-kind]');
+      const search = filters.querySelector<HTMLInputElement>('[data-dl-search]');
+      const emptyDefault = empty?.textContent?.trim() ?? '';
 
-    let category = 'all';
+      const categoryIds = new Set(chips.map((chip) => chip.dataset.dlCat ?? 'all'));
+      const platformIds = new Set(Array.from(platform?.options ?? []).map((option) => option.value));
+      const kindIds = new Set(Array.from(kind?.options ?? []).map((option) => option.value));
 
-    const apply = () => {
-      const query = (search?.value ?? '').trim().toLowerCase();
-      let shown = 0;
-      let categoryTotal = 0;
+      let category = 'all';
 
-      cards.forEach((card) => {
-        if (category === 'all' || card.dataset.category === category) categoryTotal += 1;
-        const matchesCategory = category === 'all' || card.dataset.category === category;
-        const matchesPlatform =
-          !platform?.value ||
-          platform.value === 'all' ||
-          (card.dataset.platforms ?? '').split(' ').includes(platform.value);
-        const matchesKind =
-          !kind?.value ||
-          kind.value === 'all' ||
-          (card.dataset.kinds ?? '').split(' ').includes(kind.value);
-        const matchesQuery = !query || (card.dataset.search ?? '').includes(query);
-        const visible = matchesCategory && matchesPlatform && matchesKind && matchesQuery;
-        card.hidden = !visible;
-        if (visible) shown += 1;
+      const readUrl = () => {
+        const params = new URLSearchParams(window.location.search);
+        const requestedCategory = params.get('category');
+        const requestedPlatform = params.get('platform');
+        const requestedKind = params.get('kind');
+
+        category =
+          requestedCategory && categoryIds.has(requestedCategory) ? requestedCategory : 'all';
+        if (platform) {
+          platform.value =
+            requestedPlatform && platformIds.has(requestedPlatform) ? requestedPlatform : 'all';
+        }
+        if (kind) {
+          kind.value = requestedKind && kindIds.has(requestedKind) ? requestedKind : 'all';
+        }
+        if (search) search.value = params.get('q') ?? '';
+
+        chips.forEach((chip) => {
+          const active = chip.dataset.dlCat === category;
+          chip.classList.toggle('is-active', active);
+          chip.setAttribute('aria-pressed', String(active));
+        });
+      };
+
+      const syncUrl = () => {
+        const url = new URL(window.location.href);
+
+        if (category === 'all') url.searchParams.delete('category');
+        else url.searchParams.set('category', category);
+
+        const selectedPlatform = platform?.value ?? 'all';
+        if (selectedPlatform === 'all') url.searchParams.delete('platform');
+        else url.searchParams.set('platform', selectedPlatform);
+
+        const selectedKind = kind?.value ?? 'all';
+        if (selectedKind === 'all') url.searchParams.delete('kind');
+        else url.searchParams.set('kind', selectedKind);
+
+        const query = (search?.value ?? '').trim();
+        if (query) url.searchParams.set('q', query);
+        else url.searchParams.delete('q');
+
+        window.history.replaceState({}, '', url);
+      };
+
+      const apply = () => {
+        const query = (search?.value ?? '').trim().toLowerCase();
+        let shown = 0;
+        let categoryTotal = 0;
+
+        cards.forEach((card) => {
+          if (category === 'all' || card.dataset.category === category) categoryTotal += 1;
+          const matchesCategory = category === 'all' || card.dataset.category === category;
+          const matchesPlatform =
+            !platform?.value ||
+            platform.value === 'all' ||
+            (card.dataset.platforms ?? '').split(' ').includes(platform.value);
+          const matchesKind =
+            !kind?.value ||
+            kind.value === 'all' ||
+            (card.dataset.kinds ?? '').split(' ').includes(kind.value);
+          const matchesQuery = !query || (card.dataset.search ?? '').includes(query);
+          const visible = matchesCategory && matchesPlatform && matchesKind && matchesQuery;
+          card.hidden = !visible;
+          if (visible) shown += 1;
+        });
+
+        if (status) {
+          status.textContent = `${shown} of ${cards.length} items shown`;
+        }
+        if (empty) {
+          empty.classList.toggle('is-visible', shown === 0);
+          if (shown === 0) {
+            const chip = chips.find((item) => item.dataset.dlCat === category);
+            const label =
+              chip?.dataset.label ??
+              chip?.textContent?.replace(/\s*\d+\s*$/, '').trim() ??
+              'this category';
+            empty.textContent =
+              category !== 'all' && categoryTotal === 0
+                ? `No downloads in ${label} yet. Nothing is hidden — there is simply no file to download.`
+                : emptyDefault;
+          }
+        }
+
+        const filtered =
+          category !== 'all' ||
+          (platform?.value ?? 'all') !== 'all' ||
+          (kind?.value ?? 'all') !== 'all' ||
+          Boolean(query);
+
+        if (reset) reset.hidden = !filtered;
+      };
+
+      chips.forEach((chip) => {
+        chip.addEventListener('click', () => {
+          category = chip.dataset.dlCat ?? 'all';
+          chips.forEach((other) => {
+            const active = other === chip;
+            other.classList.toggle('is-active', active);
+            other.setAttribute('aria-pressed', String(active));
+          });
+          apply();
+          syncUrl();
+        });
       });
 
-      if (status) {
-        status.textContent = `${shown} of ${cards.length} items shown`;
-      }
-      if (empty) {
-        empty.classList.toggle('is-visible', shown === 0);
-        if (shown === 0) {
-          const chip = chips.find((item) => item.dataset.dlCat === category);
-          const label =
-            chip?.dataset.label ??
-            chip?.textContent?.replace(/\s*\d+\s*$/, '').trim() ??
-            'this category';
-          empty.textContent =
-            category !== 'all' && categoryTotal === 0
-              ? `No downloads in ${label} yet. Nothing is hidden — there is simply no file to download.`
-              : emptyDefault;
-        }
-      }
-    };
+      platform?.addEventListener('change', () => {
+        apply();
+        syncUrl();
+      });
+      kind?.addEventListener('change', () => {
+        apply();
+        syncUrl();
+      });
+      search?.addEventListener('input', () => {
+        apply();
+        syncUrl();
+      });
 
-    chips.forEach((chip) => {
-      chip.addEventListener('click', () => {
-        category = chip.dataset.dlCat ?? 'all';
-        chips.forEach((other) => {
-          const active = other === chip;
-          other.classList.toggle('is-active', active);
-          other.setAttribute('aria-pressed', String(active));
+      reset?.addEventListener('click', () => {
+        category = 'all';
+        chips.forEach((chip) => {
+          const active = chip.dataset.dlCat === 'all';
+          chip.classList.toggle('is-active', active);
+          chip.setAttribute('aria-pressed', String(active));
         });
+        if (platform) platform.value = 'all';
+        if (kind) kind.value = 'all';
+        if (search) search.value = '';
+        apply();
+        syncUrl();
+      });
+
+      window.addEventListener('popstate', () => {
+        readUrl();
         apply();
       });
-    });
 
-    platform?.addEventListener('change', apply);
-    kind?.addEventListener('change', apply);
-    search?.addEventListener('input', apply);
-  }
-</script>
+      readUrl();
+      apply();
+      syncUrl();
+    }
+  </script>
