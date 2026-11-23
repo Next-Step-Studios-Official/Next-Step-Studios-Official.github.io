@@ -14,7 +14,7 @@ D:\NextStepStudios\next-step-studios-website
 
 Every path below is relative to that folder unless it starts with `D:\`.
 
-**Full paths for the filter pages, breadcrumbs and this guide:**
+**Full paths for the pages changed in these passes and this guide:**
 
 | What you are editing | Full path on this computer |
 | --- | --- |
@@ -23,6 +23,9 @@ Every path below is relative to that folder unless it starts with `D:\`.
 | Downloads catalogue and its filters | `D:\NextStepStudios\next-step-studios-website\src\pages\downloads\index.astro` |
 | Projects list, filters and sort | `D:\NextStepStudios\next-step-studios-website\src\pages\projects\index.astro` |
 | Search page, result list and type filters | `D:\NextStepStudios\next-step-studios-website\src\pages\search.astro` |
+| Changelog page | `D:\NextStepStudios\next-step-studios-website\src\pages\changelog.astro` |
+| Official links page | `D:\NextStepStudios\next-step-studios-website\src\pages\links.astro` |
+| Team page | `D:\NextStepStudios\next-step-studios-website\src\pages\team.astro` |
 | Shared filter note style | `D:\NextStepStudios\next-step-studios-website\src\styles\global.css` |
 | Breadcrumb navigation used by detail pages | `D:\NextStepStudios\next-step-studios-website\src\components\Breadcrumbs.astro` |
 | A policy document page | `D:\NextStepStudios\next-step-studios-website\src\pages\policies\[scope]\[slug].astro` |
@@ -1051,6 +1054,11 @@ than a new one.
 Only one project should have `featured: true`; the home page uses it. The project index
 sorts by `order` (lower first). If you add a cover, see section 7 for the dimensions.
 
+Every project detail page ends with a **Where this goes** panel linking the roadmap,
+devlog and contact page. The wording is shared by every project, so edit it once in:
+
+**Full path:** `D:\NextStepStudios\next-step-studios-website\src\pages\projects\[slug].astro`
+
 ### Modules
 
 **File:** `src/lib/modules.ts`
@@ -1195,6 +1203,11 @@ do not describe planned work as shipped. The page is a reading of the list.
 Entries are historical. Add a new entry at the top for a new change; do not rewrite old
 entries to match the current site. The current entry format is a date, a title and a list
 of changes.
+
+The changelog page ends with links to the devlog, Now page and status page. Change that
+panel in:
+
+**Full path:** `D:\NextStepStudios\next-step-studios-website\src\pages\changelog.astro`
 
 ### FAQ
 
@@ -1815,6 +1828,9 @@ full paths for the policy filter and breadcrumb files are at the top of this gui
 | `src/lib/assistant.ts` | Step's local question matcher, topics and page starters |
 | `src/pages/step.astro` | Public guide to what Step can and cannot answer |
 | `src/pages/search.astro` | Full-text search, filters and typo suggestions |
+| `src/pages/changelog.astro` | Changelog page and its onward links |
+| `src/pages/links.astro` | Official links directory and its site links |
+| `src/pages/team.astro` | Team list and contact links |
 | `src/pages/assistant-facts.json.ts` | Curated public facts used by Step |
 | `src/pages/search-index.json.ts` | Full-text index used by Search and Step |
 | `src/lib/site.ts` | Studio name, operator, email, canonical URL |

@@ -14,6 +14,21 @@ export type ChangelogEntry = {
 export const CHANGELOG: ChangelogEntry[] = [
   {
     date: '2026-11-23',
+    version: '3.10',
+    title: 'The next-step edition',
+    summary:
+      'Project pages and the changelog stop being dead ends, the links page points back to the site, and Downloads explains why its Documents count is larger than the policy set.',
+    changes: [
+      'Every project page ends with a “Where this goes” panel linking the roadmap, devlog and contact page.',
+      'The changelog ends with links to the devlog, Now page and status page.',
+      'The official links page now points to the press & brand page, downloads and contact page as well as the policy index.',
+      'The team page points to the contact page beside the direct email address.',
+      'Downloads explains that its Documents category includes the individual policies, the complete-set ZIP and the command cheatsheet.',
+      'EDITING.md lists the full path for the project detail page, changelog and links page.',
+    ],
+  },
+  {
+    date: '2026-11-23',
     version: '3.9',
     title: 'The count edition',
     summary:
