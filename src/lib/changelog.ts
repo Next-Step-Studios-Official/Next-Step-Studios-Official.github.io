@@ -24,7 +24,7 @@ export const CHANGELOG: ChangelogEntry[] = [
       'The FAQ explains that the website privacy notice and security overview are current, while the rest of the collection is still draft.',
       'Downloads keeps the category, platform, file type and search in the address, with a reset control, so a filtered list can be linked or reloaded.',
       'Search keeps its type filter in the address and gains Projects and Roadmap filters, so a typed search can be shared as one link.',
-      'The search index now includes the sitemap page, which was the only public page missing from it.',
+      'The search index now includes the sitemap page. Tag, policy-version and print pages remain out of the index: they are alternate routes to current documents and entries, not separate topics.',
       'A new devlog entry records the policy split and the corrections that followed it.',
     ],
   },
