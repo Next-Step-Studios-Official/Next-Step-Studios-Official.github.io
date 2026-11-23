@@ -14,6 +14,21 @@ export type ChangelogEntry = {
 export const CHANGELOG: ChangelogEntry[] = [
   {
     date: '2026-11-23',
+    version: '3.9',
+    title: 'The count edition',
+    summary:
+      'Filter counts now describe what each click will show, Projects keeps its view in the address, and Search reports per-type matches instead of a misleading entry total.',
+    changes: [
+      'Policy scope and status counts are faceted: each group respects the search and the other active group, but not its own selection. With Draft selected, All scopes reports the nine drafts rather than all eleven documents.',
+      'Downloads category counts now respect the platform, file type and search filters, including the All chip.',
+      'Projects status and category counts respect the search and the other group; the search, both filters and the sort order are kept in the address, with a Clear filters control.',
+      'Search type chips show how many results the current query has in each type. The result line now reports actual matches, including “40 of N matches” when the list is truncated, instead of counting the type’s whole index.',
+      'Search gains a Clear search control that resets the query and type together.',
+      'EDITING.md lists the full path for each filter page and the shared filter note style.',
+    ],
+  },
+  {
+    date: '2026-11-23',
     version: '3.8',
     title: 'The breadcrumb edition',
     summary:

@@ -14,12 +14,16 @@ D:\NextStepStudios\next-step-studios-website
 
 Every path below is relative to that folder unless it starts with `D:\`.
 
-**Full paths for the files behind the policy filter and breadcrumbs:**
+**Full paths for the filter pages, breadcrumbs and this guide:**
 
 | What you are editing | Full path on this computer |
 | --- | --- |
 | This guide | `D:\NextStepStudios\next-step-studios-website\EDITING.md` |
 | Policy hub, including search, scope and status filters | `D:\NextStepStudios\next-step-studios-website\src\pages\policies\index.astro` |
+| Downloads catalogue and its filters | `D:\NextStepStudios\next-step-studios-website\src\pages\downloads\index.astro` |
+| Projects list, filters and sort | `D:\NextStepStudios\next-step-studios-website\src\pages\projects\index.astro` |
+| Search page, result list and type filters | `D:\NextStepStudios\next-step-studios-website\src\pages\search.astro` |
+| Shared filter note style | `D:\NextStepStudios\next-step-studios-website\src\styles\global.css` |
 | Breadcrumb navigation used by detail pages | `D:\NextStepStudios\next-step-studios-website\src\components\Breadcrumbs.astro` |
 | A policy document page | `D:\NextStepStudios\next-step-studios-website\src\pages\policies\[scope]\[slug].astro` |
 | Policy version history | `D:\NextStepStudios\next-step-studios-website\src\pages\policies\versions\[slug].astro` |
@@ -892,6 +896,11 @@ status filter. The chosen values are kept in the address
 reloaded. The **Clear filters** button resets all three. The status filter is derived from
 each document's `docStatus` frontmatter: a value containing “draft” is a draft, and
 everything else is current.
+
+The chip counts are faceted: each group respects the search and the other active group,
+but not its own selection. With **Draft** selected, **All scopes** shows the nine drafts,
+not all eleven documents. The same rule is used on Downloads, Projects and Search. If you
+change the counting logic on one page, review the others.
 
 **Full path:** `D:\NextStepStudios\next-step-studios-website\src\pages\policies\index.astro`
 
@@ -1798,6 +1807,9 @@ full paths for the policy filter and breadcrumb files are at the top of this gui
 | `src/components/Header.astro` | Desktop and mobile navigation |
 | `src/components/Breadcrumbs.astro` | Breadcrumb path above policy, project, module and devlog detail pages |
 | `src/pages/policies/index.astro` | Policy hub, search and scope/status filters |
+| `src/pages/downloads/index.astro` | Download catalogue, category chips and platform/type/search filters |
+| `src/pages/projects/index.astro` | Project list, search, status/category filters and sort |
+| `src/styles/global.css` | Base styles, including the shared filter note |
 | `src/components/Footer.astro` | Footer navigation and contact |
 | `src/components/Assistant.astro` | Floating Step launcher, chat panel and local loader |
 | `src/lib/assistant.ts` | Step's local question matcher, topics and page starters |

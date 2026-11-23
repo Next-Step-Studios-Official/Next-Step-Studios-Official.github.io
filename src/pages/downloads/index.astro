@@ -118,7 +118,7 @@ const kinds = ['installer', 'archive', 'document', 'source', 'media'] as const;
         </div>
       </div>
 
-      <p class="dl-note dl-url-note">
+      <p class="filter-note">
         The filters are kept in the address, so a filtered list can be linked or reloaded.
       </p>
 
@@ -371,7 +371,6 @@ const kinds = ['installer', 'archive', 'document', 'source', 'media'] as const;
   }
   .dl-reset:hover { color: var(--color-ink); border-color: var(--color-accent); }
   .dl-reset[hidden] { display: none; }
-  .dl-url-note { margin: 0.65rem 0 0; }
   .dl-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
@@ -490,24 +489,39 @@ const kinds = ['installer', 'archive', 'document', 'source', 'media'] as const;
 
       const apply = () => {
         const query = (search?.value ?? '').trim().toLowerCase();
+        const matchesPlatform = (card: HTMLElement) =>
+          !platform?.value ||
+          platform.value === 'all' ||
+          (card.dataset.platforms ?? '').split(' ').includes(platform.value);
+        const matchesKind = (card: HTMLElement) =>
+          !kind?.value ||
+          kind.value === 'all' ||
+          (card.dataset.kinds ?? '').split(' ').includes(kind.value);
+        const matchesQuery = (card: HTMLElement) =>
+          !query || (card.dataset.search ?? '').includes(query);
+        const matchesBase = (card: HTMLElement) =>
+          matchesPlatform(card) && matchesKind(card) && matchesQuery(card);
+
         let shown = 0;
         let categoryTotal = 0;
 
         cards.forEach((card) => {
           if (category === 'all' || card.dataset.category === category) categoryTotal += 1;
           const matchesCategory = category === 'all' || card.dataset.category === category;
-          const matchesPlatform =
-            !platform?.value ||
-            platform.value === 'all' ||
-            (card.dataset.platforms ?? '').split(' ').includes(platform.value);
-          const matchesKind =
-            !kind?.value ||
-            kind.value === 'all' ||
-            (card.dataset.kinds ?? '').split(' ').includes(kind.value);
-          const matchesQuery = !query || (card.dataset.search ?? '').includes(query);
-          const visible = matchesCategory && matchesPlatform && matchesKind && matchesQuery;
+          const visible = matchesCategory && matchesBase(card);
           card.hidden = !visible;
           if (visible) shown += 1;
+        });
+
+        // A chip's count respects platform, file type and search, but not the
+        // category chip group itself. The All chip is the current base total.
+        chips.forEach((chip) => {
+          const value = chip.dataset.dlCat ?? 'all';
+          const count = cards.filter(
+            (card) => matchesBase(card) && (value === 'all' || card.dataset.category === value),
+          ).length;
+          const countEl = chip.querySelector<HTMLElement>('.dl-count');
+          if (countEl) countEl.textContent = String(count);
         });
 
         if (status) {

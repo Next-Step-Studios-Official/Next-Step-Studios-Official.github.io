@@ -86,7 +86,7 @@ const plural = (count: number) => (count === 1 ? 'project' : 'projects');
 
           <div class="chip-group" role="group" aria-label="Filter by category" data-category-chips>
             <button type="button" class="chip" aria-pressed="true" data-category="all">
-              All categories
+              All categories <span class="chip-count">{projects.length}</span>
             </button>
             {categories.map((category) => (
               <button type="button" class="chip" aria-pressed="false" data-category={category}>
@@ -103,6 +103,10 @@ const plural = (count: number) => (count === 1 ? 'project' : 'projects');
           <button type="button" class="toolbar-reset" data-project-reset hidden>Clear filters</button>
         </div>
       </div>
+
+      <p class="filter-note">
+        The search, filters and sort are kept in the address, so a view can be linked or reloaded.
+      </p>
 
       <div class="card-grid" data-project-grid>
         {projects.map((project) => (
@@ -158,9 +162,17 @@ const plural = (count: number) => (count === 1 ? 'project' : 'projects');
       const emptyEl = document.querySelector<HTMLElement>('[data-project-empty]');
 
       const statusRank = ['In development', 'Prototype', 'Testing', 'Planned', 'On hold'];
+      const sortValues = new Set(Array.from(sort?.options ?? []).map((option) => option.value));
 
       let status = 'all';
       let category = 'all';
+
+      const validStatus = (value: string | null) =>
+        value && statusChips.some((chip) => chip.dataset.status === value) ? value : 'all';
+      const validCategory = (value: string | null) =>
+        value && categoryChips.some((chip) => chip.dataset.category === value) ? value : 'all';
+      const validSort = (value: string | null) =>
+        value && sortValues.has(value) ? value : 'order';
 
       const setPressed = (chips: HTMLButtonElement[], value: string, key: string) => {
         chips.forEach((chip) => {
@@ -169,17 +181,81 @@ const plural = (count: number) => (count === 1 ? 'project' : 'projects');
         });
       };
 
+      const readUrl = () => {
+        const params = new URLSearchParams(window.location.search);
+        status = validStatus(params.get('status'));
+        category = validCategory(params.get('category'));
+        if (search) search.value = params.get('q') ?? '';
+        if (sort) sort.value = validSort(params.get('sort'));
+        setPressed(statusChips, status, 'status');
+        setPressed(categoryChips, category, 'category');
+      };
+
+      const syncUrl = () => {
+        const url = new URL(window.location.href);
+
+        if (status === 'all') url.searchParams.delete('status');
+        else url.searchParams.set('status', status);
+
+        if (category === 'all') url.searchParams.delete('category');
+        else url.searchParams.set('category', category);
+
+        const query = (search?.value ?? '').trim();
+        if (query) url.searchParams.set('q', query);
+        else url.searchParams.delete('q');
+
+        const mode = sort?.value ?? 'order';
+        if (mode === 'order') url.searchParams.delete('sort');
+        else url.searchParams.set('sort', mode);
+
+        window.history.replaceState({}, '', url);
+      };
+
       const apply = () => {
         const query = (search?.value ?? '').trim().toLowerCase();
+        const matchesQuery = (item: HTMLElement) =>
+          !query || (item.dataset.title ?? '').includes(query);
+        const matchesStatus = (item: HTMLElement) =>
+          status === 'all' || item.dataset.status === status;
+        const matchesCategory = (item: HTMLElement) =>
+          category === 'all' || item.dataset.category === category;
 
         let visible = 0;
         items.forEach((item) => {
-          const matchesQuery = !query || (item.dataset.title ?? '').includes(query);
-          const matchesStatus = status === 'all' || item.dataset.status === status;
-          const matchesCategory = category === 'all' || item.dataset.category === category;
-          const matches = matchesQuery && matchesStatus && matchesCategory;
+          const matches = matchesQuery(item) && matchesStatus(item) && matchesCategory(item);
           item.classList.toggle('is-hidden', !matches);
           if (matches) visible += 1;
+        });
+
+        // Each group's counts ignore its own selection but respect the search
+        // and the other group, so the numbers describe what a click will show.
+        const updateCount = (chip: HTMLButtonElement, count: number) => {
+          const el = chip.querySelector<HTMLElement>('.chip-count');
+          if (el) el.textContent = String(count);
+        };
+        statusChips.forEach((chip) => {
+          const value = chip.dataset.status ?? 'all';
+          updateCount(
+            chip,
+            items.filter(
+              (item) =>
+                matchesQuery(item) &&
+                matchesCategory(item) &&
+                (value === 'all' || item.dataset.status === value),
+            ).length,
+          );
+        });
+        categoryChips.forEach((chip) => {
+          const value = chip.dataset.category ?? 'all';
+          updateCount(
+            chip,
+            items.filter(
+              (item) =>
+                matchesQuery(item) &&
+                matchesStatus(item) &&
+                (value === 'all' || item.dataset.category === value),
+            ).length,
+          );
         });
 
         const mode = sort?.value ?? 'order';
@@ -204,14 +280,21 @@ const plural = (count: number) => (count === 1 ? 'project' : 'projects');
         if (resetBtn) resetBtn.hidden = !(query || status !== 'all' || category !== 'all' || mode !== 'order');
       };
 
-      search?.addEventListener('input', apply);
-      sort?.addEventListener('change', apply);
+      search?.addEventListener('input', () => {
+        apply();
+        syncUrl();
+      });
+      sort?.addEventListener('change', () => {
+        apply();
+        syncUrl();
+      });
 
       statusChips.forEach((chip) => {
         chip.addEventListener('click', () => {
           status = chip.dataset.status ?? 'all';
           setPressed(statusChips, status, 'status');
           apply();
+          syncUrl();
         });
       });
 
@@ -220,6 +303,7 @@ const plural = (count: number) => (count === 1 ? 'project' : 'projects');
           category = chip.dataset.category ?? 'all';
           setPressed(categoryChips, category, 'category');
           apply();
+          syncUrl();
         });
       });
 
@@ -231,9 +315,17 @@ const plural = (count: number) => (count === 1 ? 'project' : 'projects');
         setPressed(statusChips, status, 'status');
         setPressed(categoryChips, category, 'category');
         apply();
+        syncUrl();
       });
 
+      window.addEventListener('popstate', () => {
+        readUrl();
+        apply();
+      });
+
+      readUrl();
       apply();
+      syncUrl();
     }
   </script>
 </Base>

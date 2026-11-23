@@ -61,17 +61,40 @@ const indexUrl = `${import.meta.env.BASE_URL}search-index.json`;
         <div class="search-suggestion-list" data-search-suggestion-list></div>
       </div>
 
-      <div class="chip-group search-types" data-search-types>
-        <button type="button" class="chip" data-type="all" aria-pressed="true">Everything</button>
-        <button type="button" class="chip" data-type="Policy" aria-pressed="false">Policies</button>
-        <button type="button" class="chip" data-type="Command" aria-pressed="false">Commands</button>
-        <button type="button" class="chip" data-type="Module" aria-pressed="false">Modules</button>
-        <button type="button" class="chip" data-type="Project" aria-pressed="false">Projects</button>
-        <button type="button" class="chip" data-type="Roadmap" aria-pressed="false">Roadmap</button>
-        <button type="button" class="chip" data-type="Devlog" aria-pressed="false">Devlog</button>
-        <button type="button" class="chip" data-type="FAQ" aria-pressed="false">FAQ</button>
-        <button type="button" class="chip" data-type="Glossary" aria-pressed="false">Glossary</button>
-        <button type="button" class="chip" data-type="Page" aria-pressed="false">Pages</button>
+      <div class="search-filter-row">
+        <div class="chip-group search-types" data-search-types>
+          <button type="button" class="chip" data-type="all" aria-pressed="true">
+            Everything <span class="chip-count" data-type-count></span>
+          </button>
+          <button type="button" class="chip" data-type="Policy" aria-pressed="false">
+            Policies <span class="chip-count" data-type-count></span>
+          </button>
+          <button type="button" class="chip" data-type="Command" aria-pressed="false">
+            Commands <span class="chip-count" data-type-count></span>
+          </button>
+          <button type="button" class="chip" data-type="Module" aria-pressed="false">
+            Modules <span class="chip-count" data-type-count></span>
+          </button>
+          <button type="button" class="chip" data-type="Project" aria-pressed="false">
+            Projects <span class="chip-count" data-type-count></span>
+          </button>
+          <button type="button" class="chip" data-type="Roadmap" aria-pressed="false">
+            Roadmap <span class="chip-count" data-type-count></span>
+          </button>
+          <button type="button" class="chip" data-type="Devlog" aria-pressed="false">
+            Devlog <span class="chip-count" data-type-count></span>
+          </button>
+          <button type="button" class="chip" data-type="FAQ" aria-pressed="false">
+            FAQ <span class="chip-count" data-type-count></span>
+          </button>
+          <button type="button" class="chip" data-type="Glossary" aria-pressed="false">
+            Glossary <span class="chip-count" data-type-count></span>
+          </button>
+          <button type="button" class="chip" data-type="Page" aria-pressed="false">
+            Pages <span class="chip-count" data-type-count></span>
+          </button>
+        </div>
+        <button type="button" class="toolbar-reset" data-search-reset hidden>Clear search</button>
       </div>
 
       <ol class="search-results" data-search-results></ol>
@@ -105,6 +128,7 @@ const indexUrl = `${import.meta.env.BASE_URL}search-index.json`;
       const suggestionsEl = root.querySelector<HTMLElement>('[data-search-suggestions]');
       const suggestionList = root.querySelector<HTMLElement>('[data-search-suggestion-list]');
       const typeChips = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-search-types] .chip'));
+      const reset = root.querySelector<HTMLButtonElement>('[data-search-reset]');
       const indexUrl = root.dataset.indexUrl ?? '/search-index.json';
 
       type Entry = { type: string; title: string; url: string; section?: string; text: string };
@@ -171,6 +195,24 @@ const indexUrl = `${import.meta.env.BASE_URL}search-index.json`;
         return [...words].sort();
       };
 
+      // Counts describe the current query, not the type filter. Clicking a type
+      // should not change the other type counts, only the visible results.
+      const updateTypeCounts = (matching: Entry[]) => {
+        const counts = new Map<string, number>([['all', matching.length]]);
+        for (const entry of matching) {
+          counts.set(entry.type, (counts.get(entry.type) ?? 0) + 1);
+        }
+        typeChips.forEach((chip) => {
+          const value = chip.dataset.type ?? 'all';
+          const count = chip.querySelector<HTMLElement>('[data-type-count]');
+          if (count) count.textContent = String(counts.get(value) ?? 0);
+        });
+      };
+
+      const updateReset = () => {
+        if (reset) reset.hidden = !((input?.value ?? '').trim() || activeType !== 'all');
+      };
+
       const nearestWord = (term: string) => {
         const limit = term.length < 5 ? 1 : 2;
         let best = term;
@@ -229,12 +271,16 @@ const indexUrl = `${import.meta.env.BASE_URL}search-index.json`;
       const render = (query: string) => {
         if (!entries || !resultsEl) return;
         const terms = query.toLowerCase().split(/\s+/).filter(Boolean);
-        const alphaFiltered = activeType === 'all' ? entries : entries.filter((entry) => entry.type === activeType);
+        const matching = entries.filter((entry) => {
+          const haystack = `${entry.title} ${entry.section ?? ''} ${entry.text}`.toLowerCase();
+          return terms.every((term) => haystack.includes(term));
+        });
+        const matchingForType =
+          activeType === 'all' ? matching : matching.filter((entry) => entry.type === activeType);
 
-        const scored = alphaFiltered
+        const scored = matchingForType
           .map((entry) => {
             const haystack = `${entry.title} ${entry.section ?? ''} ${entry.text}`.toLowerCase();
-            if (!terms.every((term) => haystack.includes(term))) return null;
             let score = 0;
             for (const term of terms) {
               if (entry.title.toLowerCase().includes(term)) score += 12;
@@ -243,7 +289,6 @@ const indexUrl = `${import.meta.env.BASE_URL}search-index.json`;
             }
             return { entry, score };
           })
-          .filter((value): value is { entry: Entry; score: number } => value !== null)
           .sort((a, b) => b.score - a.score)
           .slice(0, 40);
 
@@ -261,13 +306,18 @@ const indexUrl = `${import.meta.env.BASE_URL}search-index.json`;
           )
           .join('');
 
+        const totalMatches = matchingForType.length;
         if (statusEl) {
           statusEl.textContent =
-            scored.length === 0
-              ? `0 of ${alphaFiltered.length} entries`
-              : `${scored.length}${scored.length === 40 ? '+' : ''} of ${alphaFiltered.length} entries`;
+            totalMatches === 0
+              ? '0 matches'
+              : totalMatches > 40
+                ? `40 of ${totalMatches} matches`
+                : `${totalMatches} ${totalMatches === 1 ? 'match' : 'matches'}`;
         }
 
+        updateTypeCounts(matching);
+        updateReset();
         emptyEl?.classList.toggle('is-visible', scored.length === 0);
         if (scored.length === 0) showSuggestions(query);
         else clearSuggestions();
@@ -280,6 +330,8 @@ const indexUrl = `${import.meta.env.BASE_URL}search-index.json`;
           if (statusEl) statusEl.textContent = 'Type to search';
           emptyEl?.classList.remove('is-visible');
           clearSuggestions();
+          if (entries) updateTypeCounts(entries);
+          updateReset();
           return;
         }
         render(query);
@@ -292,6 +344,7 @@ const indexUrl = `${import.meta.env.BASE_URL}search-index.json`;
           const response = await fetch(indexUrl);
           entries = (await response.json()) as Entry[];
           vocabulary = buildVocabulary(entries);
+          updateTypeCounts(entries);
           if (statusEl) statusEl.textContent = `${entries.length} entries indexed`;
           if (lastQuery) render(lastQuery);
         } catch {
@@ -378,12 +431,44 @@ const indexUrl = `${import.meta.env.BASE_URL}search-index.json`;
         chip.setAttribute('aria-pressed', String(chip.dataset.type === activeType));
       });
 
+      reset?.addEventListener('click', () => {
+        if (input) {
+          input.value = '';
+          input.focus();
+        }
+        activeType = 'all';
+        typeChips.forEach((chip) => {
+          chip.setAttribute('aria-pressed', String(chip.dataset.type === 'all'));
+        });
+        run('');
+        syncUrl('');
+        updateReset();
+      });
+
+      window.addEventListener('popstate', () => {
+        const params = new URLSearchParams(window.location.search);
+        activeType = validType(params.get('type'));
+        typeChips.forEach((chip) => {
+          chip.setAttribute('aria-pressed', String(chip.dataset.type === activeType));
+        });
+        const query = params.get('q') ?? '';
+        if (input) input.value = query;
+        updateReset();
+        if (query.trim().length >= 2) {
+          load();
+          run(query);
+        } else {
+          run('');
+        }
+      });
+
       const initial = new URLSearchParams(window.location.search).get('q') ?? '';
       if (input && initial) {
         input.value = initial;
         load();
         run(initial);
       }
+      updateReset();
     }
   </script>
 
@@ -426,5 +511,18 @@ const indexUrl = `${import.meta.env.BASE_URL}search-index.json`;
     .search-suggestion:hover {
       border-color: var(--color-accent);
     }
+
+    .search-filter-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem 1rem;
+      margin-top: 1rem;
+    }
+
+    .search-filter-row .search-types { margin-top: 0; }
+    .chip-count:empty { display: none; }
+    .toolbar-reset[hidden] { display: none; }
   </style>
 </Base>

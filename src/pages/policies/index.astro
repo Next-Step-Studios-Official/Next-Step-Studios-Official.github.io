@@ -151,7 +151,7 @@ const scopes = POLICY_SCOPES.map((scope) => {
           <button type="button" class="toolbar-reset" data-doc-reset hidden>Clear filters</button>
         </div>
 
-        <p class="doc-filter-note">
+        <p class="filter-note">
           The search, scope and status are kept in the address, so a filtered list can be
           linked or reloaded.
         </p>
@@ -242,11 +242,6 @@ const scopes = POLICY_SCOPES.map((scope) => {
   </section>
 
   <style>
-    .doc-filter-note {
-      margin: 0.75rem 0 0;
-      color: var(--color-muted);
-      font-size: 0.8125rem;
-    }
     .toolbar-reset[hidden] { display: none; }
   </style>
 
@@ -306,15 +301,47 @@ const scopes = POLICY_SCOPES.map((scope) => {
 
       const apply = () => {
         const query = (search?.value ?? '').trim().toLowerCase();
-        let visible = 0;
+        const matchesQuery = (card: HTMLElement) =>
+          !query || (card.dataset.search ?? '').includes(query);
+        const matchesScope = (card: HTMLElement) =>
+          scope === 'all' || card.dataset.scope === scope;
+        const matchesStatus = (card: HTMLElement) =>
+          status === 'all' || card.dataset.status === status;
+        const matchesFor = (card: HTMLElement, ignore?: 'scope' | 'status') =>
+          matchesQuery(card) &&
+          (ignore === 'scope' || matchesScope(card)) &&
+          (ignore === 'status' || matchesStatus(card));
 
+        let visible = 0;
         cards.forEach((card) => {
-          const matchesQuery = !query || (card.dataset.search ?? '').includes(query);
-          const matchesScope = scope === 'all' || card.dataset.scope === scope;
-          const matchesStatus = status === 'all' || card.dataset.status === status;
-          const matches = matchesQuery && matchesScope && matchesStatus;
+          const matches = matchesFor(card);
           card.classList.toggle('is-hidden', !matches);
           if (matches) visible += 1;
+        });
+
+        // Counts are faceted: each group ignores itself but respects the search
+        // and the other active group, so every number matches what a click shows.
+        const updateCount = (chip: HTMLButtonElement, count: number) => {
+          const el = chip.querySelector<HTMLElement>('.chip-count');
+          if (el) el.textContent = String(count);
+        };
+        scopeChips.forEach((chip) => {
+          const value = chip.dataset.scope ?? 'all';
+          updateCount(
+            chip,
+            cards.filter(
+              (card) => matchesFor(card, 'scope') && (value === 'all' || card.dataset.scope === value),
+            ).length,
+          );
+        });
+        statusChips.forEach((chip) => {
+          const value = chip.dataset.docStatus ?? 'all';
+          updateCount(
+            chip,
+            cards.filter(
+              (card) => matchesFor(card, 'status') && (value === 'all' || card.dataset.status === value),
+            ).length,
+          );
         });
 
         if (countEl) {
