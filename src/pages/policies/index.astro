@@ -40,6 +40,7 @@ const scopes = POLICY_SCOPES.map((scope) => {
   title="Policies"
   description="The public policy documents for Next Step Studios, in two separate sets: the Discord bot and this website."
   path="/policies"
+  ogImage="og/policies.png"
 >
   <section class="page-head">
     <div class="container">
@@ -162,16 +163,16 @@ const scopes = POLICY_SCOPES.map((scope) => {
                   <span>Applies to · {label}</span>
                 </div>
                 <div class="doc-card-actions">
-                  <a class="text-link" href={policyPath(policy.id)}>Read →</a>
-                  <a class="text-link" href={`${policyPath(policy.id)}#plain-language`}>Plain summary</a>
-                  <a class="text-link" href={`/downloads/${key}.md`} download={`${key}.md`} data-astro-prefetch="false">
+                  <a class="text-link" href={policyPath(policy.id)} aria-label={`Read ${policy.data.shortTitle}`}>Read →</a>
+                  <a class="text-link" href={`${policyPath(policy.id)}#plain-language`} aria-label={`Plain-language summary of ${policy.data.shortTitle}`}>Plain summary</a>
+                  <a class="text-link" href={`/downloads/${key}.md`} download={`${key}.md`} data-astro-prefetch="false" aria-label={`Download ${policy.data.shortTitle} as Markdown`}>
                     Download .md
                   </a>
-                  <a class="text-link" href={`/downloads/${key}.pdf`} download={`${key}.pdf`} data-astro-prefetch="false">
+                  <a class="text-link" href={`/downloads/${key}.pdf`} download={`${key}.pdf`} data-astro-prefetch="false" aria-label={`Download ${policy.data.shortTitle} as PDF`}>
                     PDF
                   </a>
                   {githubUrlForPolicy(policy.id) && (
-                    <a class="text-link" href={githubUrlForPolicy(policy.id) ?? undefined} rel="noopener">
+                    <a class="text-link" href={githubUrlForPolicy(policy.id) ?? undefined} rel="noopener" aria-label={`${policy.data.shortTitle} on GitHub`}>
                       GitHub ↗
                     </a>
                   )}

@@ -32,6 +32,17 @@ const STATIC_ROUTES = [
   '/sitemap',
 ];
 
+type SitemapRoute = {
+  path: string;
+  lastmod?: Date;
+};
+
+/** The most recent date in a list, ignoring entries without a usable date. */
+const newest = (dates: Array<Date | undefined>) =>
+  dates
+    .filter((date): date is Date => date instanceof Date && Number.isFinite(date.getTime()))
+    .sort((a, b) => b.getTime() - a.getTime())[0];
+
 export const GET: APIRoute = async ({ site }) => {
   const base = (site ?? new URL(SITE.url)).toString();
   const policies = await getCollection('policies');
@@ -40,15 +51,45 @@ export const GET: APIRoute = async ({ site }) => {
 
   const tags = [...new Set(posts.flatMap((post) => post.data.tags))];
 
-  const routes = [
-    ...STATIC_ROUTES,
-    ...projects.map((project) => `/projects/${project.id}`),
-    ...BOT_MODULES.map((module) => `/modules/${module.id}`),
-    ...policies.map((policy) => policyPath(policy.id)),
-    ...policies.map((policy) => `/policies/versions/${downloadKey(policy.id)}`),
-    ...posts.map((post) => `/devlog/${post.id}`),
-    ...tags.map((tag) => `/devlog/tag/${encodeURIComponent(tag)}`),
-    ...policies.map((policy) => `/downloads/${downloadKey(policy.id)}.md`),
+  const latestPolicy = newest(policies.map((policy) => policy.data.updated));
+  const latestPost = newest(posts.map((post) => post.data.date));
+  const latestProject = newest(projects.map((project) => project.data.updated));
+  const latestContent = newest([latestPolicy, latestPost, latestProject]);
+
+  const sectionDates: Record<string, Date | undefined> = {
+    '/': latestContent,
+    '/projects': latestProject,
+    '/policies': latestPolicy,
+    '/downloads': latestPolicy,
+    '/devlog': latestPost,
+  };
+
+  const routes: SitemapRoute[] = [
+    ...STATIC_ROUTES.map((path) => ({ path, lastmod: sectionDates[path] })),
+    ...projects.map((project) => ({
+      path: `/projects/${project.id}`,
+      lastmod: project.data.updated,
+    })),
+    ...BOT_MODULES.map((module) => ({ path: `/modules/${module.id}` })),
+    ...policies.map((policy) => ({
+      path: policyPath(policy.id),
+      lastmod: policy.data.updated,
+    })),
+    ...policies.map((policy) => ({
+      path: `/policies/versions/${downloadKey(policy.id)}`,
+      lastmod: policy.data.updated,
+    })),
+    ...posts.map((post) => ({ path: `/devlog/${post.id}`, lastmod: post.data.date })),
+    ...tags.map((tag) => ({
+      path: `/devlog/tag/${encodeURIComponent(tag)}`,
+      lastmod: newest(
+        posts.filter((post) => post.data.tags.includes(tag)).map((post) => post.data.date),
+      ),
+    })),
+    ...policies.map((policy) => ({
+      path: `/downloads/${downloadKey(policy.id)}.md`,
+      lastmod: policy.data.updated,
+    })),
   ];
 
   const body = `<?xml version="1.0" encoding="UTF-8"?>
@@ -56,7 +97,9 @@ export const GET: APIRoute = async ({ site }) => {
 ${routes
   .map(
     (route) => `  <url>
-    <loc>${new URL(route, base).toString()}</loc>
+    <loc>${new URL(route.path, base).toString()}</loc>${
+      route.lastmod ? `\n    <lastmod>${route.lastmod.toISOString()}</lastmod>` : ''
+    }
   </url>`,
   )
   .join('\n')}

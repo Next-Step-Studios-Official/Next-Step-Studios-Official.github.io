@@ -27,6 +27,7 @@ const kinds = ['installer', 'archive', 'document', 'source', 'media'] as const;
   title="Downloads"
   description="Files, games, apps and other downloads from Next Step Studios — policies, brand assets, reference sheets and any builds published on GitHub Releases."
   path="/downloads"
+  ogImage="og/downloads.png"
 >
   <section class="page-head">
     <div class="container">
@@ -164,11 +165,11 @@ const kinds = ['installer', 'archive', 'document', 'source', 'media'] as const;
                 {item.size && <> · {item.size}</>}
               </p>
               <div class="dl-card-actions">
-                <a class="btn btn-primary" href={item.href} download={!item.releaseUrl} data-astro-prefetch="false">
+                <a class="btn btn-primary" href={item.href} download={!item.releaseUrl} data-astro-prefetch="false" aria-label={`Download ${item.title}`}>
                   Download <span class="btn-arrow" aria-hidden="true">↓</span>
                 </a>
                 {item.releaseUrl && (
-                  <a class="text-link" href={item.releaseUrl} rel="noopener">Release page ↗</a>
+                  <a class="text-link" href={item.releaseUrl} rel="noopener" aria-label={`Release page for ${item.title}`}>Release page ↗</a>
                 )}
                 {item.formats
                   ?.filter((format) => format.href !== item.href)
@@ -178,6 +179,7 @@ const kinds = ['installer', 'archive', 'document', 'source', 'media'] as const;
                       href={format.href}
                       download={format.download ? true : undefined}
                       data-astro-prefetch="false"
+                      aria-label={`${format.label} — ${item.title}`}
                     >
                       {format.label}
                     </a>

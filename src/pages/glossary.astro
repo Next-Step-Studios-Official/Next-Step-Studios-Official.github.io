@@ -1,6 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
-import { GLOSSARY, GLOSSARY_COUNT } from '../lib/glossary';
+import { GLOSSARY, GLOSSARY_COUNT, seeLabel } from '../lib/glossary';
 ---
 
 <Base
@@ -39,7 +39,15 @@ import { GLOSSARY, GLOSSARY_COUNT } from '../lib/glossary';
                 <dt id={term.term.toLowerCase().replace(/[^a-z0-9]+/g, '-')}>{term.term}</dt>
                 <dd>
                   <p>{term.definition}</p>
-                  {term.see && <a class="text-link" href={term.see}>Read more →</a>}
+                  {term.see && (
+                    <a
+                      class="text-link"
+                      href={term.see}
+                      aria-label={`${seeLabel(term.see)} — ${term.term}`}
+                    >
+                      {seeLabel(term.see)} →
+                    </a>
+                  )}
                 </dd>
               </div>
             ))}

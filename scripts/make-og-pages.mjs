@@ -14,6 +14,7 @@ import { join } from 'node:path';
 const OUTPUT = 'public/og';
 const POLICY_DIR = 'src/content/policies';
 const PROJECT_DIR = 'src/content/projects';
+const DEVLOG_DIR = 'src/content/devlog';
 
 const escape = (value) =>
   value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -113,6 +114,28 @@ for (const file of (await readdir(PROJECT_DIR)).filter((name) => name.endsWith('
 }
 projects.sort((a, b) => a.order - b.order);
 
+const devlog = [];
+for (const file of (await readdir(DEVLOG_DIR)).filter((name) => name.endsWith('.md'))) {
+  const raw = await readFile(join(DEVLOG_DIR, file), 'utf8');
+  const frontmatter = raw.split('---')[1] ?? '';
+  const dateText = field(frontmatter, 'date');
+  const date = new Date(`${dateText}T00:00:00Z`);
+  devlog.push({
+    id: file.replace(/\.md$/, ''),
+    title: field(frontmatter, 'title'),
+    date,
+    dateLabel: Number.isNaN(date.getTime())
+      ? 'Notes from the work'
+      : new Intl.DateTimeFormat('en-GB', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+          timeZone: 'UTC',
+        }).format(date),
+  });
+}
+devlog.sort((a, b) => b.date.valueOf() - a.date.valueOf());
+
 await mkdir(OUTPUT, { recursive: true });
 
 const pages = [
@@ -139,6 +162,26 @@ const pages = [
     file: `policy-${policy.key}.png`,
     title: policy.shortTitle,
     eyebrow: `Policy · v${policy.version} · ${policy.draft ? 'draft' : 'current'}`,
+  })),
+  // Page cards are appended last so every existing card keeps its number.
+  { file: 'projects.png', title: 'Everything, at the stage it is actually at', eyebrow: 'Projects' },
+  { file: 'policies.png', title: 'The documents, in two sets', eyebrow: 'Policies' },
+  { file: 'about.png', title: 'The studio behind the work', eyebrow: 'About' },
+  { file: 'team.png', title: 'Who contributes', eyebrow: 'Team' },
+  { file: 'now.png', title: 'What is being worked on now', eyebrow: 'Now · November 2026' },
+  { file: 'devlog.png', title: 'Notes from the work', eyebrow: 'Devlog' },
+  { file: 'changelog.png', title: 'What changed, version by version', eyebrow: 'Changelog' },
+  { file: 'status.png', title: 'What is up, in plain terms', eyebrow: 'Status' },
+  { file: 'stack.png', title: 'What this site runs on', eyebrow: 'Stack' },
+  { file: 'links.png', title: 'Every official link, in one place', eyebrow: 'Official links' },
+  { file: 'downloads.png', title: 'Everything downloadable', eyebrow: 'Downloads' },
+  { file: 'contact.png', title: 'How to reach the studio', eyebrow: 'Contact' },
+  { file: 'search.png', title: 'Search the whole site', eyebrow: 'Search' },
+  { file: 'step.png', title: 'The local studio guide', eyebrow: 'How Step works' },
+  ...devlog.map((post) => ({
+    file: `devlog-${post.id}.png`,
+    title: post.title,
+    eyebrow: `Devlog · ${post.dateLabel}`,
   })),
 ];
 

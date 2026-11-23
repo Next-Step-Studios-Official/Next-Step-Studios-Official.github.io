@@ -37,7 +37,14 @@ const articleSchema = {
 };
 ---
 
-<Base title={entry.data.title} description={entry.data.summary} path={`/devlog/${entry.id}`} schema={articleSchema}>
+<Base
+  title={entry.data.title}
+  description={entry.data.summary}
+  path={`/devlog/${entry.id}`}
+  schema={articleSchema}
+  ogImage={`og/devlog-${entry.id}.png`}
+  ogAlt={`${entry.data.title} — Next Step Studios`}
+>
   <section class="page-head">
     <div class="container">
       <div class="page-head-stack">

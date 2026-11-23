@@ -13,6 +13,25 @@ export type GlossaryGroup = {
 };
 
 /**
+ * Distinct link text for the link under a term. Sixteen links called “Read
+ * more” are hard to tell apart in a screen reader's link list, even though
+ * they point at different documents.
+ */
+const SEE_LABELS: Record<string, string> = {
+  '/policies/bot/privacy': 'Read the bot privacy policy',
+  '/projects/next-step-bot': 'Read the bot project page',
+  '/policies/bot/moderation': 'Read the moderation policy',
+  '/policies/bot/data-retention': 'Read the data retention policy',
+  '/contact#privacy-requests': 'How to make a privacy request',
+  '/policies/bot/security': 'Read the security overview',
+  '/about': 'Read the about page',
+  '/commands': 'Read the command reference',
+  '/status': 'Read the status page',
+};
+
+export const seeLabel = (href: string) => SEE_LABELS[href] ?? 'Read the related page';
+
+/**
  * Plain-language definitions for the words the policies and the bot use.
  * Deliberately short: a glossary entry explains a term, it does not restate a
  * policy. Where a policy is the authority, `see` points at it.

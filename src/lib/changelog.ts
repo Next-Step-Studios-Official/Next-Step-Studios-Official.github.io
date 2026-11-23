@@ -14,6 +14,22 @@ export type ChangelogEntry = {
 export const CHANGELOG: ChangelogEntry[] = [
   {
     date: '2026-11-23',
+    version: '3.7',
+    title: 'The label edition',
+    summary:
+      'Link names, share cards and sitemap dates get the same attention as the pages: every glossary link says what it opens, every main page has its own card, and the XML sitemap records when content changed.',
+    changes: [
+      'The glossary no longer uses sixteen identical “Read more” links; each one names the policy or page it opens.',
+      'Policy index cards and download format links include the document name in their accessible label, so “Read” and “PDF” are not repeated without context.',
+      'The text-size controls on policy pages are announced as “Smaller text”, “Default text size” and “Larger text”.',
+      'Search shows a no-JavaScript notice with links to the policy index, command reference and sitemap.',
+      'Share cards now cover Projects, Policies, About, Team, Now, Devlog and every devlog entry, Changelog, Status, Stack, Links, Downloads, Contact, Search and How Step works.',
+      'Social card alt text uses the page title when a page has its own card, instead of the generic studio sentence.',
+      'The XML sitemap now records last-modified dates for the home page, section indexes, projects, documents, devlog entries, tag pages, version history and generated downloads.',
+    ],
+  },
+  {
+    date: '2026-11-23',
     version: '3.6',
     title: 'The two-set catch-up',
     summary:
