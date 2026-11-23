@@ -24,6 +24,7 @@ export const CHANGELOG: ChangelogEntry[] = [
       'Projects status and category counts respect the search and the other group; the search, both filters and the sort order are kept in the address, with a Clear filters control.',
       'Search type chips show how many results the current query has in each type. The result line now reports actual matches, including “40 of N matches” when the list is truncated, instead of counting the type’s whole index.',
       'Search gains a Clear search control that resets the query and type together.',
+      'Each filter page now explains that its counts show what a choice would show with the other filters unchanged, so an active filter does not make the other numbers look wrong.',
       'EDITING.md lists the full path for each filter page and the shared filter note style.',
     ],
   },
