@@ -1,14 +1,40 @@
 ---
-const { docStatus, version } = Astro.props as { docStatus: string; version: string };
+const {
+  docStatus,
+  version,
+  scopeLabel,
+  isDraft,
+} = Astro.props as {
+  docStatus: string;
+  version: string;
+  scopeLabel: string;
+  isDraft: boolean;
+};
 ---
 
-<div class="notice" role="note">
-  <span class="status status--draft">Draft</span>
-  <div class="notice-body">
-    <p class="notice-title">Not yet in force — version {version}</p>
-    <p>
-      This document is published for review. Status: {docStatus}
-      It has no effective date and does not yet represent an operative policy.
-    </p>
-  </div>
-</div>
+{
+  isDraft ? (
+    <div class="notice" role="note">
+      <span class="status status--draft">Draft</span>
+      <div class="notice-body">
+        <p class="notice-title">Not yet in force — version {version}</p>
+        <p>
+          This document is published for review. Status: {docStatus}
+          It has no effective date and does not yet represent an operative policy.
+        </p>
+      </div>
+    </div>
+  ) : (
+    <div class="notice notice--neutral" role="note">
+      <span class="status status--ready">Current</span>
+      <div class="notice-body">
+        <p class="notice-title">Describes the published {scopeLabel.toLowerCase()}</p>
+        <p>
+          Version {version}. Status: {docStatus}
+          This is a description of how the site is built, not a legal opinion, an audit or a
+          claim of compliance with any particular law or standard.
+        </p>
+      </div>
+    </div>
+  )
+}

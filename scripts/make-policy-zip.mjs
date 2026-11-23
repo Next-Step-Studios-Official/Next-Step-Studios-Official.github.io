@@ -32,6 +32,8 @@ function parseFrontmatter(source) {
   return { data, body: match[2] };
 }
 
+const scopeRank = { bot: 0, website: 1 };
+
 const files = fs
   .readdirSync(ROOT, { recursive: true })
   .filter((file) => typeof file === 'string' && file.endsWith('.md'))
@@ -39,14 +41,20 @@ const files = fs
     const full = path.join(ROOT, file);
     const source = fs.readFileSync(full, 'utf8');
     const { data, body } = parseFrontmatter(source);
+    const relative = file.replace(/\\/g, '/');
+    const scope = relative.startsWith('website/') ? 'website' : 'bot';
+    const slug = path.basename(file, '.md');
     return {
-      slug: path.basename(file, '.md'),
+      slug,
+      key: scope === 'bot' ? slug : `${scope}-${slug}`,
+      scope,
+      scopeLabel: scope === 'bot' ? 'Discord bot' : 'Website',
       data,
       body,
       order: Number(data.order) || 100,
     };
   })
-  .sort((a, b) => a.order - b.order);
+  .sort((a, b) => scopeRank[a.scope] - scopeRank[b.scope] || a.order - b.order);
 
 if (files.length === 0) {
   console.error('No policy documents found.');
@@ -63,19 +71,23 @@ const generatedDate = new Date(`${generated}T12:00:00Z`);
 
 const documentMarkdown = (file) => {
   const data = file.data;
+  const draft = /draft/i.test(data.docStatus ?? '');
   const header = [
     '<!--',
     `  ${data.title ?? file.slug}`,
-    '  Next Step Studios - Discord bot documentation',
+    `  Next Step Studios - ${file.scope === 'bot' ? 'Discord bot' : 'website'} documentation`,
     '',
     `  Version:    ${data.version ?? '—'}`,
     `  Status:     ${data.docStatus ?? 'Draft'}`,
-    `  Applies to: ${data.appliesTo ?? 'Discord bot'}`,
+    `  Applies to: ${data.appliesTo ?? file.scopeLabel}`,
     '',
-    `  Downloaded from: /policies/bot/${file.slug}`,
+    `  Downloaded from: /policies/${file.scope}/${file.slug}`,
     '',
-    '  This is an offline copy of a draft document. The version published at the',
-    '  address above is the authoritative one, and this copy may become out of date.',
+    ...(draft
+      ? ['  This document is a draft for review and is not yet effective.', '']
+      : []),
+    '  This is an offline copy. The version published at the address above is',
+    '  the authoritative one, and this copy may become out of date.',
     '',
     `  Next Step Studios, operated by ${OPERATOR}.`,
     `  Contact: ${CONTACT}`,
@@ -87,7 +99,7 @@ const documentMarkdown = (file) => {
     '',
     `**Plain-language summary:** ${data.plainSummary ?? ''}`,
     '',
-    `**Version ${data.version ?? '—'}** · ${data.docStatus ?? 'Draft'} · Applies to: ${data.appliesTo ?? 'Discord bot'}`,
+    `**Version ${data.version ?? '—'}** · ${data.docStatus ?? 'Draft'} · Applies to: ${data.appliesTo ?? file.scopeLabel}`,
     '',
   ].join('\n');
 
@@ -96,23 +108,28 @@ const documentMarkdown = (file) => {
 
 const combinedHeader = [
   '<!--',
-  '  Next Step Studios — Discord bot documentation, complete set',
+  '  Next Step Studios — complete public document set',
   '',
-  `  ${files.length} documents, all at the versions listed in each section.`,
-  '  This is an offline copy of draft documents. The versions published on the',
-  '  website are authoritative, and this file may become out of date.',
+  `  ${files.length} documents across the Discord bot and website sets,`,
+  '  all at the versions listed in each section.',
+  '  This is an offline copy. The versions published on the website are',
+  '  authoritative, and this file may become out of date.',
   '',
   `  Next Step Studios, operated by ${OPERATOR}.`,
   `  Contact: ${CONTACT}`,
   '-->',
   '',
-  '# Next Step Studios — Bot documentation',
+  '# Next Step Studios — Policies',
   '',
-  `${files.length} public documents. All drafts, versioned individually.`,
+  `${files.length} public documents in two separate scopes. Drafts and current`,
+  'documents are labelled individually.',
   '',
   '## Contents',
   '',
-  ...files.map((file, index) => `${index + 1}. ${file.data.title ?? file.slug} — v${file.data.version ?? '—'}`),
+  ...files.map(
+    (file, index) =>
+      `${index + 1}. [${file.scopeLabel}] ${file.data.title ?? file.slug} — v${file.data.version ?? '—'}`,
+  ),
   '',
 ].join('\n');
 
@@ -127,26 +144,31 @@ WHAT IS IN HERE
 
   README.txt              This file.
   all-policies.md         Every document in one file, in publishing order.
-  policies/<slug>.md      One Markdown file per document, with the same
-                          attribution header as the individual download.
+  bot/<slug>.md           The Discord bot documents.
+  website/<slug>.md       The website documents.
 
 DOCUMENTS
 
-${files.map((file) => `  ${file.slug.padEnd(24)} ${file.data.shortTitle ?? file.data.title ?? file.slug} — v${file.data.version ?? '—'}`).join('\n')}
+${files.map((file) => `  ${file.scope.padEnd(8)} ${file.slug.padEnd(24)} ${file.data.shortTitle ?? file.data.title ?? file.slug} — v${file.data.version ?? '—'}`).join('\n')}
 
 STATUS
 
-All ${files.length} documents are drafts for review and are not yet effective.
-Downloading this archive does not change their status. Nothing in this
-archive claims legal compliance.
+${files.filter((file) => /draft/i.test(file.data.docStatus ?? '')).length} of ${files.length} documents are drafts for review and are not yet effective.
+The website privacy notice and security overview describe the published site
+and are current. Downloading this archive does not change any status, and
+nothing in this archive claims legal compliance.
 
-These documents cover the Next Step Studios Discord bot only. They do not
-cover the website and are not a website privacy policy.
+SCOPES
+
+These documents cover two separate things. The bot set covers the Next Step
+Studios Discord bot operating in one private server. The website set covers
+this public site. They are not interchangeable, and one is not a substitute
+for the other.
 
 The authoritative version of each document is the page at
-https://next-step-studios-official.github.io/policies/bot/<slug>, and the
-individual downloads are available from /downloads. A copy in this ZIP can
-become out of date.
+https://next-step-studios-official.github.io/policies/<scope>/<slug>, and
+the individual downloads are available from /downloads. A copy in this ZIP
+can become out of date.
 
 Next Step Studios, operated by ${OPERATOR}.
 Contact: ${CONTACT}
@@ -233,7 +255,7 @@ const addFile = (name, content) => {
 
 addFile('README.txt', readme);
 addFile('all-policies.md', combined);
-for (const file of files) addFile(`policies/${file.slug}.md`, documentMarkdown(file));
+for (const file of files) addFile(`${file.scope}/${file.slug}.md`, documentMarkdown(file));
 
 const central = Buffer.concat(centralParts);
 const end = Buffer.alloc(22);

@@ -15,6 +15,12 @@ import { FAQ } from '../lib/faq';
 import { ROADMAP } from '../lib/roadmap';
 import { DISCORD, discordInvite } from '../lib/discord';
 import type { AssistantFact, AssistantLink } from '../lib/assistant';
+import {
+  POLICY_SCOPE_LABELS,
+  isDraftDocument,
+  policyPath,
+  scopeOf,
+} from '../lib/documents';
 
 export const prerender = true;
 
@@ -87,7 +93,6 @@ const fact = (
   priority = 0,
 ): AssistantFact => ({ id, title, aliases, answer, links, followUps: FOLLOW_UPS[id], priority });
 
-const policyPath = (id: string) => `/policies/bot/${id.replace(/^bot\//, '')}`;
 const projectPath = (id: string) => `/projects/${id}`;
 const postPath = (id: string) => `/devlog/${id}`;
 const formatDate = (date: Date) =>
@@ -101,7 +106,10 @@ export const GET: APIRoute = async () => {
   ]);
 
   projects.sort((a, b) => a.data.order - b.data.order);
-  policies.sort((a, b) => a.data.order - b.data.order);
+  const scopeRank = { bot: 0, website: 1 } as const;
+  policies.sort(
+    (a, b) => scopeRank[scopeOf(a.id)] - scopeRank[scopeOf(b.id)] || a.data.order - b.data.order,
+  );
   posts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 
   const socialLinks = enabledLinks().filter(
@@ -111,9 +119,9 @@ export const GET: APIRoute = async () => {
   const projectNames = projects.map(
     (project) => `${project.data.title} (${project.data.status.toLowerCase()})`,
   );
-  const policyVersions = [...new Set(policies.map((policy) => policy.data.version))];
   const policyNames = policies.map(
-    (policy) => `${policy.data.shortTitle} (v${policy.data.version}, draft)`,
+    (policy) =>
+      `${policy.data.shortTitle} (${POLICY_SCOPE_LABELS[scopeOf(policy.id)]}, v${policy.data.version}, ${isDraftDocument(policy.data.docStatus) ? 'draft' : 'current'})`,
   );
   const latestPosts = posts.slice(0, 3).map((post) => post.data.title);
   const moduleStatuses = (Object.keys(MODULE_STATUS_LABEL) as Array<keyof typeof MODULE_STATUS_LABEL>)
@@ -186,7 +194,7 @@ export const GET: APIRoute = async () => {
       'projects',
       'Projects',
       ['projects', 'what are you building', 'what is being built', 'current projects', 'all projects', 'portfolio'],
-      `The site lists ${projects.length} projects: ${projectNames.join(', ')}. Next Step Bot is the current focus; First Game and Studio Tools are planned categories with no started product.`,
+      `The site lists ${projects.length} projects: ${projectNames.join(', ')}. Next Step Bot and this website are in development; First Game, First App and Studio Tools are planned, with no started product.`,
       [link('/projects', 'All projects'), ...projects.map((project) => link(projectPath(project.id), project.data.title))],
       7,
     ),
@@ -234,7 +242,7 @@ export const GET: APIRoute = async () => {
       'policies',
       'Policies',
       ['policies', 'policy', 'documents', 'terms', 'terms of service', 'community guidelines', 'acceptable use', 'moderation policy', 'data retention', 'security overview'],
-      `The site publishes ${policies.length} bot policy documents: ${policyNames.join('; ')}. All are marked drafts pending review, at version ${policyVersions.join(', ')}. They cover the Discord bot, not this website.`,
+      `The site publishes ${policies.length} policy documents in two separate sets: ${policies.filter((policy) => scopeOf(policy.id) === 'bot').length} cover the Discord bot, and ${policies.filter((policy) => scopeOf(policy.id) === 'website').length} cover this website. The documents are: ${policyNames.join('; ')}. Drafts and current documents are labelled individually.`,
       [link('/policies', 'All policies'), ...policies.map((policy) => link(policyPath(policy.id), policy.data.shortTitle))],
       7,
     ),
@@ -243,7 +251,7 @@ export const GET: APIRoute = async () => {
       'Privacy and personal data',
       ['privacy', 'personal data', 'data protection', 'what data do you collect', 'what data is collected', 'privacy policy'],
       `There are two separate privacy documents. The website privacy notice covers this site: no analytics, no advertising, no accounts, no tracking cookies, and one contact form. The Discord Bot Privacy Policy covers the bot and is a separate draft. This assistant does not store the conversation.`,
-      [link('/website-privacy', 'Website privacy notice'), link('/policies/bot/privacy', 'Bot Privacy Policy')],
+      [link('/policies/website/privacy', 'Website privacy notice'), link('/policies/bot/privacy', 'Bot Privacy Policy')],
       9,
     ),
     fact(
@@ -251,7 +259,7 @@ export const GET: APIRoute = async () => {
       'Website privacy',
       ['website privacy', 'does this website track me', 'does the site track me', 'cookies', 'analytics', 'tracking', 'what does the website collect'],
       `This site has no accounts, analytics, advertising, tracking pixels, third-party embeds, tracking cookies or third-party fonts. The contact form records the name, email, subject, message, arrival time and a one-way hash of the network address for rate limiting. The theme choice is stored locally in the browser.`,
-      [link('/website-privacy', 'Website privacy notice'), link('/contact', 'Contact')],
+      [link('/policies/website/privacy', 'Website privacy notice'), link('/contact', 'Contact')],
       8,
     ),
     fact(
@@ -426,7 +434,7 @@ export const GET: APIRoute = async () => {
         'dates',
         'roadmap dates',
       ],
-      'The roadmap deliberately uses statuses, not dates. Next Step Bot is in development, the policies are drafts, the website and live status are live, games and studio tools are planned, and analytics and accounts are not planned. No release date is published.',
+      'The roadmap deliberately uses statuses, not dates. Next Step Bot and this website are in development, the policy set mixes drafts with current website documents, the live status page is live, games, apps and studio tools are planned, and analytics and accounts are not planned. No release date is published.',
       [link('/roadmap', 'Roadmap'), link('/projects/first-game', 'First Game')],
       7,
     ),
@@ -491,7 +499,7 @@ export const GET: APIRoute = async () => {
       'How this website works',
       ['how does this website work', 'what is this website built with', 'website tech', 'astro', 'github pages', 'static site', 'framework'],
       `The site is built with Astro and rendered to static HTML, served by GitHub Pages. It uses hand-written CSS, self-hosted fonts and no client-side framework, accounts, analytics or advertising. Search runs against a generated local JSON index.`,
-      [link('/stack', 'Stack'), link('/website-privacy', 'Website privacy')],
+      [link('/stack', 'Stack'), link('/policies/website/privacy', 'Website privacy')],
       5,
     ),
     fact(
@@ -531,7 +539,7 @@ export const GET: APIRoute = async () => {
       'Step, the local assistant',
       ['step', 'assistant', 'ai', 'chatbot', 'what is your name', 'your name', 'how do you work', 'do you use an api', 'api key', 'do you remember', 'are you chatgpt'],
       `I'm Step, a local knowledge assistant built into this site. I answer from the public pages with keyword retrieval; there is no cloud model, API key, account or conversation storage. The chat resets when you reload, and I say when the public pages do not cover something.`,
-      [link('/website-privacy', 'Website privacy notice')],
+      [link('/policies/website/privacy', 'Website privacy notice')],
       10,
     ),
     fact(
@@ -572,7 +580,7 @@ export const GET: APIRoute = async () => {
         'does step store my questions',
       ],
       `No. The conversation exists only in this browser tab and is discarded on reload. The assistant loads two static files from this site when it opens; it sends no question to a server, uses no API key, and does not write to local storage.`,
-      [link('/website-privacy', 'Website privacy notice')],
+      [link('/policies/website/privacy', 'Website privacy notice')],
       9,
     ),
     ...projects.map((project) =>

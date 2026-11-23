@@ -1,21 +1,21 @@
 import type { APIRoute, GetStaticPaths } from 'astro';
-import { getCollection } from 'astro:content';
-import { buildDocumentFile, slugOf } from '../../lib/documents';
+import { getDocuments } from '../../lib/documents';
 
 /**
- * `/downloads/<slug>.md` — the raw Markdown for a Bot policy document.
+ * `/downloads/<key>.md` — the raw Markdown for a policy document.
  *
- * Statically generated, so the file exists as a plain asset after the build:
- * no server, no database, no form and no email address required.
+ * Bot documents keep their existing filenames; website documents are prefixed
+ * with `website-`. Statically generated, so the file exists as a plain asset
+ * after the build: no server, no database, no form and no email address.
  */
 export const getStaticPaths = (async () => {
-  const policies = await getCollection('policies');
+  const documents = await getDocuments();
 
-  return policies.map((entry) => ({
-    params: { file: `${slugOf(entry.id)}.md` },
+  return documents.map((document) => ({
+    params: { file: `${document.key}.md` },
     props: {
-      markdown: buildDocumentFile(entry),
-      fileName: `${slugOf(entry.id)}.md`,
+      markdown: document.markdown,
+      fileName: `${document.key}.md`,
     },
   }));
 }) satisfies GetStaticPaths;

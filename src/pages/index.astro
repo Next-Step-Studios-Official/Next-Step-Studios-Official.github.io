@@ -8,6 +8,7 @@ import { BOT_MODULES } from '../lib/modules';
 import { COMMANDS, COMMAND_GROUPS } from '../lib/commands';
 import { numberWord } from '../lib/words';
 import { STARTER_QUESTIONS } from '../lib/assistant';
+import { isDraftDocument, policyPath, scopeOf } from '../lib/documents';
 
 const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
 const featured = projects.find((project) => project.data.featured) ?? projects[0];
@@ -17,7 +18,14 @@ const allPosts = (await getCollection('devlog')).sort(
 );
 const posts = allPosts.slice(0, 3);
 
-const policies = (await getCollection('policies')).sort((a, b) => a.data.order - b.data.order);
+const scopeRank = { bot: 0, website: 1 } as const;
+const policies = (await getCollection('policies')).sort(
+  (a, b) => scopeRank[scopeOf(a.id)] - scopeRank[scopeOf(b.id)] || a.data.order - b.data.order,
+);
+const botPolicyCount = policies.filter((policy) => scopeOf(policy.id) === 'bot').length;
+const websitePolicyCount = policies.filter((policy) => scopeOf(policy.id) === 'website').length;
+const draftPolicyCount = policies.filter((policy) => isDraftDocument(policy.data.docStatus)).length;
+const currentPolicyCount = policies.length - draftPolicyCount;
 const policyWord = numberWord(policies.length);
 const PolicyWord = policyWord.charAt(0).toUpperCase() + policyWord.slice(1);
 
@@ -61,8 +69,8 @@ const routes = [
     index: '03',
     href: '/policies',
     title: 'Documents',
-    body: `${PolicyWord} policy documents for the Discord bot — readable here, downloadable four ways, mirrored on GitHub.`,
-    meta: `v${policies[0]?.data.version ?? '0.2.0'} · all drafts`,
+    body: `${PolicyWord} policy documents in two sets — ${botPolicyCount} for the Discord bot and ${websitePolicyCount} for this website. Drafts and current documents are labelled individually.`,
+    meta: `2 sets · ${draftPolicyCount} draft · ${currentPolicyCount} current`,
     cta: 'Read the documents',
   },
   {
@@ -301,13 +309,15 @@ const routes = [
 
       <div class="split">
         <div class="panel panel--pad">
-          <p class="label" style="margin-bottom: 0.9rem;">Discord bot policies · v{policies[0]?.data.version ?? '—'} drafts</p>
+          <p class="label" style="margin-bottom: 0.9rem;">Policies · {policies.length} in two sets</p>
           <ul class="link-list">
             {policies.map((policy) => (
               <li>
-                <a href={`/policies/bot/${policy.id.replace(/^bot\//, '')}`}>
+                <a href={policyPath(policy.id)}>
                   {policy.data.shortTitle}
-                  <span class="link-meta">Draft</span>
+                  <span class="link-meta">
+                    {scopeOf(policy.id) === 'bot' ? 'Bot' : 'Website'} · {isDraftDocument(policy.data.docStatus) ? 'Draft' : 'Current'}
+                  </span>
                 </a>
               </li>
             ))}

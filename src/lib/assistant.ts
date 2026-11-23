@@ -636,10 +636,6 @@ const PAGE_STARTERS: Array<{ prefix: string; questions: string[] }> = [
     questions: ['What is on the roadmap?', 'What is the release date?', 'What projects are planned?'],
   },
   {
-    prefix: '/website-privacy',
-    questions: ['Does the website track me?', 'Does Step store my questions?', 'What data does the bot store?'],
-  },
-  {
     prefix: '/status',
     questions: ['Is the website live?', 'What is the status?', 'What is on the roadmap?'],
   },

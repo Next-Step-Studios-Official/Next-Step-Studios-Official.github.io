@@ -1,0 +1,92 @@
+---
+title: "Website Privacy Notice"
+shortTitle: "Website Privacy Notice"
+version: "1.0.0"
+docStatus: "Current notice. Describes the published website."
+appliesTo: "The Next Step Studios website and the local Step assistant"
+order: 1
+summary: "What this website collects, how the contact form and Step work, and what the site deliberately does not do."
+plainSummary: "This website has no accounts, analytics, advertising or tracking cookies. The contact form stores what you type, plus a one-way hash of your network address for rate limiting. Your theme choice stays in your browser. Step answers from local files and does not keep the conversation. The hosting provider keeps ordinary request logs."
+updated: 2026-11-23
+---
+
+## 1. Scope
+
+This notice covers the public Next Step Studios website and the assistant built into it. It is a separate document from the [Discord Bot Privacy Policy](/policies/bot/privacy), which covers the bot operating in one private Discord server.
+
+Discord, GitHub and the studio's email provider process information under their own terms. This notice does not describe their internal practices.
+
+## 2. The short version
+
+There are no accounts and no analytics. The only information the site collects is what you type into the contact form, plus the theme you choose to look at it in. Step, the assistant, answers questions in your browser and does not collect them. Nothing is sold, shared for advertising, or used to build a profile.
+
+## 3. The contact form
+
+When you send a message, the form records:
+
+- the name you enter;
+- the email address you enter, used to reply;
+- the subject you choose and the message you write;
+- the time the message arrived;
+- a one-way hash of your network address, used only to rate-limit repeated submissions.
+
+The raw network address is not stored with the message. The hash cannot be turned back into an address by the studio.
+
+Messages are stored by a small contact service run for the studio, not by an advertising or analytics provider. They are kept while the matter they concern is open and deleted from the inbox once it is resolved, or sooner if you ask. A message can be deleted individually, permanently, from the inbox. There is no automated expiry yet, and this notice will say so when there is one.
+
+To have a message deleted, send a new message or email [nextstepstudiosofficial.contact@gmail.com](mailto:nextstepstudiosofficial.contact@gmail.com) with enough detail to identify it. See [privacy requests](/contact#privacy-requests).
+
+## 4. Your theme choice
+
+The light/dark toggle stores one value in your browser's local storage under the name `nss-theme`. It records only “light” or “dark”. It is never sent to the server, and clearing site data removes it.
+
+Reading preferences on policy pages are stored the same way, under `nss-reading-size` and `nss-reading-width`. They also stay in the browser.
+
+## 5. Step, the local assistant
+
+**Step** is the assistant in the bottom-right corner. When it opens, it loads two static files from this site: a curated fact file and the same full-text index used by the Search page. Your question is matched against that content in your browser.
+
+The question is not sent to an AI service, a model or an API, and it is not put in a URL. The conversation is held in memory only: it is not written to local storage or a cookie, and it is discarded when you reload or close the page. The static-file requests are ordinary page requests and do not contain your question.
+
+Step can offer links to public pages and to the contact form. If it cannot find an answer in the public pages, it says so rather than inventing one.
+
+## 6. What the site does not do
+
+Specifically, the website does not use:
+
+- analytics, statistics or audience-measurement services;
+- advertising, advertising pixels or affiliate tracking;
+- session recording, heatmaps or fingerprinting;
+- third-party embeds, widgets or social plugins;
+- third-party fonts, scripts or content delivery networks;
+- tracking cookies. Visitors receive no cookies from this site at all.
+
+The fonts are served from the site itself, and every page is a pre-built file. The private contact inbox is different: it sets one session cookie, and only after the operator signs in. Visitors never receive it.
+
+## 7. The status feed
+
+The [status page](/status) asks GitHub for a small JSON file that records the bot's recent checks. That request goes to `raw.githubusercontent.com`, not to this site, and it is the only request a page makes to another host on its own. The contact form talks to the studio's contact service only when you submit it.
+
+GitHub necessarily receives your network address, browser user agent and the time of the request to serve the feed. The page sends no cookie and no identifier of its own. If the request fails, the page falls back to the copy of the file built with the site.
+
+## 8. Hosting and technical logs
+
+The site is served by a hosting provider, which necessarily processes network requests to deliver pages. Like most hosting, this may involve standard request logs — such as the requesting IP address, the browser's user agent, the requested page, and a timestamp — kept by the provider for delivery, security and troubleshooting.
+
+These logs are not used by the studio for profiling, advertising or tracking, and this site does not combine them with any other information. The exact logging and retention behaviour of the hosting provider is set by that provider rather than by this website.
+
+## 9. Email
+
+If you email [nextstepstudiosofficial.contact@gmail.com](mailto:nextstepstudiosofficial.contact@gmail.com), the studio receives your email address, the contents of your message, and anything you choose to attach, and uses them to read and answer your message. Email is handled by the third-party email provider that hosts that mailbox, under its own terms.
+
+## 10. What this notice does not claim
+
+This notice describes what the website actually does. It is not a legal opinion and does not claim compliance with any particular law or regulation. If the site later adds a feature that collects new information — accounts, analytics, a different form — this notice will be rewritten before that feature goes live.
+
+## 11. Changes
+
+This notice is versioned with the rest of the policy set. A material change to what the site collects or sends is recorded as a new version, and the previous text remains available in the version history.
+
+## 12. Contact
+
+Questions about this notice, or about the website, go to [nextstepstudiosofficial.contact@gmail.com](mailto:nextstepstudiosofficial.contact@gmail.com). Requests concerning information held by the Discord bot are handled through the same address — see [privacy requests](/contact#privacy-requests).

@@ -2,6 +2,7 @@ import type { APIRoute } from 'astro';
 import { getCollection } from 'astro:content';
 import { SITE } from '../lib/site';
 import { BOT_MODULES } from '../lib/modules';
+import { downloadKey, policyPath } from '../lib/documents';
 
 export const prerender = true;
 
@@ -24,7 +25,6 @@ const STATIC_ROUTES = [
   '/search',
   '/step',
   '/contact',
-  '/website-privacy',
   '/modules',
   '/trust',
   '/press',
@@ -44,11 +44,11 @@ export const GET: APIRoute = async ({ site }) => {
     ...STATIC_ROUTES,
     ...projects.map((project) => `/projects/${project.id}`),
     ...BOT_MODULES.map((module) => `/modules/${module.id}`),
-    ...policies.map((policy) => `/policies/versions/${policy.id.replace(/^bot\//, '')}`),
-    ...policies.map((policy) => `/policies/bot/${policy.id.replace(/^bot\//, '')}`),
+    ...policies.map((policy) => policyPath(policy.id)),
+    ...policies.map((policy) => `/policies/versions/${downloadKey(policy.id)}`),
     ...posts.map((post) => `/devlog/${post.id}`),
     ...tags.map((tag) => `/devlog/tag/${encodeURIComponent(tag)}`),
-    ...policies.map((policy) => `/downloads/${policy.id.replace(/^bot\//, '')}.md`),
+    ...policies.map((policy) => `/downloads/${downloadKey(policy.id)}.md`),
   ];
 
   const body = `<?xml version="1.0" encoding="UTF-8"?>

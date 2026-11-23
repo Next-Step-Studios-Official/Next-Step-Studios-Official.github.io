@@ -1,49 +1,108 @@
 ---
 import Base from '../../layouts/Base.astro';
 import { getCollection } from 'astro:content';
-import { githubUrlForSlug, slugOf } from '../../lib/documents';
+import {
+  POLICY_SCOPES,
+  POLICY_SCOPE_DESCRIPTIONS,
+  POLICY_SCOPE_LABELS,
+  downloadKey,
+  githubUrlForPolicy,
+  isDraftDocument,
+  policyPath,
+  scopeOf,
+} from '../../lib/documents';
 import { readingLabel } from '../../lib/reading';
 import { numberWord } from '../../lib/words';
 
-const policies = (await getCollection('policies')).sort((a, b) => a.data.order - b.data.order);
-const version = policies[0]?.data.version ?? '—';
+const scopeRank = { bot: 0, website: 1 } as const;
+const policies = (await getCollection('policies')).sort(
+  (a, b) => scopeRank[scopeOf(a.id)] - scopeRank[scopeOf(b.id)] || a.data.order - b.data.order,
+);
+
+const draftCount = policies.filter((policy) => isDraftDocument(policy.data.docStatus)).length;
+const currentCount = policies.length - draftCount;
 const countWord = numberWord(policies.length);
 const CountWord = countWord.charAt(0).toUpperCase() + countWord.slice(1);
+
+const scopes = POLICY_SCOPES.map((scope) => {
+  const items = policies.filter((policy) => scopeOf(policy.id) === scope);
+  return {
+    scope,
+    label: POLICY_SCOPE_LABELS[scope],
+    description: POLICY_SCOPE_DESCRIPTIONS[scope],
+    items,
+    current: items.filter((policy) => !isDraftDocument(policy.data.docStatus)).length,
+  };
+});
 ---
 
 <Base
   title="Policies"
-  description="The public policy documents for the Next Step Studios Discord bot, published here at stable addresses."
+  description="The public policy documents for Next Step Studios, in two separate sets: the Discord bot and this website."
   path="/policies"
 >
   <section class="page-head">
     <div class="container">
       <div class="page-head-stack">
         <p class="eyebrow">Policies</p>
-        <h1 class="display display--page">The bot's public documents.</h1>
+        <h1 class="display display--page">The rules, for each thing they cover.</h1>
         <p class="lede">
-          {CountWord} documents govern the Next Step Studios Discord bot. They are their own set,
-          separate from anything on this website, and every one of them is currently a draft
-          awaiting review.
+          {CountWord} public documents in two separate sets: {scopes[0].items.length} for the
+          Discord bot and {scopes[1].items.length} for this website. Each says what it applies
+          to, what version it is, and whether it is current or still a draft.
         </p>
+        <div class="meta-bar">
+          <span>{policies.length} documents</span>
+          <span>{scopes.length} separate scopes</span>
+          <span>{currentCount} current · {draftCount} draft</span>
+        </div>
       </div>
     </div>
   </section>
 
   <section class="section section--flush">
     <div class="container">
-      <h2 class="sr-only">All policy documents</h2>
+      <h2 class="sr-only">Policy scopes</h2>
+
+      <div class="split" style="margin-bottom: 2rem;">
+        {
+          scopes.map(({ scope, label, description, items, current }) => (
+            <div class="panel panel--pad" id={scope} style="scroll-margin-top: 6rem;">
+              <p class="label">{label} · {items.length} documents</p>
+              <p style="color: var(--color-muted); font-size: 0.9375rem; margin-top: 0.6rem;">
+                {description}
+              </p>
+              <p class="read-time" style="margin-top: 0.85rem;">
+                {current === items.length
+                  ? 'All current'
+                  : current === 0
+                    ? 'All drafts for review'
+                    : `${current} current · ${items.length - current} draft`}
+              </p>
+              <a
+                class="text-link"
+                href={`#documents`}
+                data-scope-jump={scope}
+                style="display: inline-block; margin-top: 0.75rem; font-size: 0.875rem;"
+              >
+                Filter to {label} →
+              </a>
+            </div>
+          ))
+        }
+      </div>
+
       <div class="notice" role="note">
-        <span class="status status--draft">Draft · v{version}</span>
+        <span class="status status--draft">{draftCount} drafts</span>
         <p class="notice-body">
-          All {countWord} documents below are marked <strong>draft for review</strong> and
-          <strong>not yet effective</strong>. They are published here so they have stable
-          addresses and can be read without the bot being online. They do not yet represent
-          operative policies, and nothing here claims legal compliance.
+          {draftCount} of {policies.length} documents are marked <strong>draft for review</strong>
+          and <strong>not yet effective</strong>. They are published so they have stable addresses
+          and can be read without the bot being online. {currentCount} describe the published site
+          and are marked <strong>current</strong>. Nothing here claims legal compliance.
         </p>
       </div>
 
-      <div class="toolbar" style="margin-top: 1.5rem;" data-docs-toolbar>
+      <div class="toolbar" id="documents" style="margin-top: 1.5rem; scroll-margin-top: 6rem;" data-docs-toolbar>
         <div class="toolbar-row">
           <label class="search-field">
             <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
@@ -60,36 +119,62 @@ const CountWord = countWord.charAt(0).toUpperCase() + countWord.slice(1);
           </label>
           <span class="read-time" data-doc-count aria-live="polite">{policies.length} documents</span>
         </div>
+
+        <div class="toolbar-row">
+          <div class="chip-group" role="group" aria-label="Filter by scope" data-scope-chips>
+            <button type="button" class="chip" aria-pressed="true" data-scope="all">
+              All scopes <span class="chip-count">{policies.length}</span>
+            </button>
+            {
+              scopes.map(({ scope, label, items }) => (
+                <button type="button" class="chip" aria-pressed="false" data-scope={scope}>
+                  {label} <span class="chip-count">{items.length}</span>
+                </button>
+              ))
+            }
+          </div>
+        </div>
       </div>
 
-      <div class="doc-grid" data-doc-grid>
+      <div class="doc-grid" data-doc-grid style="margin-top: 1.25rem;">
         {
           policies.map((policy) => {
-            const slug = slugOf(policy.id);
+            const scope = scopeOf(policy.id);
+            const label = POLICY_SCOPE_LABELS[scope];
+            const draft = isDraftDocument(policy.data.docStatus);
+            const key = downloadKey(policy.id);
             return (
               <article
                 class="panel doc-card"
                 data-doc
-                data-search={`${policy.data.title} ${policy.data.shortTitle} ${policy.data.summary} ${policy.data.plainSummary}`.toLowerCase()}
+                data-scope={scope}
+                data-search={`${policy.data.title} ${policy.data.shortTitle} ${policy.data.summary} ${policy.data.plainSummary} ${label}`.toLowerCase()}
               >
-                <span class="status status--draft" style="align-self: flex-start;">
-                  v{policy.data.version} · draft
+                <span class={draft ? 'status status--draft' : 'status status--ready'} style="align-self: flex-start;">
+                  v{policy.data.version} · {draft ? 'draft' : 'current'}
                 </span>
                 <h3>
-                  <a href={`/policies/bot/${slug}`}>{policy.data.shortTitle}</a>
+                  <a href={policyPath(policy.id)}>{policy.data.shortTitle}</a>
                 </h3>
                 <p>{policy.data.summary}</p>
                 <div class="doc-card-meta">
                   <span>{readingLabel(policy.body)}</span>
-                  <span>Applies to · Discord bot</span>
+                  <span>Applies to · {label}</span>
                 </div>
                 <div class="doc-card-actions">
-                  <a class="text-link" href={`/policies/bot/${slug}`}>Read →</a>
-                  <a class="text-link" href={`/policies/bot/${slug}#plain-language`}>Plain summary</a>
-                  <a class="text-link" href={`/downloads/${slug}.md`} download={`${slug}.md`} data-astro-prefetch="false">
+                  <a class="text-link" href={policyPath(policy.id)}>Read →</a>
+                  <a class="text-link" href={`${policyPath(policy.id)}#plain-language`}>Plain summary</a>
+                  <a class="text-link" href={`/downloads/${key}.md`} download={`${key}.md`} data-astro-prefetch="false">
                     Download .md
                   </a>
-                  <a class="text-link" href={githubUrlForSlug(slug)} rel="noopener">GitHub ↗</a>
+                  <a class="text-link" href={`/downloads/${key}.pdf`} download={`${key}.pdf`} data-astro-prefetch="false">
+                    PDF
+                  </a>
+                  {githubUrlForPolicy(policy.id) && (
+                    <a class="text-link" href={githubUrlForPolicy(policy.id) ?? undefined} rel="noopener">
+                      GitHub ↗
+                    </a>
+                  )}
                 </div>
               </article>
             );
@@ -98,24 +183,26 @@ const CountWord = countWord.charAt(0).toUpperCase() + countWord.slice(1);
       </div>
 
       <p class="empty-state" data-doc-empty>
-        No document matches that search. Try a shorter word, or clear the field.
+        No document matches that search or scope. Try a shorter word, or clear the field.
       </p>
 
       <p style="color: var(--color-muted); font-size: 0.875rem; margin-top: 1.25rem;">
-        Every document can also be downloaded as a plain Markdown file, with no form or
-        email address required. <a class="text-link" href="/downloads">All downloads →</a>
+        Every document can also be downloaded as Markdown, plain text, PDF or a print page, with
+        no form or email address required. <a class="text-link" href="/downloads">All downloads →</a>
       </p>
 
       <div class="split" style="margin-top: 2rem;">
-        <div class="panel panel--pad">
-          <p class="label">These cover the bot only</p>
+        <div class="panel panel--pad" id="future" style="scroll-margin-top: 6rem;">
+          <p class="label">Future products</p>
           <p style="color: var(--color-muted); font-size: 0.9375rem; margin-top: 0.6rem;">
-            The documents describe the Discord bot operating in one private server. They do
-            not cover this website, and they are not a website privacy policy.
+            Games, apps and anything else the studio releases will get their own document set
+            before release. No placeholder policy is published for a product that does not exist,
+            and nothing here claims to cover one.
           </p>
-          <a class="text-link" href="/website-privacy" style="display: inline-block; margin-top: 0.85rem; font-size: 0.875rem;">
-            Website privacy notice →
-          </a>
+          <div style="display: flex; flex-wrap: wrap; gap: 0.85rem; margin-top: 0.85rem;">
+            <a class="text-link" href="/projects" style="font-size: 0.875rem;">Projects →</a>
+            <a class="text-link" href="/roadmap" style="font-size: 0.875rem;">Roadmap →</a>
+          </div>
         </div>
         <div class="panel panel--pad">
           <p class="label">Privacy requests</p>
@@ -134,19 +221,24 @@ const CountWord = countWord.charAt(0).toUpperCase() + countWord.slice(1);
   <script>
     const toolbar = document.querySelector<HTMLElement>('[data-docs-toolbar]');
     const grid = document.querySelector<HTMLElement>('[data-doc-grid]');
+    const emptyEl = document.querySelector<HTMLElement>('[data-doc-empty]');
 
     if (toolbar && grid) {
       const search = toolbar.querySelector<HTMLInputElement>('[data-doc-search]');
       const countEl = toolbar.querySelector<HTMLElement>('[data-doc-count]');
-      const emptyEl = document.querySelector<HTMLElement>('[data-doc-empty]');
+      const chips = Array.from(toolbar.querySelectorAll<HTMLButtonElement>('[data-scope-chips] .chip'));
       const cards = Array.from(grid.querySelectorAll<HTMLElement>('[data-doc]'));
+
+      let scope = 'all';
 
       const apply = () => {
         const query = (search?.value ?? '').trim().toLowerCase();
         let visible = 0;
 
         cards.forEach((card) => {
-          const matches = !query || (card.dataset.search ?? '').includes(query);
+          const matchesQuery = !query || (card.dataset.search ?? '').includes(query);
+          const matchesScope = scope === 'all' || card.dataset.scope === scope;
+          const matches = matchesQuery && matchesScope;
           card.classList.toggle('is-hidden', !matches);
           if (matches) visible += 1;
         });
@@ -160,6 +252,26 @@ const CountWord = countWord.charAt(0).toUpperCase() + countWord.slice(1);
 
         emptyEl?.classList.toggle('is-visible', visible === 0);
       };
+
+      const setScope = (value: string) => {
+        scope = value;
+        chips.forEach((chip) => {
+          chip.setAttribute('aria-pressed', String(chip.dataset.scope === value));
+        });
+        apply();
+      };
+
+      chips.forEach((chip) => {
+        chip.addEventListener('click', () => setScope(chip.dataset.scope ?? 'all'));
+      });
+
+      document.querySelectorAll<HTMLElement>('[data-scope-jump]').forEach((link) => {
+        link.addEventListener('click', (event) => {
+          event.preventDefault();
+          setScope(link.dataset.scopeJump ?? 'all');
+          document.getElementById('documents')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+      });
 
       search?.addEventListener('input', apply);
     }

@@ -4,10 +4,16 @@ import { getCollection } from 'astro:content';
 import { SITE } from '../lib/site';
 import { COMMANDS } from '../lib/commands';
 import { BOT_MODULES } from '../lib/modules';
+import { isDraftDocument, scopeOf } from '../lib/documents';
 
 const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
 const featured = projects.find((project) => project.data.featured) ?? projects[0];
-const policies = await getCollection('policies');
+const scopeRank = { bot: 0, website: 1 } as const;
+const policies = (await getCollection('policies')).sort(
+  (a, b) => scopeRank[scopeOf(a.id)] - scopeRank[scopeOf(b.id)] || a.data.order - b.data.order,
+);
+const draftPolicyCount = policies.filter((policy) => isDraftDocument(policy.data.docStatus)).length;
+const currentPolicyCount = policies.length - draftPolicyCount;
 
 const threads = [
   {
@@ -22,12 +28,12 @@ const threads = [
     cta: 'Read the project',
   },
   {
-    state: 'Draft for review',
+    state: 'Draft & current',
     tone: 'draft',
     title: 'Public policy documents',
     body:
-      `The ${policies.length} documents are published in full, versioned and downloadable, but they are still drafts. None claims to be in force or legally reviewed.`,
-    meta: `v${policies[0]?.data.version ?? '0.2.0'} · all drafts`,
+      `The ${policies.length} documents are published in full, versioned and downloadable across two scopes. ${draftPolicyCount} are still drafts under review; ${currentPolicyCount} describe the published site and are marked current.`,
+    meta: `2 sets · ${draftPolicyCount} drafts · ${currentPolicyCount} current`,
     href: '/policies',
     cta: 'Read the documents',
   },

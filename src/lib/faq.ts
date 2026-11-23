@@ -47,7 +47,7 @@ export const FAQ: FaqEntry[] = [
     question: 'Does this website track me?',
     answer:
       'No. There is no analytics, no advertising, no tracking cookie, and no font or script from a third party. There is a contact form, but it only stores what you type into it so the message can be answered. The website privacy notice lists exactly what is kept, where, and how to have it deleted.',
-    link: { href: '/website-privacy', label: 'Website privacy notice' },
+    link: { href: '/policies/website/privacy', label: 'Website privacy notice' },
   },
   {
     question: 'Why are the policies still drafts?',

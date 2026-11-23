@@ -63,4 +63,4 @@ They are published here as drafts pending review:
 - [Security and Data Protection Overview](/policies/bot/security)
 
 Those documents cover the Bot only. They do not describe this website — see the
-[website privacy notice](/website-privacy).
+[website privacy notice](/policies/website/privacy).

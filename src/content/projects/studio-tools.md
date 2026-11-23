@@ -2,7 +2,7 @@
 title: Studio Tools
 tagline: Small tools the studio would use itself.
 status: Planned
-category: Software
+category: Apps & tools
 summary: A place for the utilities that come out of building the bot and the site — scripts, generators and small interfaces. No tool has been started, and none is promised.
 order: 3
 cover: /images/project-studio-tools.webp

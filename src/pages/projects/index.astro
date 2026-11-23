@@ -2,6 +2,7 @@
 import Base from '../../layouts/Base.astro';
 import ProjectCard from '../../components/ProjectCard.astro';
 import { getCollection } from 'astro:content';
+import { numberWord } from '../../lib/words';
 
 const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
 
@@ -9,6 +10,13 @@ const statuses = ['In development', 'Prototype', 'Testing', 'Planned', 'On hold'
 const categories = [...new Set(projects.map((project) => project.data.category))];
 
 const statusCount = (status: string) => projects.filter((project) => project.data.status === status).length;
+const categoryCount = (category: string) => projects.filter((project) => project.data.category === category).length;
+const planned = projects.filter((project) => project.data.status === 'Planned');
+const plannedWord = numberWord(planned.length);
+const PlannedWord = plannedWord.charAt(0).toUpperCase() + plannedWord.slice(1);
+const plannedNames = new Intl.ListFormat('en-GB', { style: 'long', type: 'conjunction' }).format(
+  planned.map((project) => project.data.title),
+);
 const plural = (count: number) => (count === 1 ? 'project' : 'projects');
 ---
 
@@ -81,7 +89,7 @@ const plural = (count: number) => (count === 1 ? 'project' : 'projects');
             </button>
             {categories.map((category) => (
               <button type="button" class="chip" aria-pressed="false" data-category={category}>
-                {category}
+                {category} <span class="chip-count">{categoryCount(category)}</span>
               </button>
             ))}
           </div>
@@ -126,10 +134,9 @@ const plural = (count: number) => (count === 1 ? 'project' : 'projects');
       <div class="notice notice--neutral" style="margin-top: 1.5rem;">
         <span class="status status--planned">Planned means planned</span>
         <p class="notice-body">
-          Two entries are listed as Planned: a first game and a set of studio tools. Neither has
-          a title, a build or a date, and both say so on their own page. A status only moves when
-          something real exists — see the <a class="text-link" href="/roadmap">roadmap</a> for what
-          that means.
+          {PlannedWord} entries are listed as Planned: {plannedNames}. None has a build or a
+          date, and each says so on its own page. A status only moves when something real exists
+          — see the <a class="text-link" href="/roadmap">roadmap</a> for what that means.
         </p>
       </div>
     </div>

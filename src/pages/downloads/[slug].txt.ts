@@ -3,13 +3,13 @@ import { buildPlainTextFile, getDocuments } from '../../lib/documents';
 
 export const prerender = true;
 
-/** `/downloads/<slug>.txt` — the same document with no Markdown syntax at all. */
+/** `/downloads/<key>.txt` — the same document with no Markdown syntax at all. */
 export const getStaticPaths = (async () => {
   const documents = await getDocuments();
 
   return documents.map((document) => ({
-    params: { slug: document.slug },
-    props: { body: buildPlainTextFile(document), fileName: `${document.slug}.txt` },
+    params: { slug: document.key },
+    props: { body: buildPlainTextFile(document), fileName: `${document.key}.txt` },
   }));
 }) satisfies GetStaticPaths;
 

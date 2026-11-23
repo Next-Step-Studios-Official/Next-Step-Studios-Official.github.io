@@ -1,0 +1,86 @@
+---
+title: "Website Terms of Use"
+shortTitle: "Website Terms of Use"
+version: "0.1.0"
+docStatus: "Draft for review. Not yet effective."
+appliesTo: "The public Next Step Studios website"
+order: 2
+summary: "The intended rules for using this website: acceptable use, intellectual property, downloads, external links and liability."
+plainSummary: "These draft terms describe how the website may be used, what the studio owns, how downloads and external links work, and the limits of what the site promises. They are published for review and are not yet an agreement you are bound by."
+updated: 2026-11-23
+---
+
+## 1. About these terms
+
+These terms describe the intended rules for using the Next Step Studios website. They are a draft published for review. They are not yet effective, they do not create a binding agreement, and nothing in them is legal advice.
+
+The site is operated by **Candler Shaw** under the public-facing name **Next Step Studios**. The studio is not a registered company.
+
+## 2. What this site is
+
+This is an informational website about the studio, its projects and its public documents. It has no accounts, no purchases, no user profiles and no public posting. Nothing on the site is an offer, a release date, a commitment to deliver a feature, or a promise that a project will be finished.
+
+Descriptions of planned work are descriptions of intent. A status label records where something stands today; it does not reserve anything for you or guarantee a future release.
+
+## 3. Acceptable use
+
+You may read, link to and download from the site for lawful purposes. You must not:
+
+- attempt to gain unauthorised access to the site, its hosting, the contact service or another person's information;
+- interfere with the site's availability, including through sustained automated requests that impose a load beyond ordinary reading;
+- upload or send malicious code, phishing content or material that is unlawful;
+- submit another person's private information through the contact form without their permission;
+- impersonate the studio, its operator or a contributor, or misrepresent an affiliation with them;
+- use the studio's name or marks in a way that suggests endorsement of a product, service or statement.
+
+The contact form exists for genuine enquiries. It must not be used for bulk advertising, harassment or repeated messages after a clear request to stop.
+
+## 4. Intellectual property
+
+The original text, layout, design, source code, logo and artwork on this site belong to the studio or are used with permission. Third-party names, logos and trademarks belong to their respective owners.
+
+The brand marks may be used under the rules in the [press and brand guidelines](/press#guidelines). Those rules describe permitted editorial use and do not grant a general licence to alter the marks or imply endorsement.
+
+Nothing on this site grants you ownership of its content. Quoting a short passage with attribution and a link is permitted; republishing a whole page as your own is not.
+
+## 5. Downloads
+
+Policy documents, the command cheatsheet and the brand kit are provided for reading, archiving and reference. A downloaded copy can go out of date: the version published on this site is the authoritative one.
+
+Files are provided as they are. The studio does not promise that a download will be uninterrupted, error-free or compatible with every device.
+
+## 6. External links
+
+The site links to Discord, GitHub and other third-party services. Those services have their own terms and privacy practices, and the studio does not control them. A link is not an endorsement of everything a third-party site contains.
+
+## 7. Availability and changes
+
+The site is a static build served by a hosting provider. It may be changed, moved, partially unavailable or taken offline without notice. No uptime, response time or continued availability is promised.
+
+Pages, documents and downloads may be revised. Where a policy document changes materially, a new version is recorded and the previous text remains available in its version history.
+
+## 8. No warranty
+
+To the extent permitted by law, the site and its content are provided **as is** and **as available**, without warranties of any kind, whether express or implied. The studio does not warrant that the content is complete, accurate or suitable for a particular purpose.
+
+The documents on this site describe the studio's practices and intentions. They are not legal, security or professional advice for you, and you should not rely on them as such.
+
+## 9. Limitation of liability
+
+To the extent permitted by law, the studio is not liable for indirect, incidental or consequential loss arising from your use of the site, from reliance on its content, or from a download obtained through it.
+
+Nothing in these terms excludes or limits a liability that cannot lawfully be excluded or limited.
+
+## 10. Privacy
+
+The [Website Privacy Notice](/policies/website/privacy) describes what the site collects and does not collect. It is a separate document and is not replaced by these terms.
+
+## 11. Reporting a problem
+
+Problems with the site, including broken links, security concerns and copyright complaints, go to [nextstepstudiosofficial.contact@gmail.com](mailto:nextstepstudiosofficial.contact@gmail.com). The [security overview](/policies/website/security) and [copyright notice](/policies/website/copyright) explain what to include.
+
+## 12. Status of these terms
+
+These terms are version 0.1.0 and are marked **draft for review**. They have no effective date. They are published so the intended rules are visible and can be reviewed before they are relied upon.
+
+If they are later made effective, the version, effective date and any material changes will be recorded on this page and in the version history.

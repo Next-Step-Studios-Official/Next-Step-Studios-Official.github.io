@@ -2,8 +2,9 @@
  * The downloads catalogue.
  *
  * Three sources feed it, in this order:
- *  1. The policy documents, generated from `src/content/policies`.
- *  2. Hand-written entries in `src/data/downloads.json` (games, apps, tools).
+ *  1. The policy documents, generated from `src/content/policies` — both the
+ *     Discord bot set and the website set.
+ *  2. Hand-written entries in `src/data/downloads.json` (brand assets, sheets).
  *  3. GitHub Releases recorded in `src/data/releases.json` by
  *     `scripts/fetch-releases.mjs`. Releases are preferred over binaries
  *     committed to this repository — the site only links to them.
@@ -15,7 +16,7 @@ import downloadsFile from '../data/downloads.json';
 import releasesFile from '../data/releases.json';
 import { getDocuments } from './documents';
 
-export type DownloadCategory = 'files' | 'games' | 'apps' | 'other';
+export type DownloadCategory = 'documents' | 'brand' | 'games' | 'apps' | 'tools' | 'media';
 export type DownloadPlatform = 'windows' | 'linux' | 'macos' | 'android' | 'any';
 export type DownloadKind = 'installer' | 'archive' | 'document' | 'source' | 'media';
 
@@ -41,10 +42,21 @@ export type DownloadItem = {
 };
 
 export const CATEGORY_LABELS: Record<DownloadCategory, string> = {
-  files: 'Files',
+  documents: 'Documents',
+  brand: 'Brand & press',
   games: 'Games',
   apps: 'Apps',
-  other: 'Other',
+  tools: 'Tools',
+  media: 'Media',
+};
+
+export const CATEGORY_DESCRIPTIONS: Record<DownloadCategory, string> = {
+  documents: 'Policies, reference sheets and printable editions.',
+  brand: 'The brand kit, logos and press artwork.',
+  games: 'Game builds, demos and prototypes.',
+  apps: 'Desktop and mobile applications.',
+  tools: 'Utilities, scripts and companion tools.',
+  media: 'Wallpapers, banners, screenshots and video.',
 };
 
 export const PLATFORM_LABELS: Record<DownloadPlatform, string> = {
@@ -89,7 +101,7 @@ type ReleaseRecord = {
 };
 
 const manual = (downloadsFile as ManualEntry[]).map<DownloadItem>((entry) => ({
-  category: 'files',
+  category: 'documents',
   platforms: ['any'],
   kinds: ['archive'],
   ...entry,
@@ -121,7 +133,7 @@ const releaseItems = (releasesFile as { releases: ReleaseRecord[] }).releases.fl
     slug: `${release.repo}-${release.tag}-${asset.name}`.replace(/[^a-z0-9.-]+/gi, '-').toLowerCase(),
     title: asset.name,
     summary: `${release.name ?? release.tag} — published on GitHub Releases.`,
-    category: asset.category ?? 'files',
+    category: asset.category ?? 'documents',
     platforms: [asset.platform ?? platformFromName(asset.name)],
     kinds: [asset.kind ?? kindFromName(asset.name)],
     version: release.tag,
@@ -136,20 +148,20 @@ export async function getCatalogue(): Promise<DownloadItem[]> {
   const documents = await getDocuments();
 
   const documentItems: DownloadItem[] = documents.map((doc) => ({
-    slug: doc.slug,
+    slug: doc.key,
     title: doc.shortTitle,
     summary: doc.summary,
-    category: 'files',
+    category: 'documents',
     platforms: ['any'],
     kinds: ['document'],
     version: doc.version,
     size: formatSize(doc.bytes),
-    href: `/downloads/${doc.slug}.pdf`,
+    href: `/downloads/${doc.key}.pdf`,
     formats: [
-      { label: 'PDF', href: `/downloads/${doc.slug}.pdf`, download: true },
+      { label: 'PDF', href: `/downloads/${doc.key}.pdf`, download: true },
       { label: 'MD', href: doc.downloadPath, download: true },
-      { label: 'TXT', href: `/downloads/${doc.slug}.txt`, download: true },
-      { label: 'Print', href: `/downloads/print/${doc.slug}` },
+      { label: 'TXT', href: `/downloads/${doc.key}.txt`, download: true },
+      { label: 'Print', href: `/downloads/print/${doc.key}` },
     ],
   }));
 

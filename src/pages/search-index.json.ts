@@ -5,6 +5,12 @@ import { FAQ } from '../lib/faq';
 import { ROADMAP } from '../lib/roadmap';
 import { BOT_MODULES, MODULE_STATUS_LABEL } from '../lib/modules';
 import { GLOSSARY } from '../lib/glossary';
+import {
+  POLICY_SCOPE_LABELS,
+  isDraftDocument,
+  policyPath,
+  scopeOf,
+} from '../lib/documents';
 
 export const prerender = true;
 
@@ -48,15 +54,15 @@ const PAGES: IndexEntry[] = [
   { type: 'Page', title: 'Official links', url: '/links', text: 'Every official link in one place, mirroring the bot links panel.' },
   { type: 'Page', title: 'About', url: '/about', text: 'The studio, the operator, the contributors, how it works and what it is for.' },
   { type: 'Page', title: 'Team', url: '/team', text: 'The people who contribute to Next Step Studios: the operator and the volunteer contributors, with what each one works on.' },
-  { type: 'Page', title: 'Policies', url: '/policies', text: 'Discord bot policy documents: privacy, terms, acceptable use, community guidelines, moderation, data retention and security.' },
-  { type: 'Page', title: 'Downloads', url: '/downloads', text: 'Every policy document as Markdown, plain text, print layout and PDF, plus one combined file.' },
+  { type: 'Page', title: 'Policies', url: '/policies', text: 'Public policy documents in two separate scopes: seven for the Discord bot, covering privacy, terms, acceptable use, community guidelines, moderation, data retention and security; four for the website, covering privacy, terms, copyright and security.' },
+  { type: 'Page', title: 'Downloads', url: '/downloads', text: 'Documents, brand and press files, and any game, app, tool or media builds. Every policy in Markdown, plain text, print layout and PDF, plus one combined file.' },
   { type: 'Page', title: 'Roadmap', url: '/roadmap', text: 'What is in development, what is planned and what has been decided against.' },
   { type: 'Page', title: 'FAQ', url: '/faq', text: 'Questions about the bot, the server, data, moderation, privacy and this website.' },
   { type: 'Page', title: 'Changelog', url: '/changelog', text: 'What changed on this website, version by version.' },
   { type: 'Page', title: 'Status', url: '/status', text: 'The current state of the website, the documents and the bot.' },
   { type: 'Page', title: 'Stack', url: '/stack', text: 'What the website and the bot are built with, and what is deliberately absent.' },
   { type: 'Page', title: 'Contact', url: '/contact', text: 'Email, privacy requests and support ticket guidance.' },
-  { type: 'Page', title: 'Website privacy', url: '/website-privacy', text: 'What this website does and does not collect.' },
+  { type: 'Page', title: 'Website privacy notice', url: '/policies/website/privacy', text: 'What this website does and does not collect: the contact form, theme storage, Step, hosting logs and the status feed.' },
   { type: 'Page', title: 'Module register', url: '/modules', text: 'Every module in the Next Step Bot source with its commands, status and data touchpoints.' },
   { type: 'Page', title: 'Trust centre', url: '/trust', text: 'Policies, security, retention, data requests, status and how to verify the claims.' },
   { type: 'Page', title: 'Now', url: '/now', text: 'A dated snapshot of what Next Step Studios is working on now: the Discord bot, the public documents, this website, and what has deliberately not started.' },
@@ -80,8 +86,8 @@ export const GET: APIRoute = async () => {
     ...policies.map((policy) => ({
       type: 'Policy',
       title: policy.data.title,
-      url: `/policies/bot/${policy.id.replace(/^bot\//, '')}`,
-      section: policy.data.shortTitle,
+      url: policyPath(policy.id),
+      section: `${POLICY_SCOPE_LABELS[scopeOf(policy.id)]} · ${isDraftDocument(policy.data.docStatus) ? 'Draft' : 'Current'}`,
       text: strip(`${policy.data.summary} ${policy.data.plainSummary} ${policy.body ?? ''}`),
     })),
     ...posts.map((post) => ({

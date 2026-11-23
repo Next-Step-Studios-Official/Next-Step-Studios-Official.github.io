@@ -4,8 +4,17 @@ import { getCollection } from 'astro:content';
 import { BOT_MODULES } from '../../lib/modules';
 import { GLOSSARY } from '../../lib/glossary';
 import { COMMANDS, COMMAND_GROUPS } from '../../lib/commands';
+import {
+  POLICY_SCOPES,
+  POLICY_SCOPE_LABELS,
+  policyPath,
+  scopeOf,
+} from '../../lib/documents';
 
-const policies = (await getCollection('policies')).sort((a, b) => a.data.order - b.data.order);
+const scopeRank = { bot: 0, website: 1 } as const;
+const policies = (await getCollection('policies')).sort(
+  (a, b) => scopeRank[scopeOf(a.id)] - scopeRank[scopeOf(b.id)] || a.data.order - b.data.order,
+);
 const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
 const posts = (await getCollection('devlog')).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 const tags = [...new Set(posts.flatMap((post) => post.data.tags))];
@@ -52,7 +61,8 @@ const sections = [
       { href: '/search', label: 'Search' },
       { href: '/step', label: 'How Step works' },
       { href: '/sitemap', label: 'Sitemap' },
-      { href: '/website-privacy', label: 'Website privacy' },
+      { href: '/policies/website/privacy', label: 'Website privacy notice' },
+      { href: '/policies/website/terms', label: 'Website terms' },
       { href: '/rss.xml', label: 'Devlog RSS' },
       { href: '/policies/rss.xml', label: 'Policy RSS' },
       { href: '/sitemap.xml', label: 'XML sitemap' },
@@ -114,17 +124,24 @@ const sections = [
 
       <div class="section-head" style="margin-top: 2.5rem;">
         <h2>Policy documents</h2>
-        <span class="label">{policies.length}</span>
+        <span class="label">{policies.length} in two scopes</span>
       </div>
-      <ul class="link-list link-list--inline">
-        {policies.map((policy) => (
-          <li>
-            <a class="text-link" href={`/policies/bot/${policy.id.replace(/^bot\//, '')}`}>
-              {policy.data.shortTitle}
-            </a>
-          </li>
-        ))}
-      </ul>
+      {POLICY_SCOPES.map((scope) => (
+        <div style="margin-top: 1rem;">
+          <p class="label">{POLICY_SCOPE_LABELS[scope]} · {policies.filter((policy) => scopeOf(policy.id) === scope).length}</p>
+          <ul class="link-list link-list--inline" style="margin-top: 0.4rem;">
+            {policies
+              .filter((policy) => scopeOf(policy.id) === scope)
+              .map((policy) => (
+                <li>
+                  <a class="text-link" href={policyPath(policy.id)}>
+                    {policy.data.shortTitle}
+                  </a>
+                </li>
+              ))}
+          </ul>
+        </div>
+      ))}
 
       <div class="section-head" style="margin-top: 2.5rem;">
         <h2>Bot modules</h2>

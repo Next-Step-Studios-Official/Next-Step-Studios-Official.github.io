@@ -107,6 +107,6 @@ export const ROADMAP: RoadmapItem[] = [
       'No analytics, no cookies, no accounts, no advertising.',
       'If that ever changes, the notice changes first and the claim is removed before the feature ships.',
     ],
-    link: { href: '/website-privacy', label: 'Website privacy notice' },
+    link: { href: '/policies/website/privacy', label: 'Website privacy notice' },
   },
 ];

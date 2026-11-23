@@ -31,12 +31,13 @@ const referenceLinks = [
 ];
 
 const policyLinks = [
-  { href: '/policies', label: 'All Bot policies' },
+  { href: '/policies', label: 'All policies' },
   { href: '/trust', label: 'Trust centre' },
-  { href: '/policies/bot/privacy', label: 'Privacy Policy' },
-  { href: '/policies/bot/terms', label: 'Terms of Service' },
+  { href: '/policies/bot/privacy', label: 'Bot privacy policy' },
+  { href: '/policies/bot/terms', label: 'Bot terms of service' },
+  { href: '/policies/website/privacy', label: 'Website privacy' },
+  { href: '/policies/website/terms', label: 'Website terms' },
   { href: '/downloads', label: 'Downloads' },
-  { href: '/website-privacy', label: 'Website privacy' },
 ];
 ---
 
@@ -74,7 +75,7 @@ const policyLinks = [
         </ul>
       </nav>
 
-      <nav class="footer-col" aria-label="Discord bot policies">
+      <nav class="footer-col" aria-label="Policies and documents">
         <p class="label">Documents</p>
         <ul class="footer-links">
           {policyLinks.map((link) => <li><a href={link.href}>{link.label}</a></li>)}

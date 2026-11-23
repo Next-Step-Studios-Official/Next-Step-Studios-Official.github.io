@@ -3,14 +3,22 @@ import Base from '../../../layouts/Base.astro';
 import DraftNotice from '../../../components/DraftNotice.astro';
 import { getCollection, render } from 'astro:content';
 import { SITE } from '../../../lib/site';
-import { githubUrlForSlug } from '../../../lib/documents';
+import {
+  POLICY_SCOPE_LABELS,
+  downloadKey,
+  githubUrlForPolicy,
+  isDraftDocument,
+  policyPath,
+  scopeOf,
+  slugOf,
+} from '../../../lib/documents';
 import { readingLabel } from '../../../lib/reading';
 import { snapshotsFor } from '../../../lib/policyVersions';
 
 export async function getStaticPaths() {
   const policies = await getCollection('policies');
   return policies.map((entry) => ({
-    params: { slug: entry.id.replace(/^bot\//, '') },
+    params: { scope: scopeOf(entry.id), slug: slugOf(entry.id) },
     props: { entry },
   }));
 }
@@ -18,14 +26,21 @@ export async function getStaticPaths() {
 const { entry } = Astro.props;
 const { Content, headings } = await render(entry);
 
-const all = (await getCollection('policies')).sort((a, b) => a.data.order - b.data.order);
+const scope = scopeOf(entry.id);
+const scopeLabel = POLICY_SCOPE_LABELS[scope];
+const key = downloadKey(entry.id);
+const draft = isDraftDocument(entry.data.docStatus);
+const pagePath = policyPath(entry.id);
+
+const all = (await getCollection('policies'))
+  .filter((policy) => scopeOf(policy.id) === scope)
+  .sort((a, b) => a.data.order - b.data.order);
 const index = all.findIndex((policy) => policy.id === entry.id);
 const previous = index > 0 ? all[index - 1] : undefined;
 const next = index < all.length - 1 ? all[index + 1] : undefined;
 
-const slugOf = (id: string) => id.replace(/^bot\//, '');
 const toc = headings.filter((heading) => heading.depth === 2);
-const versions = snapshotsFor(slugOf(entry.id));
+const versions = snapshotsFor(key);
 
 // Policy summaries are short by design; the meta description carries a little more.
 const metaDescription =
@@ -34,11 +49,16 @@ const metaDescription =
     : `${entry.data.summary} Read the full ${entry.data.shortTitle.toLowerCase()}, version ${entry.data.version}.`;
 
 const formatDate = (date: Date) =>
-  new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }).format(date);
+  new Intl.DateTimeFormat('en-GB', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+    timeZone: 'UTC',
+  }).format(date);
 
 const articleSchema = {
   '@type': 'Article',
-  '@id': `${new URL(`/policies/bot/${slugOf(entry.id)}`, Astro.site ?? SITE.url).toString()}#article`,
+  '@id': `${new URL(pagePath, Astro.site ?? SITE.url).toString()}#article`,
   headline: entry.data.title,
   description: entry.data.summary,
   dateModified: entry.data.updated.toISOString(),
@@ -54,7 +74,8 @@ const breadcrumbSchema = {
   itemListElement: [
     { '@type': 'ListItem', position: 1, name: 'Home', item: new URL('/', Astro.site ?? SITE.url).toString() },
     { '@type': 'ListItem', position: 2, name: 'Policies', item: new URL('/policies', Astro.site ?? SITE.url).toString() },
-    { '@type': 'ListItem', position: 3, name: entry.data.shortTitle, item: new URL(`/policies/bot/${slugOf(entry.id)}`, Astro.site ?? SITE.url).toString() },
+    { '@type': 'ListItem', position: 3, name: scopeLabel, item: new URL(`/policies#${scope}`, Astro.site ?? SITE.url).toString() },
+    { '@type': 'ListItem', position: 4, name: entry.data.shortTitle, item: new URL(pagePath, Astro.site ?? SITE.url).toString() },
   ],
 };
 ---
@@ -62,26 +83,32 @@ const breadcrumbSchema = {
 <Base
   title={entry.data.shortTitle}
   description={metaDescription}
-  path={`/policies/bot/${slugOf(entry.id)}`}
+  path={pagePath}
   schema={[articleSchema, breadcrumbSchema]}
-  ogImage={`og/policy-${slugOf(entry.id)}.png`}
+  ogImage={`og/policy-${key}.png`}
   ogAlt={`${entry.data.shortTitle} — Next Step Studios`}
 >
   <section class="page-head">
     <div class="container">
       <div class="page-head-stack" style="max-width: 62rem;">
         <p class="eyebrow">
-          <a href="/policies" class="text-link">Policies</a> · Discord bot · v{entry.data.version}
+          <a href="/policies" class="text-link">Policies</a> ·
+          <a href={`/policies#${scope}`} class="text-link">{scopeLabel}</a> · v{entry.data.version}
         </p>
         <h1 class="display display--page">{entry.data.title}</h1>
         <div class="meta-bar">
           <span>Version {entry.data.version}</span>
-          <span>{entry.data.docStatus}</span>
-          <span>Applies to · Discord bot</span>
+          <span>{draft ? 'Draft' : 'Current'}</span>
+          <span>Applies to · {scopeLabel}</span>
           <span>{readingLabel(entry.body)}</span>
           <span>Updated {formatDate(entry.data.updated)}</span>
         </div>
-        <DraftNotice docStatus={entry.data.docStatus} version={entry.data.version} />
+        <DraftNotice
+          docStatus={entry.data.docStatus}
+          version={entry.data.version}
+          scopeLabel={scopeLabel}
+          isDraft={draft}
+        />
         <div class="plain-summary panel panel--pad" id="plain-language">
           <div class="plain-summary-head">
             <p class="label">In plain language</p>
@@ -103,33 +130,35 @@ const breadcrumbSchema = {
         </div>
 
         <div class="doc-actions">
-          <a class="btn btn-primary" href={`/downloads/${slugOf(entry.id)}.pdf`} download={`${slugOf(entry.id)}.pdf`} data-astro-prefetch="false">
+          <a class="btn btn-primary" href={`/downloads/${key}.pdf`} download={`${key}.pdf`} data-astro-prefetch="false">
             Download PDF
             <span class="btn-arrow" aria-hidden="true">↓</span>
           </a>
-          <a class="btn" href={`/downloads/${slugOf(entry.id)}.md`} download={`${slugOf(entry.id)}.md`} data-astro-prefetch="false">
+          <a class="btn" href={`/downloads/${key}.md`} download={`${key}.md`} data-astro-prefetch="false">
             Markdown
           </a>
-          <a class="btn" href={`/downloads/${slugOf(entry.id)}.txt`} download={`${slugOf(entry.id)}.txt`} data-astro-prefetch="false">
+          <a class="btn" href={`/downloads/${key}.txt`} download={`${key}.txt`} data-astro-prefetch="false">
             Plain text
           </a>
-          <a class="text-link doc-action-link" href={`/downloads/print/${slugOf(entry.id)}`}>
+          <a class="text-link doc-action-link" href={`/downloads/print/${key}`}>
             Print edition →
           </a>
-          <a class="text-link doc-action-link" href={`/policies/versions/${slugOf(entry.id)}`} style="font-size: 0.8125rem;">
+          <a class="text-link doc-action-link" href={`/policies/versions/${key}`} style="font-size: 0.8125rem;">
             Version history ({versions.length}) →
           </a>
           <a class="text-link doc-action-link" href="/downloads" style="font-size: 0.8125rem;">
             All files →
           </a>
-          <a
-            class="text-link doc-action-link"
-            href={githubUrlForSlug(slugOf(entry.id))}
-            rel="noopener"
-            style="font-size: 0.8125rem;"
-          >
-            View on GitHub ↗
-          </a>
+          {githubUrlForPolicy(entry.id) && (
+            <a
+              class="text-link doc-action-link"
+              href={githubUrlForPolicy(entry.id) ?? undefined}
+              rel="noopener"
+              style="font-size: 0.8125rem;"
+            >
+              View on GitHub ↗
+            </a>
+          )}
         </div>
       </div>
     </div>
@@ -162,14 +191,14 @@ const breadcrumbSchema = {
     >
       <span>
         {previous && (
-          <a class="text-link" href={`/policies/bot/${slugOf(previous.id)}`} style="font-size: 0.875rem;">
+          <a class="text-link" href={policyPath(previous.id)} style="font-size: 0.875rem;">
             ← {previous.data.shortTitle}
           </a>
         )}
       </span>
       <span>
         {next && (
-          <a class="text-link" href={`/policies/bot/${slugOf(next.id)}`} style="font-size: 0.875rem;">
+          <a class="text-link" href={policyPath(next.id)} style="font-size: 0.875rem;">
             {next.data.shortTitle} →
           </a>
         )}
@@ -181,9 +210,21 @@ const breadcrumbSchema = {
 
     <div class="notice notice--neutral" role="note" style="margin-bottom: 3rem;">
       <p class="notice-body">
-        This document covers the Next Step Studios Discord bot only. Questions or requests
-        concerning it go to <a class="text-link" href={`mailto:${SITE.contactEmail}`}>{SITE.contactEmail}</a>.
-        See also the <a class="text-link" href="/website-privacy">website privacy notice</a>.
+        {
+          scope === 'bot' ? (
+            <>
+              This document covers the Next Step Studios Discord bot only. Questions or requests
+              concerning it go to <a class="text-link" href={`mailto:${SITE.contactEmail}`}>{SITE.contactEmail}</a>.
+              See also the <a class="text-link" href="/policies/website/privacy">website privacy notice</a>.
+            </>
+          ) : (
+            <>
+              This document covers the Next Step Studios website only. Questions about it go to
+              <a class="text-link" href={`mailto:${SITE.contactEmail}`}>{SITE.contactEmail}</a>.
+              See also the <a class="text-link" href="/policies/bot/privacy">Discord Bot Privacy Policy</a>.
+            </>
+          )
+        }
       </p>
     </div>
   </div>

@@ -13,13 +13,15 @@ const projectStatus = z.enum([
   'On hold',
 ]);
 
+const projectCategory = z.enum(['Discord bot', 'Games', 'Apps & tools', 'Website']);
+
 const projects = defineCollection({
   loader: glob({ pattern: '**/*.md', base: './src/content/projects' }),
   schema: z.object({
     title: z.string(),
     tagline: z.string(),
     status: projectStatus,
-    category: z.string(),
+    category: projectCategory,
     summary: z.string(),
     /** Shown on the home page when true. Only one project should set this. */
     featured: z.boolean().default(false),

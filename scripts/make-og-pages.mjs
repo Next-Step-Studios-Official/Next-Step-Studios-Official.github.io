@@ -12,7 +12,7 @@ import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
 const OUTPUT = 'public/og';
-const POLICY_DIR = 'src/content/policies/bot';
+const POLICY_DIR = 'src/content/policies';
 const PROJECT_DIR = 'src/content/projects';
 
 const escape = (value) =>
@@ -78,16 +78,27 @@ const card = (title, eyebrow, index) => {
 </svg>`;
 };
 
-const policies = [];
-for (const file of (await readdir(POLICY_DIR)).filter((name) => name.endsWith('.md'))) {
-  const raw = await readFile(join(POLICY_DIR, file), 'utf8');
-  const frontmatter = raw.split('---')[1] ?? '';
-  policies.push({
-    slug: file.replace(/\.md$/, ''),
-    shortTitle: field(frontmatter, 'shortTitle'),
-    version: field(frontmatter, 'version'),
-  });
-}
+const readPolicies = async (scope) => {
+  const directory = join(POLICY_DIR, scope);
+  const policies = [];
+  for (const file of (await readdir(directory)).filter((name) => name.endsWith('.md'))) {
+    const raw = await readFile(join(directory, file), 'utf8');
+    const frontmatter = raw.split('---')[1] ?? '';
+    const slug = file.replace(/\.md$/, '');
+    policies.push({
+      slug,
+      key: scope === 'bot' ? slug : `${scope}-${slug}`,
+      scope,
+      shortTitle: field(frontmatter, 'shortTitle'),
+      version: field(frontmatter, 'version'),
+      draft: /draft/i.test(field(frontmatter, 'docStatus')),
+    });
+  }
+  return policies.sort((a, b) => a.slug.localeCompare(b.slug));
+};
+
+const botPolicies = await readPolicies('bot');
+const websitePolicies = await readPolicies('website');
 
 const projects = [];
 for (const file of (await readdir(PROJECT_DIR)).filter((name) => name.endsWith('.md'))) {
@@ -97,8 +108,10 @@ for (const file of (await readdir(PROJECT_DIR)).filter((name) => name.endsWith('
     id: file.replace(/\.md$/, ''),
     title: field(frontmatter, 'title'),
     status: field(frontmatter, 'status'),
+    order: Number(field(frontmatter, 'order')) || 100,
   });
 }
+projects.sort((a, b) => a.order - b.order);
 
 await mkdir(OUTPUT, { recursive: true });
 
@@ -110,8 +123,8 @@ const pages = [
   { file: 'glossary.png', title: 'The words, defined once', eyebrow: 'Glossary' },
   { file: 'roadmap.png', title: 'What is next, without invented dates', eyebrow: 'Roadmap' },
   { file: 'faq.png', title: 'Questions, answered without spin', eyebrow: 'FAQ' },
-  ...policies.map((policy) => ({
-    file: `policy-${policy.slug}.png`,
+  ...botPolicies.map((policy) => ({
+    file: `policy-${policy.key}.png`,
     title: policy.shortTitle,
     eyebrow: `Policy · v${policy.version} · draft`,
   })),
@@ -119,6 +132,13 @@ const pages = [
     file: `project-${project.id}.png`,
     title: project.title,
     eyebrow: `Project · ${project.status}`,
+  })),
+  // Website documents are appended last so every existing share card keeps
+  // the number it already had.
+  ...websitePolicies.map((policy) => ({
+    file: `policy-${policy.key}.png`,
+    title: policy.shortTitle,
+    eyebrow: `Policy · v${policy.version} · ${policy.draft ? 'draft' : 'current'}`,
   })),
 ];
 

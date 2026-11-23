@@ -2,17 +2,25 @@
 import Base from '../../../layouts/Base.astro';
 import { getCollection } from 'astro:content';
 import { snapshotsFor, diffLines, diffSummary } from '../../../lib/policyVersions';
+import {
+  POLICY_SCOPE_LABELS,
+  downloadKey,
+  policyPath,
+  scopeOf,
+} from '../../../lib/documents';
 
 export async function getStaticPaths() {
   const policies = await getCollection('policies');
   return policies.map((entry) => ({
-    params: { slug: entry.id.replace(/^bot\//, '') },
+    params: { slug: downloadKey(entry.id) },
     props: { entry },
   }));
 }
 
 const { entry } = Astro.props;
-const slug = entry.id.replace(/^bot\//, '');
+const scope = scopeOf(entry.id);
+const scopeLabel = POLICY_SCOPE_LABELS[scope];
+const slug = downloadKey(entry.id);
 const snapshots = snapshotsFor(slug);
 const latest = snapshots[0];
 const changes = latest ? diffLines(latest.body, entry.body ?? '') : [];
@@ -21,12 +29,17 @@ const changed = changes.filter((line) => line.kind !== 'same');
 const hasChanges = summary.added > 0 || summary.removed > 0;
 
 const formatDate = (date: Date) =>
-  new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }).format(date);
+  new Intl.DateTimeFormat('en-GB', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+    timeZone: 'UTC',
+  }).format(date);
 ---
 
 <Base
   title={`${entry.data.shortTitle} versions`}
-  description={`Every recorded version of the ${entry.data.shortTitle} for the Next Step Studios Discord bot, compared with the text published today.`}
+  description={`Every recorded version of the ${entry.data.shortTitle} for the Next Step Studios ${scopeLabel}, compared with the text published today.`}
   path={`/policies/versions/${slug}`}
 >
   <section class="page-head">
@@ -34,7 +47,8 @@ const formatDate = (date: Date) =>
       <div class="page-head-stack">
         <p class="eyebrow">
           <a class="text-link" href="/policies">Policies</a> ·
-          <a class="text-link" href={`/policies/bot/${slug}`}>{entry.data.shortTitle}</a> ·
+          <a class="text-link" href={`/policies#${scope}`}>{scopeLabel}</a> ·
+          <a class="text-link" href={policyPath(entry.id)}>{entry.data.shortTitle}</a> ·
           Versions
         </p>
         <h1 class="display display--page">Version history</h1>

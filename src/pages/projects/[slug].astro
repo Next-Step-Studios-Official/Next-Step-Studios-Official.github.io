@@ -31,7 +31,12 @@ const projectSchema = {
 };
 
 const formatDate = (date: Date) =>
-  new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }).format(date);
+  new Intl.DateTimeFormat('en-GB', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+    timeZone: 'UTC',
+  }).format(date);
 ---
 
 <Base
@@ -55,7 +60,7 @@ const formatDate = (date: Date) =>
             Status <StatusBadge status={status} />
           </span>
           <span>Category · {category}</span>
-          <span>Operated by the studio, for one server</span>
+          <span>{isBot ? 'Operated by the studio, for one server' : 'Made by the studio'}</span>
           {isBot && <span>{BOT_MODULES.length} modules · {moduleCommandCount()} commands listed</span>}
           {entry.data.updated && <span>Status reviewed {formatDate(entry.data.updated)}</span>}
         </div>

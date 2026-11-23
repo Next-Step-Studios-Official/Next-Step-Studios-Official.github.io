@@ -1,19 +1,23 @@
 ---
 import { getCollection, render } from 'astro:content';
-import { getDocuments, slugOf } from '../../../lib/documents';
+import { downloadKey, getDocuments } from '../../../lib/documents';
 import { SITE } from '../../../lib/site';
 
 export async function getStaticPaths() {
   const policies = await getCollection('policies');
-  return policies.map((entry) => ({ params: { slug: slugOf(entry.id) }, props: { entry } }));
+  return policies.map((entry) => ({
+    params: { slug: downloadKey(entry.id) },
+    props: { entry },
+  }));
 }
 
 const { entry } = Astro.props;
 const { Content } = await render(entry);
 
 const documents = await getDocuments();
-const document = documents.find((item) => item.slug === slugOf(entry.id));
-const slug = slugOf(entry.id);
+const key = downloadKey(entry.id);
+const document = documents.find((item) => item.key === key);
+const scopeLabel = document?.scopeLabel ?? 'Policy';
 ---
 
 <!doctype html>
@@ -176,15 +180,15 @@ const slug = slugOf(entry.id);
     <div class="screen-bar">
       <span>Print edition · {document?.version ?? entry.data.version}</span>
       <div class="screen-actions">
-        <a href={`/policies/bot/${slug}`}>Read online</a>
-        <a href={`/downloads/${slug}.pdf`}>PDF</a>
+        <a href={document?.pagePath ?? '/'}>Read online</a>
+        <a href={`/downloads/${key}.pdf`}>PDF</a>
         <button type="button" onclick="window.print()">Print / save as PDF</button>
       </div>
     </div>
 
     <main class="sheet">
       <header class="sheet-head">
-        <p class="sheet-studio">{SITE.name} · Discord bot documentation</p>
+        <p class="sheet-studio">{SITE.name} · {scopeLabel} documentation</p>
         <h1>{entry.data.title}</h1>
         <p class="sheet-meta">
           <span>Version {entry.data.version}</span>
@@ -201,7 +205,7 @@ const slug = slugOf(entry.id);
       <footer class="sheet-foot">
         <p>
           {SITE.name}, operated by {SITE.operator}. Contact: {SITE.contactEmail}.
-          This is a draft document; the version published on the website is authoritative.
+          The version published on the website is authoritative.
         </p>
       </footer>
     </main>

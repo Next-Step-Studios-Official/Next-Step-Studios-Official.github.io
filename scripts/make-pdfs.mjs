@@ -181,7 +181,7 @@ async function buildPdf(document, outputPath) {
   };
 
   // Title block
-  page.drawText('NEXT STEP STUDIOS - DISCORD BOT DOCUMENTATION', {
+  page.drawText(`NEXT STEP STUDIOS - ${document.scopeLabel.toUpperCase()} DOCUMENTATION`, {
     x: MARGIN.left,
     y,
     size: 7.5,
@@ -311,20 +311,27 @@ if (files.length === 0) {
 for (const file of files) {
   const source = fs.readFileSync(file, 'utf8');
   const { data, body } = parseFrontmatter(source);
+  const relative = path.relative(ROOT, file).replace(/\\/g, '/');
+  const scope = relative.startsWith('website/') ? 'website' : 'bot';
   const slug = path.basename(file, '.md');
+  const key = scope === 'bot' ? slug : `${scope}-${slug}`;
+  const scopeLabel = scope === 'bot' ? 'Discord bot' : 'Website';
 
   const document = {
     slug,
+    key,
+    scope,
+    scopeLabel,
     title: data.title ?? slug,
     heading: data.shortTitle ?? data.title ?? slug,
     shortTitle: data.shortTitle ?? data.title ?? slug,
     version: data.version ?? '0.0.0',
     docStatus: data.docStatus ?? 'Draft',
-    appliesTo: data.appliesTo ?? 'Discord bot',
+    appliesTo: data.appliesTo ?? scopeLabel,
     summary: data.summary ?? '',
     blocks: toBlocks(body),
   };
 
-  const result = await buildPdf(document, path.join(OUT, `${slug}.pdf`));
-  console.log(`${slug.padEnd(24)} ${String(result.pages).padStart(2)} pages  ${(result.bytes / 1024).toFixed(0)} KB`);
+  const result = await buildPdf(document, path.join(OUT, `${key}.pdf`));
+  console.log(`${key.padEnd(24)} ${String(result.pages).padStart(2)} pages  ${(result.bytes / 1024).toFixed(0)} KB`);
 }

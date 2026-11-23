@@ -24,6 +24,9 @@ export default defineConfig({
     '/social': '/links',
     '/brand': '/press#guidelines',
     '/archive': '/press#archive',
+    '/website-privacy': '/policies/website/privacy',
+    '/policies/bot': '/policies#bot',
+    '/policies/website': '/policies#website',
   },
   build: {
     format: 'directory',
