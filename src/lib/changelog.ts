@@ -14,6 +14,19 @@ export type ChangelogEntry = {
 export const CHANGELOG: ChangelogEntry[] = [
   {
     date: '2026-11-23',
+    version: '3.8',
+    title: 'The breadcrumb edition',
+    summary:
+      'The policy hub can now separate current documents from drafts, every detail page shows its place in the site, and the editing guide records the full Windows paths for the files behind both changes.',
+    changes: [
+      'The policy hub adds a current/draft status filter alongside search and scope. All three are kept in the address (`?scope=website&status=current&q=privacy`), and a Clear filters control resets them.',
+      'Visible breadcrumbs now sit above policy documents, policy version history, projects, bot modules and devlog entries. Each one links back through its section and marks the current page with aria-current.',
+      'The breadcrumb component is shared by those detail pages, so its separator, spacing and type can be changed in one file.',
+      'EDITING.md now starts with a full-path table, and section 11 names the policy hub file directly, so it is clear which file to open for each change.',
+    ],
+  },
+  {
+    date: '2026-11-23',
     version: '3.7',
     title: 'The label edition',
     summary:

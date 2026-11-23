@@ -1,6 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import StatusBadge from '../../components/StatusBadge.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
 import { getCollection, render } from 'astro:content';
 import { BOT_MODULES, MODULE_STATUS_LABEL, modulesByGroup, moduleCommandCount } from '../../lib/modules';
 
@@ -50,9 +51,13 @@ const formatDate = (date: Date) =>
   <section class="page-head">
     <div class="container">
       <div class="page-head-stack">
-        <p class="eyebrow">
-          <a href="/projects" class="text-link">Projects</a> · {category}
-        </p>
+        <Breadcrumbs
+          items={[
+            { label: 'Home', href: '/' },
+            { label: 'Projects', href: '/projects' },
+            { label: title },
+          ]}
+        />
         <h1 class="display display--page">{title}</h1>
         <p class="lede">{tagline}</p>
         <div class="meta-bar" style="border-bottom: 0; padding-bottom: 0;">

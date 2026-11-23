@@ -1,0 +1,93 @@
+---
+/**
+ * Visible breadcrumb navigation for a detail page.
+ *
+ * The last item is the current page and carries aria-current. Items without
+ * an href render as plain text, which is useful for a category that has no
+ * page of its own.
+ */
+interface Crumb {
+  label: string;
+  href?: string;
+}
+
+interface Props {
+  items: Crumb[];
+}
+
+const { items } = Astro.props;
+---
+
+<nav class="breadcrumbs" aria-label="Breadcrumb">
+  <ol>
+    {
+      items.map((item, index) => {
+        const current = index === items.length - 1;
+        return (
+          <li>
+            {index > 0 && <span class="crumb-sep" aria-hidden="true">/</span>}
+            {current || !item.href ? (
+              <span class="crumb-current" aria-current={current ? 'page' : undefined}>
+                {item.label}
+              </span>
+            ) : (
+              <a href={item.href}>{item.label}</a>
+            )}
+          </li>
+        );
+      })
+    }
+  </ol>
+</nav>
+
+<style>
+  .breadcrumbs ol {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.25rem 0.55rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .breadcrumbs li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    color: var(--color-muted);
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.12em;
+    line-height: 1.5;
+    text-transform: uppercase;
+  }
+
+  .breadcrumbs a {
+    color: var(--color-muted);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+  }
+
+  .breadcrumbs a:hover {
+    color: var(--color-ink);
+    border-bottom-color: var(--color-accent);
+  }
+
+  .crumb-sep {
+    color: var(--color-line);
+  }
+
+  .crumb-current {
+    color: var(--color-ink-dim);
+    overflow-wrap: anywhere;
+  }
+
+  @media (pointer: coarse) {
+    .breadcrumbs a {
+      display: inline-flex;
+      align-items: center;
+      min-height: 2.75rem;
+    }
+  }
+</style>

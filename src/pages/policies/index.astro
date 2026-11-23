@@ -135,6 +135,26 @@ const scopes = POLICY_SCOPES.map((scope) => {
             }
           </div>
         </div>
+
+        <div class="toolbar-row">
+          <div class="chip-group" role="group" aria-label="Filter by status" data-status-chips>
+            <button type="button" class="chip" aria-pressed="true" data-doc-status="all">
+              All statuses <span class="chip-count">{policies.length}</span>
+            </button>
+            <button type="button" class="chip" aria-pressed="false" data-doc-status="current">
+              Current <span class="chip-count">{currentCount}</span>
+            </button>
+            <button type="button" class="chip" aria-pressed="false" data-doc-status="draft">
+              Draft <span class="chip-count">{draftCount}</span>
+            </button>
+          </div>
+          <button type="button" class="toolbar-reset" data-doc-reset hidden>Clear filters</button>
+        </div>
+
+        <p class="doc-filter-note">
+          The search, scope and status are kept in the address, so a filtered list can be
+          linked or reloaded.
+        </p>
       </div>
 
       <div class="doc-grid" data-doc-grid style="margin-top: 1.25rem;">
@@ -149,6 +169,7 @@ const scopes = POLICY_SCOPES.map((scope) => {
                 class="panel doc-card"
                 data-doc
                 data-scope={scope}
+                data-status={draft ? 'draft' : 'current'}
                 data-search={`${policy.data.title} ${policy.data.shortTitle} ${policy.data.summary} ${policy.data.plainSummary} ${label}`.toLowerCase()}
               >
                 <span class={draft ? 'status status--draft' : 'status status--ready'} style="align-self: flex-start;">
@@ -184,7 +205,8 @@ const scopes = POLICY_SCOPES.map((scope) => {
       </div>
 
       <p class="empty-state" data-doc-empty>
-        No document matches that search or scope. Try a shorter word, or clear the field.
+        No document matches those filters. Try a shorter word, another scope or status, or
+        clear the filters.
       </p>
 
       <p style="color: var(--color-muted); font-size: 0.875rem; margin-top: 1.25rem;">
@@ -219,6 +241,15 @@ const scopes = POLICY_SCOPES.map((scope) => {
     </div>
   </section>
 
+  <style>
+    .doc-filter-note {
+      margin: 0.75rem 0 0;
+      color: var(--color-muted);
+      font-size: 0.8125rem;
+    }
+    .toolbar-reset[hidden] { display: none; }
+  </style>
+
   <script>
     const toolbar = document.querySelector<HTMLElement>('[data-docs-toolbar]');
     const grid = document.querySelector<HTMLElement>('[data-doc-grid]');
@@ -227,18 +258,49 @@ const scopes = POLICY_SCOPES.map((scope) => {
     if (toolbar && grid) {
       const search = toolbar.querySelector<HTMLInputElement>('[data-doc-search]');
       const countEl = toolbar.querySelector<HTMLElement>('[data-doc-count]');
-      const chips = Array.from(toolbar.querySelectorAll<HTMLButtonElement>('[data-scope-chips] .chip'));
+      const scopeChips = Array.from(toolbar.querySelectorAll<HTMLButtonElement>('[data-scope-chips] .chip'));
+      const statusChips = Array.from(toolbar.querySelectorAll<HTMLButtonElement>('[data-status-chips] .chip'));
+      const reset = toolbar.querySelector<HTMLButtonElement>('[data-doc-reset]');
       const cards = Array.from(grid.querySelectorAll<HTMLElement>('[data-doc]'));
 
       const validScope = (value: string | null) =>
-        value && chips.some((chip) => chip.dataset.scope === value) ? value : 'all';
+        value && scopeChips.some((chip) => chip.dataset.scope === value) ? value : 'all';
+      const validStatus = (value: string | null) =>
+        value && statusChips.some((chip) => chip.dataset.docStatus === value) ? value : 'all';
 
-      let scope = validScope(new URLSearchParams(window.location.search).get('scope'));
+      let scope = 'all';
+      let status = 'all';
+
+      const paintScope = () => {
+        scopeChips.forEach((chip) => {
+          chip.setAttribute('aria-pressed', String(chip.dataset.scope === scope));
+        });
+      };
+
+      const paintStatus = () => {
+        statusChips.forEach((chip) => {
+          chip.setAttribute('aria-pressed', String(chip.dataset.docStatus === status));
+        });
+      };
+
+      const readUrl = () => {
+        const params = new URLSearchParams(window.location.search);
+        scope = validScope(params.get('scope'));
+        status = validStatus(params.get('status'));
+        if (search) search.value = params.get('q') ?? '';
+        paintScope();
+        paintStatus();
+      };
 
       const syncUrl = () => {
         const url = new URL(window.location.href);
         if (scope === 'all') url.searchParams.delete('scope');
         else url.searchParams.set('scope', scope);
+        if (status === 'all') url.searchParams.delete('status');
+        else url.searchParams.set('status', status);
+        const query = (search?.value ?? '').trim();
+        if (query) url.searchParams.set('q', query);
+        else url.searchParams.delete('q');
         window.history.replaceState({}, '', url);
       };
 
@@ -249,7 +311,8 @@ const scopes = POLICY_SCOPES.map((scope) => {
         cards.forEach((card) => {
           const matchesQuery = !query || (card.dataset.search ?? '').includes(query);
           const matchesScope = scope === 'all' || card.dataset.scope === scope;
-          const matches = matchesQuery && matchesScope;
+          const matchesStatus = status === 'all' || card.dataset.status === status;
+          const matches = matchesQuery && matchesScope && matchesStatus;
           card.classList.toggle('is-hidden', !matches);
           if (matches) visible += 1;
         });
@@ -262,19 +325,31 @@ const scopes = POLICY_SCOPES.map((scope) => {
         }
 
         emptyEl?.classList.toggle('is-visible', visible === 0);
+        if (reset) {
+          reset.hidden = !(scope !== 'all' || status !== 'all' || Boolean(query));
+        }
       };
 
       const setScope = (value: string, updateUrl = true) => {
         scope = value;
-        chips.forEach((chip) => {
-          chip.setAttribute('aria-pressed', String(chip.dataset.scope === value));
-        });
+        paintScope();
         apply();
         if (updateUrl) syncUrl();
       };
 
-      chips.forEach((chip) => {
+      const setStatus = (value: string, updateUrl = true) => {
+        status = value;
+        paintStatus();
+        apply();
+        if (updateUrl) syncUrl();
+      };
+
+      scopeChips.forEach((chip) => {
         chip.addEventListener('click', () => setScope(chip.dataset.scope ?? 'all'));
+      });
+
+      statusChips.forEach((chip) => {
+        chip.addEventListener('click', () => setStatus(chip.dataset.docStatus ?? 'all'));
       });
 
       document.querySelectorAll<HTMLElement>('[data-scope-jump]').forEach((link) => {
@@ -285,18 +360,29 @@ const scopes = POLICY_SCOPES.map((scope) => {
         });
       });
 
+      reset?.addEventListener('click', () => {
+        scope = 'all';
+        status = 'all';
+        if (search) search.value = '';
+        paintScope();
+        paintStatus();
+        apply();
+        syncUrl();
+      });
+
       window.addEventListener('popstate', () => {
-        scope = validScope(new URLSearchParams(window.location.search).get('scope'));
-        chips.forEach((chip) => {
-          chip.setAttribute('aria-pressed', String(chip.dataset.scope === scope));
-        });
+        readUrl();
         apply();
       });
 
-      search?.addEventListener('input', apply);
+      search?.addEventListener('input', () => {
+        apply();
+        syncUrl();
+      });
 
-      if (scope !== 'all') setScope(scope, false);
-      else apply();
+      readUrl();
+      apply();
+      syncUrl();
     }
   </script>
 </Base>

@@ -14,6 +14,23 @@ D:\NextStepStudios\next-step-studios-website
 
 Every path below is relative to that folder unless it starts with `D:\`.
 
+**Full paths for the files behind the policy filter and breadcrumbs:**
+
+| What you are editing | Full path on this computer |
+| --- | --- |
+| This guide | `D:\NextStepStudios\next-step-studios-website\EDITING.md` |
+| Policy hub, including search, scope and status filters | `D:\NextStepStudios\next-step-studios-website\src\pages\policies\index.astro` |
+| Breadcrumb navigation used by detail pages | `D:\NextStepStudios\next-step-studios-website\src\components\Breadcrumbs.astro` |
+| A policy document page | `D:\NextStepStudios\next-step-studios-website\src\pages\policies\[scope]\[slug].astro` |
+| Policy version history | `D:\NextStepStudios\next-step-studios-website\src\pages\policies\versions\[slug].astro` |
+| A project page | `D:\NextStepStudios\next-step-studios-website\src\pages\projects\[slug].astro` |
+| A bot module page | `D:\NextStepStudios\next-step-studios-website\src\pages\modules\[id].astro` |
+| A devlog entry | `D:\NextStepStudios\next-step-studios-website\src\pages\devlog\[slug].astro` |
+| Changelog entries | `D:\NextStepStudios\next-step-studios-website\src\lib\changelog.ts` |
+
+The square brackets in `[scope]`, `[slug]` and `[id]` are part of the real folder and
+file names. Type them exactly.
+
 > **GitHub only receives files inside the website folder.** The Discord bot and the
 > original logo live elsewhere on the D: drive. Section 10 lists their full paths, what
 > is already correct and what, if anything, still needs to be changed.
@@ -414,6 +431,28 @@ also want the route gone.
 The footer has `studioLinks`, `referenceLinks` and `policyLinks`. Add or remove entries
 the same way. The footer is not generated from the header, so a page can appear in one
 and not the other; keep them intentional.
+
+### Breadcrumbs on detail pages
+
+A breadcrumb is the small path above a page title: **Home / Projects / Project name**.
+The last item is the current page. The shared component is:
+
+**Full path:** `D:\NextStepStudios\next-step-studios-website\src\components\Breadcrumbs.astro`
+
+Each detail page passes its own list, for example:
+
+```astro
+<Breadcrumbs
+  items={[
+    { label: 'Home', href: '/' },
+    { label: 'Projects', href: '/projects' },
+    { label: title },
+  ]}
+/>
+```
+
+The last item has no `href` and is marked as the current page. To change a label, edit the
+list in that page; to change the separator, spacing or type size, edit the component once.
 
 ---
 
@@ -847,10 +886,16 @@ Policies are split into two separate sets, because they cover different things:
 | `src/content/policies/bot/` | The Discord bot and the one private server it runs in | `/policies/bot/<slug>` | 7 |
 | `src/content/policies/website/` | This public website: privacy, terms, copyright and security | `/policies/website/<slug>` | 4 |
 
-`/policies` is one hub page for both sets, with filter chips and a count for each. The
-chosen scope is kept in the address (`/policies?scope=website`), so a filtered list can be
-linked or reloaded. There is no combined policy: a bot document never applies to the
-website and vice versa.
+`/policies` is one hub page for both sets, with search, scope chips and a current/draft
+status filter. The chosen values are kept in the address
+(`/policies?scope=website&status=current&q=privacy`), so a filtered list can be linked or
+reloaded. The **Clear filters** button resets all three. The status filter is derived from
+each document's `docStatus` frontmatter: a value containing “draft” is a draft, and
+everything else is current.
+
+**Full path:** `D:\NextStepStudios\next-step-studios-website\src\pages\policies\index.astro`
+
+There is no combined policy: a bot document never applies to the website and vice versa.
 `src/lib/documents.ts` decides a document's scope from its folder, builds its public URL
 and gives it a flat download key. Do not add a third folder without also teaching that
 file about it.
@@ -1742,12 +1787,17 @@ text. Prefer changing the shared module (`src/lib/...`) so every page follows.
 
 ### Important files
 
+Every path in this table is relative to `D:\NextStepStudios\next-step-studios-website`. The
+full paths for the policy filter and breadcrumb files are at the top of this guide.
+
 | Path | What it is |
 | --- | --- |
 | `src/pages/` | Every route |
 | `src/layouts/Base.astro` | Page shell, metadata, favicons, schema |
 | `src/styles/theme.css` | Light palette and light-only surface overrides |
 | `src/components/Header.astro` | Desktop and mobile navigation |
+| `src/components/Breadcrumbs.astro` | Breadcrumb path above policy, project, module and devlog detail pages |
+| `src/pages/policies/index.astro` | Policy hub, search and scope/status filters |
 | `src/components/Footer.astro` | Footer navigation and contact |
 | `src/components/Assistant.astro` | Floating Step launcher, chat panel and local loader |
 | `src/lib/assistant.ts` | Step's local question matcher, topics and page starters |

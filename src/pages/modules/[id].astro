@@ -1,5 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
 import { BOT_MODULES, MODULE_STATUS_CLASS, MODULE_STATUS_LABEL, MODULE_STATUS_NOTE } from '../../lib/modules';
 import { COMMANDS } from '../../lib/commands';
 import { SITE } from '../../lib/site';
@@ -91,9 +92,14 @@ const touchpoints = [
   <section class="page-head">
     <div class="container">
       <div class="page-head-stack">
-        <p class="eyebrow">
-          <a class="text-link" href="/modules">Bot modules</a> · {module.group}
-        </p>
+        <Breadcrumbs
+          items={[
+            { label: 'Home', href: '/' },
+            { label: 'Bot modules', href: '/modules' },
+            { label: module.group },
+            { label: module.name },
+          ]}
+        />
         <h1 class="display display--page">{module.name}</h1>
         <p class="lede">{module.summary}</p>
         <div class="meta-bar">

@@ -1,6 +1,7 @@
 ---
 import Base from '../../../layouts/Base.astro';
 import DraftNotice from '../../../components/DraftNotice.astro';
+import Breadcrumbs from '../../../components/Breadcrumbs.astro';
 import { getCollection, render } from 'astro:content';
 import { SITE } from '../../../lib/site';
 import {
@@ -91,10 +92,14 @@ const breadcrumbSchema = {
   <section class="page-head">
     <div class="container">
       <div class="page-head-stack" style="max-width: 62rem;">
-        <p class="eyebrow">
-          <a href="/policies" class="text-link">Policies</a> ·
-          <a href={`/policies#${scope}`} class="text-link">{scopeLabel}</a> · v{entry.data.version}
-        </p>
+        <Breadcrumbs
+          items={[
+            { label: 'Home', href: '/' },
+            { label: 'Policies', href: '/policies' },
+            { label: scopeLabel, href: `/policies#${scope}` },
+            { label: entry.data.shortTitle },
+          ]}
+        />
         <h1 class="display display--page">{entry.data.title}</h1>
         <div class="meta-bar">
           <span>Version {entry.data.version}</span>

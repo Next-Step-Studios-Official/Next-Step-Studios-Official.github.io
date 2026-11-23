@@ -1,5 +1,6 @@
 ---
 import Base from '../../../layouts/Base.astro';
+import Breadcrumbs from '../../../components/Breadcrumbs.astro';
 import { getCollection } from 'astro:content';
 import { snapshotsFor, diffLines, diffSummary } from '../../../lib/policyVersions';
 import {
@@ -45,12 +46,15 @@ const formatDate = (date: Date) =>
   <section class="page-head">
     <div class="container">
       <div class="page-head-stack">
-        <p class="eyebrow">
-          <a class="text-link" href="/policies">Policies</a> ·
-          <a class="text-link" href={`/policies#${scope}`}>{scopeLabel}</a> ·
-          <a class="text-link" href={policyPath(entry.id)}>{entry.data.shortTitle}</a> ·
-          Versions
-        </p>
+        <Breadcrumbs
+          items={[
+            { label: 'Home', href: '/' },
+            { label: 'Policies', href: '/policies' },
+            { label: scopeLabel, href: `/policies#${scope}` },
+            { label: entry.data.shortTitle, href: policyPath(entry.id) },
+            { label: 'Version history' },
+          ]}
+        />
         <h1 class="display display--page">Version history</h1>
         <p class="lede">
           Every version of this document is kept as a text snapshot. The newest snapshot is compared
