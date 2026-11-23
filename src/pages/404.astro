@@ -8,7 +8,7 @@ const policyCount = (await getCollection('policies')).length;
 const suggestions = [
   { href: '/projects', label: 'Projects', note: 'What exists, and at what stage' },
   { href: '/commands', label: 'Command reference', note: `All ${COMMANDS.length} slash commands` },
-  { href: '/policies', label: 'Policies', note: `${policyCount} bot documents` },
+  { href: '/policies', label: 'Policies', note: `${policyCount} documents in two sets` },
   { href: '/trust', label: 'Trust centre', note: 'Data, security and requests' },
   { href: '/modules', label: 'Module register', note: 'The bot, module by module' },
   { href: '/downloads', label: 'Downloads', note: 'Every document as a file' },
@@ -18,7 +18,7 @@ const suggestions = [
 <Base
   title="Page not found"
   description="That page doesn't exist — search the site or take one of the suggested routes."
-  path="/404"
+  path="/404.html"
   noindex
 >
   <section class="page-head page-head--center">

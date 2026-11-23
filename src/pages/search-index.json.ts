@@ -62,7 +62,6 @@ const PAGES: IndexEntry[] = [
   { type: 'Page', title: 'Status', url: '/status', text: 'The current state of the website, the documents and the bot.' },
   { type: 'Page', title: 'Stack', url: '/stack', text: 'What the website and the bot are built with, and what is deliberately absent.' },
   { type: 'Page', title: 'Contact', url: '/contact', text: 'Email, privacy requests and support ticket guidance.' },
-  { type: 'Page', title: 'Website privacy notice', url: '/policies/website/privacy', text: 'What this website does and does not collect: the contact form, theme storage, Step, hosting logs and the status feed.' },
   { type: 'Page', title: 'Module register', url: '/modules', text: 'Every module in the Next Step Bot source with its commands, status and data touchpoints.' },
   { type: 'Page', title: 'Trust centre', url: '/trust', text: 'Policies, security, retention, data requests, status and how to verify the claims.' },
   { type: 'Page', title: 'Now', url: '/now', text: 'A dated snapshot of what Next Step Studios is working on now: the Discord bot, the public documents, this website, and what has deliberately not started.' },

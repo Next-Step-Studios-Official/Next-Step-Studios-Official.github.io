@@ -33,11 +33,12 @@ export const ROADMAP: RoadmapItem[] = [
     title: 'Public documentation',
     status: 'Draft',
     summary:
-      'Seven policy documents at version 0.2.0, published in full on this site, downloadable as files, and mirrored to a public GitHub repository.',
+      'Eleven policy documents in two sets — seven for the Discord bot and four for this website — published in full on this site, downloadable as files, with the bot set mirrored to a public GitHub repository.',
     points: [
-      'Published: privacy, terms, acceptable use, community guidelines, moderation, data retention, security.',
-      'Missing: legal review. That is why they are drafts rather than a 1.0.',
-      'Every document is versioned, and the GitHub mirror makes each change visible.',
+      'Bot set: privacy, terms, acceptable use, community guidelines, moderation, data retention and security, all drafts for review.',
+      'Website set: privacy and security are current; terms and copyright remain drafts for review.',
+      'Missing: legal review. That is why the draft documents are drafts rather than a 1.0.',
+      'Every document is versioned, and the GitHub mirror makes each bot-document change visible.',
     ],
     link: { href: '/policies', label: 'Read the documents' },
   },

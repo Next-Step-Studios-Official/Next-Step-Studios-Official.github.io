@@ -847,8 +847,10 @@ Policies are split into two separate sets, because they cover different things:
 | `src/content/policies/bot/` | The Discord bot and the one private server it runs in | `/policies/bot/<slug>` | 7 |
 | `src/content/policies/website/` | This public website: privacy, terms, copyright and security | `/policies/website/<slug>` | 4 |
 
-`/policies` is one hub page for both sets, with filter chips and a count for each. There
-is no combined policy: a bot document never applies to the website and vice versa.
+`/policies` is one hub page for both sets, with filter chips and a count for each. The
+chosen scope is kept in the address (`/policies?scope=website`), so a filtered list can be
+linked or reloaded. There is no combined policy: a bot document never applies to the
+website and vice versa.
 `src/lib/documents.ts` decides a document's scope from its folder, builds its public URL
 and gives it a flat download key. Do not add a third folder without also teaching that
 file about it.

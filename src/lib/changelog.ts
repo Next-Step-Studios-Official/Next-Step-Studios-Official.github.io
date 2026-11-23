@@ -13,6 +13,23 @@ export type ChangelogEntry = {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    date: '2026-11-23',
+    version: '3.5',
+    title: 'The two-set edition',
+    summary:
+      'The bot policies and the website policies become separate sets, downloads and projects gain categories that describe what is actually there, and a filtered policy list can be linked or reloaded.',
+    changes: [
+      'The policy collection is now seven Discord bot documents and four website documents, each set with its own address under /policies/bot and /policies/website.',
+      'The policies hub lists both sets with totals, current and draft labels, scope filters and a note on future product sets. The old /website-privacy address redirects to the website privacy notice.',
+      'Website privacy and security are marked current; website terms and copyright remain drafts for review. No document claims legal compliance.',
+      'Downloads are grouped into Documents, Brand & press, Games, Apps, Tools and Media, with an honest empty state for categories that have no file yet.',
+      'Projects use four categories — Discord bot, Games, Apps & tools and Website — and gain First App and This Website entries.',
+      'The policy scope filter now removes documents from the other scope, and the chosen scope is kept in the address so a filtered list survives a reload and can be shared.',
+      'Devlog entries declare their own canonical address; before this, every entry pointed search engines at /devlog instead of itself.',
+      'The human sitemap groups policies, downloads and the trust centre under Documents rather than Discord bot.',
+    ],
+  },
+  {
     date: '2026-11-22',
     version: '3.4',
     title: 'The one-page brand edition',

@@ -81,7 +81,7 @@ const scopes = POLICY_SCOPES.map((scope) => {
               </p>
               <a
                 class="text-link"
-                href={`#documents`}
+                href={`/policies?scope=${scope}#documents`}
                 data-scope-jump={scope}
                 style="display: inline-block; margin-top: 0.75rem; font-size: 0.875rem;"
               >
@@ -229,7 +229,17 @@ const scopes = POLICY_SCOPES.map((scope) => {
       const chips = Array.from(toolbar.querySelectorAll<HTMLButtonElement>('[data-scope-chips] .chip'));
       const cards = Array.from(grid.querySelectorAll<HTMLElement>('[data-doc]'));
 
-      let scope = 'all';
+      const validScope = (value: string | null) =>
+        value && chips.some((chip) => chip.dataset.scope === value) ? value : 'all';
+
+      let scope = validScope(new URLSearchParams(window.location.search).get('scope'));
+
+      const syncUrl = () => {
+        const url = new URL(window.location.href);
+        if (scope === 'all') url.searchParams.delete('scope');
+        else url.searchParams.set('scope', scope);
+        window.history.replaceState({}, '', url);
+      };
 
       const apply = () => {
         const query = (search?.value ?? '').trim().toLowerCase();
@@ -253,12 +263,13 @@ const scopes = POLICY_SCOPES.map((scope) => {
         emptyEl?.classList.toggle('is-visible', visible === 0);
       };
 
-      const setScope = (value: string) => {
+      const setScope = (value: string, updateUrl = true) => {
         scope = value;
         chips.forEach((chip) => {
           chip.setAttribute('aria-pressed', String(chip.dataset.scope === value));
         });
         apply();
+        if (updateUrl) syncUrl();
       };
 
       chips.forEach((chip) => {
@@ -273,7 +284,18 @@ const scopes = POLICY_SCOPES.map((scope) => {
         });
       });
 
+      window.addEventListener('popstate', () => {
+        scope = validScope(new URLSearchParams(window.location.search).get('scope'));
+        chips.forEach((chip) => {
+          chip.setAttribute('aria-pressed', String(chip.dataset.scope === scope));
+        });
+        apply();
+      });
+
       search?.addEventListener('input', apply);
+
+      if (scope !== 'all') setScope(scope, false);
+      else apply();
     }
   </script>
 </Base>
