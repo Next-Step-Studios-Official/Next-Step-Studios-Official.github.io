@@ -212,7 +212,7 @@ tags, so you can edit it directly.
 | Modules index | `src/pages/modules/index.astro` | yes |
 | One module | `src/pages/modules/[id].astro` | yes |
 | Policies index | `src/pages/policies/index.astro` | yes |
-| One policy | `src/content/policies/bot/*.md` | yes |
+| One policy | `src/content/policies/bot/*.md` or `src/content/policies/website/*.md` | yes |
 | Downloads | `src/pages/downloads/index.astro` | yes |
 | Links | `src/pages/links.astro` | yes |
 | Contact | `src/pages/contact.astro` | yes |
@@ -225,7 +225,7 @@ tags, so you can edit it directly.
 | Trust centre | `src/pages/trust.astro` | yes |
 | Press & brand | `src/pages/press.astro` | yes |
 | Now | `src/pages/now.astro` | yes |
-| Website privacy | `src/pages/website-privacy.astro` | yes |
+| Website privacy | `src/content/policies/website/privacy.md` | yes |
 | Search | `src/pages/search.astro` | yes |
 | 404 | `src/pages/404.astro` | yes |
 | Sitemap page | `src/pages/sitemap/index.astro` | yes |
@@ -837,15 +837,33 @@ intentional; do not “fix” it by copying the private URL into the website.
 
 ## 11. Edit or add policies
 
-**Folder:** `src/content/policies/bot/`
+**Folders:** `src/content/policies/bot/` and `src/content/policies/website/`
 **Open in VS Code:** yes.
+
+Policies are split into two separate sets, because they cover different things:
+
+| Folder | Covers | Pages are at | Documents |
+| --- | --- | --- | --- |
+| `src/content/policies/bot/` | The Discord bot and the one private server it runs in | `/policies/bot/<slug>` | 7 |
+| `src/content/policies/website/` | This public website: privacy, terms, copyright and security | `/policies/website/<slug>` | 4 |
+
+`/policies` is one hub page for both sets, with filter chips and a count for each. There
+is no combined policy: a bot document never applies to the website and vice versa.
+`src/lib/documents.ts` decides a document's scope from its folder, builds its public URL
+and gives it a flat download key. Do not add a third folder without also teaching that
+file about it.
 
 Each policy is a Markdown file with frontmatter. The policy page, Markdown download,
 plain-text download, print layout and PDF all come from the same file.
 
+When the studio ships a game, app or other product, it gets its own folder and document
+set the same way. The hub already says so under **Future products**; do not publish a
+placeholder policy for a product that does not exist.
+
 ### Edit an existing policy
 
-1. Open the file, for example `src/content/policies/bot/privacy.md`.
+1. Open the file, for example `src/content/policies/bot/privacy.md` or
+   `src/content/policies/website/privacy.md`.
 2. The top block is frontmatter:
 
    ```yaml
@@ -865,7 +883,10 @@ plain-text download, print layout and PDF all come from the same file.
    - `title` — full title on the page.
    - `shortTitle` — used in navigation and compact lists.
    - `version` — the document version. Change it when the wording changes materially.
-   - `docStatus` — the draft/approved label. Do not write “in force” unless it is.
+   - `docStatus` — `Current` for a document that describes the site as it is now,
+     `Draft for review` for one that is published for reading but **not yet effective**.
+     Any value containing “draft” is treated as a draft by the site. Do not write “in
+     force” unless it is.
    - `appliesTo` — what the document covers.
    - `order` — position in the policy index. Lower numbers come first.
    - `summary` — one or two sentences for cards and metadata.
@@ -878,26 +899,46 @@ plain-text download, print layout and PDF all come from the same file.
 5. Save.
 6. **Restart needed?** No. **Rebuild?** Yes. The build regenerates the PDFs, the policy
    ZIP and the downloads catalogue.
-7. **Verify:** open `/policies`, the policy page, `/downloads` and the PDF link. The PDF
+7. **Verify:** open `/policies`, the policy page (for example
+   `/policies/website/privacy`), `/downloads` and the PDF link. Check the filter chips on
+   `/policies`: each document must disappear when the other scope is selected. The PDF
    may be cached by the browser; open it in a new tab.
 
 ### Add a new policy
 
-1. In `src/content/policies/bot/`, create a new `.md` file with a lowercase name and
-   hyphens, for example `accessibility.md`.
-2. Copy the frontmatter from an existing policy and change every field. Give it a unique
-   `order`.
-3. Add the body.
-4. Save and run `npm run build`.
-5. **Verify:** the policy appears on `/policies`, in `/downloads`, and as
-   `/policies/bot/accessibility`. The PDF and text download links should work.
-6. Add a link from any page that should mention it (for example `/trust` or the project
+1. Decide which set it belongs to. If it describes the bot, use
+   `src/content/policies/bot/`; if it describes this website, use
+   `src/content/policies/website/`. Do not put a website document in the bot folder just
+   to avoid a new folder.
+2. Create a `.md` file with a lowercase name and hyphens, for example
+   `src/content/policies/website/accessibility.md`.
+3. Copy the frontmatter from an existing policy and change every field. Give it a unique
+   `order` within its set.
+4. Add the body.
+5. Save and run `npm run build`.
+6. **Verify:** the policy appears on `/policies`, in `/downloads`, and at
+   `/policies/website/accessibility`. The filter chips must show the correct set and
+   count. The PDF and text download links should work.
+7. Add a link from any page that should mention it (for example `/trust` or the project
    page) if it is important.
+8. Run `npm run snapshot` only if this version should be archived in the version history.
+
+### Download names and version snapshots
+
+Bot documents keep their plain filenames: `privacy.md`, `privacy.pdf`,
+`/policies/versions/privacy`. Website documents are prefixed so the two sets cannot
+collide: `website-privacy.md`, `website-privacy.pdf`,
+`/policies/versions/website-privacy`. The prefix is applied automatically by
+`downloadKey()`; do not rename the files in `public/downloads/` by hand.
+
+If you rename a policy's Markdown file, its URL, PDF, text file and version history all
+change with it. Add a redirect in `astro.config.mjs` for the old address, as the
+`/website-privacy` redirect already does.
 
 ### Policy version history
 
-`src/pages/policies/versions/[slug].astro` reads recorded snapshots. The snapshots are
-created by:
+`src/pages/policies/versions/[slug].astro` reads recorded snapshots for either set. The
+snapshots are created by:
 
 ```powershell
 npm run snapshot
@@ -933,7 +974,7 @@ Add a project by creating a `.md` file, for example `new-game.md`:
 title: New Game
 tagline: One line shown under the title.
 status: Planned
-category: Game
+category: Games
 summary: Two or three sentences for cards and page metadata.
 featured: false
 order: 4
@@ -945,6 +986,11 @@ updated: 2026-11-21
 `status` must be one of: `In development`, `Prototype`, `Testing`, `Planned`, `On hold`.
 There is no “Released” status. If a project ships, that is a deliberate change to the
 schema and the status styles, not a casual edit.
+
+`category` must be one of exactly four values: `Discord bot`, `Games`, `Apps & tools`,
+`Website`. The projects index groups and counts by these; an unknown category fails the
+build. A new project that does not fit should use the closest existing category rather
+than a new one.
 
 Only one project should have `featured: true`; the home page uses it. The project index
 sorts by `order` (lower first). If you add a cover, see section 7 for the dimensions.
@@ -1138,8 +1184,16 @@ Each item looks like:
 
 - `slug` must be unique; it becomes the print route `/downloads/print/{slug}`.
 - `href` points at a file in `public/downloads/` or an external release.
-- `category`, `platforms` and `kinds` must use the values already present in the file.
+- `category` must be one of `documents`, `brand`, `games`, `apps`, `tools` or `media`.
+  The downloads page filters by these and explains each in its legend.
+- `platforms` must use `windows`, `linux`, `macos`, `android` or `any`.
+- `kinds` must use `installer`, `archive`, `document`, `source` or `media`.
 - `size` is display text, not calculated; check it is accurate.
+
+This file is only for hand-written entries such as the complete policy ZIP, the brand
+kit and the cheatsheet. Policy documents themselves are generated from
+`src/content/policies/` and must not be duplicated here. An empty category is fine: the
+page says so honestly instead of inventing a file.
 
 ### GitHub Releases
 
@@ -1705,7 +1759,8 @@ text. Prefer changing the shared module (`src/lib/...`) so every page follows.
 | `src/lib/contributors.ts` | Team list and counts |
 | `src/content/projects/` | Project Markdown |
 | `src/content/devlog/` | Devlog Markdown |
-| `src/content/policies/bot/` | Policy Markdown |
+| `src/content/policies/bot/` | Discord bot policy Markdown |
+| `src/content/policies/website/` | Website policy Markdown |
 | `src/data/downloads.json` | Manual download catalogue |
 | `src/assets/brand/logo-mark.png` | Generated head mark for header/footer |
 | `src/assets/banners/` | Page banners |
@@ -1846,7 +1901,7 @@ cookie for the conversation; it exists in the open tab and resets on reload.
 | `src/pages/search-index.json.ts` | The shared full-text index; generates `/search-index.json` |
 | `src/layouts/Base.astro` | Renders `<Assistant />` once on every page |
 | `src/pages/step.astro` | Public guide: topics, limits and local-only behaviour |
-| `src/pages/website-privacy.astro` | Explains the assistant's local-only behaviour |
+| `src/content/policies/website/privacy.md` | Explains the assistant's local-only behaviour |
 
 ### Add or change an answer
 

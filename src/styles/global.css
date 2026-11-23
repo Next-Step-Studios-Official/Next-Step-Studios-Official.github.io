@@ -1998,7 +1998,8 @@ body.palette-open {
   display: block;
 }
 
-.project-item.is-hidden {
+.project-item.is-hidden,
+.doc-card.is-hidden {
   display: none;
 }
 
