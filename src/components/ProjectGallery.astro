@@ -1,0 +1,647 @@
+---
+interface GalleryImage {
+  src: string;
+  alt: string;
+  caption?: string;
+  width?: number;
+  height?: number;
+}
+
+interface Props {
+  images: GalleryImage[];
+}
+
+const { images } = Astro.props;
+const total = images.length;
+const first = images[0];
+const data = JSON.stringify(images).replace(/</g, '\\u003c');
+const countLabel = (index: number) => `Picture ${index + 1} of ${total}`;
+---
+
+{
+  first && (
+    <section class="project-gallery" data-gallery aria-labelledby="project-gallery-heading">
+      <div class="section-head gallery-head">
+        <div>
+          <p class="eyebrow">Pictures</p>
+          <h2 class="section-title" id="project-gallery-heading">A closer look.</h2>
+          <p class="section-sub">Select a picture, or open one full screen.</p>
+        </div>
+      </div>
+
+      <figure class="gallery-stage">
+        <a
+          class="gallery-open"
+          href={first.src}
+          data-gallery-open
+          aria-haspopup="dialog"
+          aria-label={`Open ${countLabel(0)} in full screen: ${first.alt}`}
+        >
+          <img
+            data-gallery-image
+            src={first.src}
+            alt={first.alt}
+            width={first.width ?? 1100}
+            height={first.height ?? 594}
+            loading="lazy"
+            decoding="async"
+          />
+          <span class="gallery-open-hint" aria-hidden="true">
+            <span class="gallery-open-icon">⤢</span> Full screen
+          </span>
+        </a>
+        <button
+          type="button"
+          class="gallery-arrow gallery-arrow--prev"
+          data-gallery-prev
+          aria-label="Previous picture"
+          hidden={total < 2}>←</button
+        >
+        <button
+          type="button"
+          class="gallery-arrow gallery-arrow--next"
+          data-gallery-next
+          aria-label="Next picture"
+          hidden={total < 2}>→</button
+        >
+        <figcaption class="gallery-caption" data-gallery-caption hidden={!first.caption}>
+          {first.caption}
+        </figcaption>
+      </figure>
+
+      <div
+        class="gallery-thumbs"
+        data-gallery-thumbs
+        role="group"
+        aria-label="Choose a picture"
+        hidden={total < 2}
+      >
+        {images.map((image, index) => (
+          <a
+            class="gallery-thumb"
+            href={image.src}
+            data-gallery-thumb={index}
+            aria-label={`Show ${countLabel(index)}: ${image.alt}`}
+            aria-current={index === 0 ? 'true' : undefined}
+          >
+            <img
+              src={image.src}
+              alt=""
+              width={image.width ?? 1100}
+              height={image.height ?? 594}
+              loading="lazy"
+              decoding="async"
+            />
+          </a>
+        ))}
+      </div>
+
+      <div class="gallery-foot">
+        <p class="gallery-instruction">
+          {total > 1
+            ? 'Use the arrows or thumbnails to move through the set.'
+            : 'More pictures will appear here as they are ready.'}
+        </p>
+        <p class="gallery-count" data-gallery-count aria-live="polite">1 / {total}</p>
+      </div>
+
+      <dialog class="gallery-dialog" data-gallery-dialog aria-label="Picture viewer">
+        <div class="gallery-dialog-inner">
+          <button
+            class="gallery-dialog-close"
+            type="button"
+            data-gallery-close
+            aria-label="Close picture viewer">✕</button
+          >
+          <button
+            type="button"
+            class="gallery-dialog-arrow gallery-dialog-arrow--prev"
+            data-gallery-dialog-prev
+            aria-label="Previous picture"
+            hidden={total < 2}>←</button
+          >
+          <div class="gallery-dialog-stage">
+            <img
+              data-gallery-dialog-image
+              src={first.src}
+              alt={first.alt}
+              width={first.width ?? 1100}
+              height={first.height ?? 594}
+            />
+          </div>
+          <button
+            type="button"
+            class="gallery-dialog-arrow gallery-dialog-arrow--next"
+            data-gallery-dialog-next
+            aria-label="Next picture"
+            hidden={total < 2}>→</button
+          >
+          <div class="gallery-dialog-foot">
+            <p class="gallery-dialog-caption" data-gallery-dialog-caption>{first.caption}</p>
+            <p class="gallery-dialog-count" data-gallery-dialog-count aria-live="polite">
+              1 / {total}
+            </p>
+          </div>
+        </div>
+      </dialog>
+
+      <script type="application/json" data-gallery-data set:html={data}></script>
+    </section>
+  )
+}
+
+<script>
+  type GallerySlide = {
+    src: string;
+    alt: string;
+    caption?: string;
+    width?: number;
+    height?: number;
+  };
+
+  document.querySelectorAll<HTMLElement>('[data-gallery]').forEach((gallery) => {
+    const dataEl = gallery.querySelector<HTMLScriptElement>('[data-gallery-data]');
+    const dialog = gallery.querySelector<HTMLDialogElement>('[data-gallery-dialog]');
+    if (!dataEl || !dialog) return;
+
+    let slides: GallerySlide[] = [];
+    try {
+      slides = JSON.parse(dataEl.textContent ?? '[]') as GallerySlide[];
+    } catch {
+      return;
+    }
+    if (slides.length === 0) return;
+
+    const stageLink = gallery.querySelector<HTMLAnchorElement>('[data-gallery-open]');
+    const stageImage = gallery.querySelector<HTMLImageElement>('[data-gallery-image]');
+    const caption = gallery.querySelector<HTMLElement>('[data-gallery-caption]');
+    const count = gallery.querySelector<HTMLElement>('[data-gallery-count]');
+    const thumbs = Array.from(
+      gallery.querySelectorAll<HTMLAnchorElement>('[data-gallery-thumb]'),
+    );
+    const previous = gallery.querySelector<HTMLButtonElement>('[data-gallery-prev]');
+    const next = gallery.querySelector<HTMLButtonElement>('[data-gallery-next]');
+    const closeButton = gallery.querySelector<HTMLButtonElement>('[data-gallery-close]');
+    const dialogImage = gallery.querySelector<HTMLImageElement>('[data-gallery-dialog-image]');
+    const dialogCaption = gallery.querySelector<HTMLElement>('[data-gallery-dialog-caption]');
+    const dialogCount = gallery.querySelector<HTMLElement>('[data-gallery-dialog-count]');
+    const dialogPrevious = gallery.querySelector<HTMLButtonElement>('[data-gallery-dialog-prev]');
+    const dialogNext = gallery.querySelector<HTMLButtonElement>('[data-gallery-dialog-next]');
+
+    if (!stageLink || !stageImage || !dialogImage || !count) return;
+
+    const total = slides.length;
+    let current = 0;
+    let lastFocus: HTMLElement | null = null;
+
+    const labelFor = (index: number) => `Picture ${index + 1} of ${total}`;
+
+    const setSlide = (nextIndex: number) => {
+      current = (nextIndex + total) % total;
+      const slide = slides[current];
+
+      stageImage.src = slide.src;
+      stageImage.alt = slide.alt;
+      stageImage.width = slide.width ?? 1100;
+      stageImage.height = slide.height ?? 594;
+      stageLink.href = slide.src;
+      stageLink.setAttribute(
+        'aria-label',
+        `Open ${labelFor(current)} in full screen: ${slide.alt}`,
+      );
+
+      if (caption) {
+        caption.textContent = slide.caption ?? '';
+        caption.hidden = !slide.caption;
+      }
+      count.textContent = `${current + 1} / ${total}`;
+
+      dialogImage.src = slide.src;
+      dialogImage.alt = slide.alt;
+      dialogImage.width = slide.width ?? 1100;
+      dialogImage.height = slide.height ?? 594;
+      if (dialogCaption) {
+        dialogCaption.textContent = slide.caption ?? '';
+        dialogCaption.hidden = !slide.caption;
+      }
+      if (dialogCount) dialogCount.textContent = `${current + 1} / ${total}`;
+
+      thumbs.forEach((thumb, index) => {
+        if (index === current) thumb.setAttribute('aria-current', 'true');
+        else thumb.removeAttribute('aria-current');
+      });
+    };
+
+    const openDialog = () => {
+      lastFocus = stageLink;
+      if (typeof dialog.showModal !== 'function') {
+        window.location.href = slides[current].src;
+        return;
+      }
+      try {
+        dialog.showModal();
+        document.body.classList.add('gallery-dialog-open');
+        closeButton?.focus();
+      } catch {
+        window.location.href = slides[current].src;
+      }
+    };
+
+    stageLink.addEventListener('click', (event) => {
+      if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      event.preventDefault();
+      openDialog();
+    });
+
+    thumbs.forEach((thumb, index) => {
+      thumb.addEventListener('click', (event) => {
+        if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+        event.preventDefault();
+        setSlide(index);
+      });
+    });
+
+    previous?.addEventListener('click', () => setSlide(current - 1));
+    next?.addEventListener('click', () => setSlide(current + 1));
+    dialogPrevious?.addEventListener('click', () => setSlide(current - 1));
+    dialogNext?.addEventListener('click', () => setSlide(current + 1));
+
+    closeButton?.addEventListener('click', () => dialog.close());
+
+    dialog.addEventListener('click', (event) => {
+      if (event.target === dialog) dialog.close();
+    });
+
+    dialog.addEventListener('keydown', (event) => {
+      if (event.key === 'ArrowLeft') {
+        event.preventDefault();
+        setSlide(current - 1);
+      } else if (event.key === 'ArrowRight') {
+        event.preventDefault();
+        setSlide(current + 1);
+      }
+    });
+
+    dialog.addEventListener('close', () => {
+      document.body.classList.remove('gallery-dialog-open');
+      lastFocus?.focus();
+    });
+
+    setSlide(0);
+  });
+</script>
+
+<style>
+  .project-gallery {
+    margin-top: 0.5rem;
+  }
+
+  .gallery-head {
+    margin-bottom: 1.25rem;
+  }
+
+  .gallery-stage {
+    position: relative;
+    margin: 0;
+    overflow: hidden;
+    border: 1px solid var(--color-line);
+    border-radius: 4px;
+    background: #05070b;
+  }
+
+  .gallery-open {
+    display: block;
+    position: relative;
+    line-height: 0;
+  }
+
+  .gallery-open img {
+    display: block;
+    width: 100%;
+    max-height: min(68vh, 46rem);
+    height: auto;
+    object-fit: contain;
+    background: #05070b;
+  }
+
+  .gallery-open-hint {
+    position: absolute;
+    right: 0.75rem;
+    bottom: 0.75rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.4rem 0.6rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+    background: rgba(7, 8, 11, 0.82);
+    color: #e9eef7;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    pointer-events: none;
+  }
+
+  .gallery-open:hover .gallery-open-hint,
+  .gallery-open:focus-visible .gallery-open-hint {
+    border-color: var(--color-accent);
+  }
+
+  .gallery-open-icon {
+    font-size: 0.9rem;
+    line-height: 1;
+  }
+
+  .gallery-arrow {
+    position: absolute;
+    top: 50%;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    transform: translateY(-50%);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    border-radius: 50%;
+    background: rgba(7, 8, 11, 0.72);
+    color: #ffffff;
+    font-size: 1.15rem;
+    line-height: 1;
+    backdrop-filter: blur(6px);
+  }
+
+  .gallery-arrow:hover,
+  .gallery-arrow:focus-visible {
+    border-color: var(--color-accent);
+    background: var(--color-accent);
+  }
+
+  .gallery-arrow--prev {
+    left: 0.75rem;
+  }
+
+  .gallery-arrow--next {
+    right: 0.75rem;
+  }
+
+  .gallery-caption {
+    margin: 0;
+    padding: 0.8rem 1rem;
+    border-top: 1px solid var(--color-line);
+    background: var(--color-surface);
+    color: var(--color-muted);
+    font-size: 0.875rem;
+    line-height: 1.55;
+  }
+
+  .gallery-caption[hidden] {
+    display: none;
+  }
+
+  .gallery-thumbs {
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+    padding: 0.7rem 0 0.35rem;
+    scrollbar-width: thin;
+  }
+
+  .gallery-thumb {
+    flex: 0 0 auto;
+    width: 6.5rem;
+    overflow: hidden;
+    border: 1px solid var(--color-line);
+    border-radius: 3px;
+    background: var(--color-surface);
+    opacity: 0.62;
+    transition: opacity 140ms ease, border-color 140ms ease;
+  }
+
+  .gallery-thumb img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+  }
+
+  .gallery-thumb:hover,
+  .gallery-thumb:focus-visible {
+    border-color: var(--color-accent-soft);
+    opacity: 1;
+  }
+
+  .gallery-thumb[aria-current='true'] {
+    border-color: var(--color-accent);
+    opacity: 1;
+  }
+
+  .gallery-foot {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 0.35rem;
+    padding-top: 0.55rem;
+    border-top: 1px solid var(--color-line-soft);
+  }
+
+  .gallery-instruction {
+    margin: 0;
+    color: var(--color-muted);
+    font-size: 0.8125rem;
+  }
+
+  .gallery-count {
+    margin: 0;
+    color: var(--color-ink-dim);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    white-space: nowrap;
+  }
+
+  .gallery-dialog {
+    width: min(96vw, 82rem);
+    max-width: none;
+    max-height: 94vh;
+    margin: auto;
+    padding: 0;
+    overflow: auto;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 10px;
+    background: #05070b;
+    color: #e9eef7;
+  }
+
+  .gallery-dialog::backdrop {
+    background: rgba(2, 4, 8, 0.9);
+    backdrop-filter: blur(8px);
+  }
+
+  .gallery-dialog-inner {
+    position: relative;
+    padding: 3.25rem 1rem 1rem;
+  }
+
+  .gallery-dialog-stage {
+    display: grid;
+    min-height: 0;
+    place-items: center;
+  }
+
+  .gallery-dialog-stage img {
+    display: block;
+    width: auto;
+    max-width: 100%;
+    height: auto;
+    max-height: calc(94vh - 10rem);
+    object-fit: contain;
+    border-radius: 3px;
+  }
+
+  .gallery-dialog-close {
+    position: absolute;
+    top: 0.7rem;
+    right: 0.7rem;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border: 1px solid rgba(255, 255, 255, 0.24);
+    border-radius: 50%;
+    background: rgba(7, 8, 11, 0.85);
+    color: #ffffff;
+    font-size: 1rem;
+  }
+
+  .gallery-dialog-close:hover,
+  .gallery-dialog-close:focus-visible {
+    border-color: var(--color-accent);
+    background: var(--color-accent);
+  }
+
+  .gallery-dialog-arrow {
+    position: absolute;
+    top: 50%;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    transform: translateY(-50%);
+    border: 1px solid rgba(255, 255, 255, 0.24);
+    border-radius: 50%;
+    background: rgba(7, 8, 11, 0.85);
+    color: #ffffff;
+    font-size: 1.15rem;
+    line-height: 1;
+  }
+
+  .gallery-dialog-arrow:hover,
+  .gallery-dialog-arrow:focus-visible {
+    border-color: var(--color-accent);
+    background: var(--color-accent);
+  }
+
+  .gallery-dialog-arrow--prev {
+    left: 0.85rem;
+  }
+
+  .gallery-dialog-arrow--next {
+    right: 0.85rem;
+  }
+
+  .gallery-dialog-foot {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    max-width: 72rem;
+    margin: 0.8rem auto 0;
+    padding-top: 0.7rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.14);
+    color: #b7c1d1;
+  }
+
+  .gallery-dialog-caption {
+    margin: 0;
+    font-size: 0.875rem;
+    line-height: 1.55;
+  }
+
+  .gallery-dialog-caption[hidden] {
+    display: none;
+  }
+
+  .gallery-dialog-count {
+    margin: 0 0 0 auto;
+    color: #e9eef7;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    white-space: nowrap;
+  }
+
+  :global(body.gallery-dialog-open) {
+    overflow: hidden;
+  }
+
+  @media (max-width: 640px) {
+    .gallery-stage {
+      border-radius: 3px;
+    }
+
+    .gallery-open img {
+      max-height: 56vh;
+    }
+
+    .gallery-arrow {
+      width: 2.75rem;
+      height: 2.75rem;
+    }
+
+    .gallery-arrow--prev {
+      left: 0.5rem;
+    }
+
+    .gallery-arrow--next {
+      right: 0.5rem;
+    }
+
+    .gallery-thumb {
+      width: 5.5rem;
+    }
+
+    .gallery-foot {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .gallery-dialog-inner {
+      padding: 3rem 0.5rem 0.75rem;
+    }
+
+    .gallery-dialog-stage img {
+      max-height: calc(94vh - 9rem);
+    }
+
+    .gallery-dialog-arrow {
+      width: 2.75rem;
+      height: 2.75rem;
+    }
+
+    .gallery-dialog-arrow--prev {
+      left: 0.5rem;
+    }
+
+    .gallery-dialog-arrow--next {
+      right: 0.5rem;
+    }
+  }
+</style>

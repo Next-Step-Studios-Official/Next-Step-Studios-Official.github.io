@@ -28,6 +28,16 @@ const threads = [
     cta: 'Read the project',
   },
   {
+    state: 'In development',
+    tone: 'dev',
+    title: 'First Game',
+    body:
+      'An original game being written from scratch in C#. The title, genre, art direction, platforms and release date are still being worked out.',
+    meta: 'C# · early visual studies',
+    href: '/projects/first-game',
+    cta: 'Read the project',
+  },
+  {
     state: 'Draft & current',
     tone: 'draft',
     title: 'Public policy documents',
@@ -63,12 +73,6 @@ const notStarted = [
   {
     state: 'Planned',
     tone: 'planned',
-    title: 'Games',
-    body: 'Unreal Engine, Unity and Roblox Studio work is the direction, not a current project. Nothing has been published.',
-  },
-  {
-    state: 'Planned',
-    tone: 'planned',
     title: 'Studio tools',
     body: 'Small software tools are planned. No build, repository or release date exists yet.',
   },
@@ -83,7 +87,7 @@ const notStarted = [
 
 <Base
   title="Now"
-  description="Dated November 2026 snapshot: the Discord bot, the public documents, this website, Press & brand, and what has deliberately not started."
+  description="Dated November 2026 snapshot: the Discord bot, the first game, the public documents, this website, Press & brand, and what has deliberately not started."
   path="/now"
   ogImage="og/now.png"
 >
@@ -98,7 +102,7 @@ const notStarted = [
           honest signal — not a reason to invent progress.
         </p>
         <div class="meta-bar">
-          <span>Updated <time datetime="2026-11-23">23 November 2026</time></span>
+          <span>Updated <time datetime="2026-11-24">24 November 2026</time></span>
           <span>Statuses, not dates</span>
           <span>{threads.length} active threads</span>
         </div>

@@ -15,6 +15,14 @@ const projectStatus = z.enum([
 
 const projectCategory = z.enum(['Discord bot', 'Games', 'Apps & tools', 'Website']);
 
+const projectGalleryImage = z.object({
+  src: z.string(),
+  alt: z.string(),
+  caption: z.string().optional(),
+  width: z.number().int().positive().optional(),
+  height: z.number().int().positive().optional(),
+});
+
 const projects = defineCollection({
   loader: glob({ pattern: '**/*.md', base: './src/content/projects' }),
   schema: z.object({
@@ -29,6 +37,8 @@ const projects = defineCollection({
     order: z.number().default(100),
     /** Optional cover art, relative to /public. */
     cover: z.string().optional(),
+    /** Optional pictures shown in the project gallery, in display order. */
+    gallery: z.array(projectGalleryImage).default([]),
     /** Last date the status or copy was reviewed. */
     updated: z.coerce.date().optional(),
   }),

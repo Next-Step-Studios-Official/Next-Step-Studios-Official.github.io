@@ -68,15 +68,15 @@ export const ROADMAP: RoadmapItem[] = [
     link: { href: '/status', label: 'The live status board' },
   },
   {
-    title: 'Games',
-    status: 'Planned',
+    title: 'First Game',
+    status: 'In development',
     summary:
-      'Games are the direction the studio is heading in. There is no title to announce, no engine chosen and no date — saying otherwise would be inventing a project.',
+      'An original game being written from scratch in C# (pronounced “C-sharp”). The title, genre, art direction, platforms and release date are still being worked out.',
     points: [
-      'No game has been started.',
-      'When one exists, it will get a project entry with the same honesty rules as the bot: Planned until it is real.',
+      'The project page shows early visual studies, not gameplay screenshots.',
+      'The status moves to Prototype only when something runnable exists — a build that can be played, even badly.',
     ],
-    link: { href: '/projects', label: 'Projects' },
+    link: { href: '/projects/first-game', label: 'The first game' },
   },
   {
     title: 'Studio tools',

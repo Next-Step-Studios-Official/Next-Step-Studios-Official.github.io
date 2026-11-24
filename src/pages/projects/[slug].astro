@@ -2,6 +2,7 @@
 import Base from '../../layouts/Base.astro';
 import StatusBadge from '../../components/StatusBadge.astro';
 import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import ProjectGallery from '../../components/ProjectGallery.astro';
 import { getCollection, render } from 'astro:content';
 import { BOT_MODULES, MODULE_STATUS_LABEL, modulesByGroup, moduleCommandCount } from '../../lib/modules';
 
@@ -15,7 +16,7 @@ export async function getStaticPaths() {
 
 const { entry } = Astro.props;
 const { Content } = await render(entry);
-const { title, tagline, status, category, summary } = entry.data;
+const { title, tagline, status, category, summary, gallery } = entry.data;
 
 const isBot = entry.id === 'next-step-bot';
 const metaDescription = summary.length > 170 ? `${summary.slice(0, 155).trimEnd()}…` : summary;
@@ -93,6 +94,14 @@ const formatDate = (date: Date) =>
       </article>
     </div>
   </section>
+
+  {gallery.length > 0 && (
+    <section class="section section--flush">
+      <div class="container">
+        <ProjectGallery images={gallery} />
+      </div>
+    </section>
+  )}
 
   {
     isBot && (

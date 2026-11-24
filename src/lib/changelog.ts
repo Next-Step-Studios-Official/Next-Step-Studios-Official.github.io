@@ -14,6 +14,20 @@ export type ChangelogEntry = {
 export const CHANGELOG: ChangelogEntry[] = [
   {
     date: '2026-11-24',
+    version: '3.13',
+    title: 'The first-game gallery edition',
+    summary:
+      'First Game moves from planned to in development with its C# background and a three-picture gallery, plus a full-screen viewer and a separate editing guide.',
+    changes: [
+      'First Game now states that it is being written from scratch in C# and moves to In development. The page explains that C# is pronounced “C-sharp” and that the # is a musical sharp sign, not a hashtag.',
+      'A reusable picture gallery now sits below the project text. It has a large image, thumbnails, previous/next controls, a 1 / N counter and a native full-screen viewer with arrow-key and Escape support.',
+      'Three visual studies are live on the page. They are labelled concept art, not gameplay screenshots.',
+      'The assistant, roadmap, Now page, About page, home page and press facts now agree that the first game is in development rather than planned.',
+      'FIRST_GAME_EDITING.md in the project root explains how to add pictures, edit the gallery, update the C# copy, test the viewer and keep the other pages in step.',
+    ],
+  },
+  {
+    date: '2026-11-24',
     version: '3.12',
     title: 'The applied-styles edition',
     summary:
