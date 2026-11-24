@@ -20,15 +20,7 @@ const countLabel = (index: number) => `Picture ${index + 1} of ${total}`;
 
 {
   first && (
-    <section class="project-gallery" data-gallery aria-labelledby="project-gallery-heading">
-      <div class="section-head gallery-head">
-        <div>
-          <p class="eyebrow">Pictures</p>
-          <h2 class="section-title" id="project-gallery-heading">A closer look.</h2>
-          <p class="section-sub">Select a picture, or open one full screen.</p>
-        </div>
-      </div>
-
+    <section class="project-gallery" data-gallery aria-label="Project pictures">
       <figure class="gallery-stage">
         <a
           class="gallery-open"
@@ -43,7 +35,8 @@ const countLabel = (index: number) => `Picture ${index + 1} of ${total}`;
             alt={first.alt}
             width={first.width ?? 1100}
             height={first.height ?? 594}
-            loading="lazy"
+            loading="eager"
+            fetchpriority="high"
             decoding="async"
           />
           <span class="gallery-open-hint" aria-hidden="true">
@@ -293,11 +286,7 @@ const countLabel = (index: number) => `Picture ${index + 1} of ${total}`;
 
 <style>
   .project-gallery {
-    margin-top: 0.5rem;
-  }
-
-  .gallery-head {
-    margin-bottom: 1.25rem;
+    margin-top: 0;
   }
 
   .gallery-stage {

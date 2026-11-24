@@ -14,6 +14,21 @@ export type ChangelogEntry = {
 export const CHANGELOG: ChangelogEntry[] = [
   {
     date: '2026-11-24',
+    version: '3.14',
+    title: 'The Places Left Behind edition',
+    summary:
+      'The first-game page becomes Places Left Behind, with the gallery moved to the top, an early-prototype status, exact copyright attribution and a separate game policy scope in preparation.',
+    changes: [
+      'The project is renamed Places Left Behind and the old /projects/first-game address redirects to the new page. The page now describes the first-person exploration and mystery game, the custom C# engine, Vulkan, Silk.NET, .NET 10, Blender and the glTF 2.0 / GLB pipeline.',
+      'The gallery now sits directly under the project title instead of in a separate “A closer look” section. The large picture, thumbnails, previous/next controls, count and full-screen viewer are unchanged in behaviour.',
+      'The project is marked Prototype. The page states that WASD movement and mouse camera control work, while the environment pipeline, full rendering, investigation mechanics, complete locations and much gameplay remain under development.',
+      'The exact attribution “Copyright © 2026 Candler Shaw. All rights reserved. Developed under the name Next Step Studios.” now appears in the shared footer, the game page, the website copyright notice and generated document headers, PDF footers, print editions and the policy ZIP.',
+      'The policy system now supports a separate Places Left Behind game scope. It is shown on /policies as in preparation, with no game document presented as effective. Website, Discord bot and game policies remain distinct.',
+      'PLACES_LEFT_BEHIND_EDITING.md replaces the old first-game guide and explains the top gallery, the project facts, the copyright wording and how to add the real game documents later.',
+    ],
+  },
+  {
+    date: '2026-11-24',
     version: '3.13',
     title: 'The first-game gallery edition',
     summary:
@@ -23,7 +38,7 @@ export const CHANGELOG: ChangelogEntry[] = [
       'A reusable picture gallery now sits below the project text. It has a large image, thumbnails, previous/next controls, a 1 / N counter and a native full-screen viewer with arrow-key and Escape support.',
       'Three visual studies are live on the page. They are labelled concept art, not gameplay screenshots.',
       'The assistant, roadmap, Now page, About page, home page and press facts now agree that the first game is in development rather than planned.',
-      'FIRST_GAME_EDITING.md in the project root explains how to add pictures, edit the gallery, update the C# copy, test the viewer and keep the other pages in step.',
+      'The separate editing guide in the project root explains how to add pictures, edit the gallery, update the C# copy, test the viewer and keep the other pages in step. It is now PLACES_LEFT_BEHIND_EDITING.md.',
     ],
   },
   {

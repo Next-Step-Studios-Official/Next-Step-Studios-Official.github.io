@@ -229,6 +229,13 @@ ships as current/, public/brand/archive ships as archive/. The favicons and the
 white-tile edition are added from src/data/brand-assets.json and
 public/brand/archive. The step-by-step
 instructions are in README.md, under "The brand kit ZIP".
+
+COPYRIGHT
+
+Copyright © 2026 Candler Shaw. All rights reserved. Developed under the name Next Step Studios.
+
+This attribution covers the original studio-created marks in this kit. It does
+not apply to third-party or community-created work.
 `;
 
 addFile('README.txt', readme, generatedDate);

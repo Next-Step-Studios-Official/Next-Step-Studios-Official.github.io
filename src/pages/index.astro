@@ -18,12 +18,13 @@ const allPosts = (await getCollection('devlog')).sort(
 );
 const posts = allPosts.slice(0, 3);
 
-const scopeRank = { bot: 0, website: 1 } as const;
+const scopeRank = { bot: 0, website: 1, game: 2 } as const;
 const policies = (await getCollection('policies')).sort(
   (a, b) => scopeRank[scopeOf(a.id)] - scopeRank[scopeOf(b.id)] || a.data.order - b.data.order,
 );
 const botPolicyCount = policies.filter((policy) => scopeOf(policy.id) === 'bot').length;
 const websitePolicyCount = policies.filter((policy) => scopeOf(policy.id) === 'website').length;
+const publishedPolicyScopeCount = new Set(policies.map((policy) => scopeOf(policy.id))).size;
 const draftPolicyCount = policies.filter((policy) => isDraftDocument(policy.data.docStatus)).length;
 const currentPolicyCount = policies.length - draftPolicyCount;
 const policyWord = numberWord(policies.length);
@@ -46,6 +47,7 @@ const tickerItems = [
   'Full-text search · no third parties',
   'Independent studio',
   'Next Step Bot · in development',
+  'Places Left Behind · prototype',
 ];
 
 const routes = [
@@ -69,8 +71,8 @@ const routes = [
     index: '03',
     href: '/policies',
     title: 'Documents',
-    body: `${PolicyWord} policy documents in two sets — ${botPolicyCount} for the Discord bot and ${websitePolicyCount} for this website. Drafts and current documents are labelled individually.`,
-    meta: `2 sets · ${draftPolicyCount} draft · ${currentPolicyCount} current`,
+    body: `${PolicyWord} policy documents in ${publishedPolicyScopeCount} published scopes — ${botPolicyCount} for the Discord bot and ${websitePolicyCount} for this website. Places Left Behind has a separate game scope in preparation. Drafts and current documents are labelled individually.`,
+    meta: `${publishedPolicyScopeCount} published scopes · ${draftPolicyCount} draft · ${currentPolicyCount} current`,
     cta: 'Read the documents',
   },
   {
@@ -93,7 +95,7 @@ const routes = [
 ---
 
 <Base
-  description="Next Step Studios is an independent creative and software studio run by Candler Shaw — currently building a private Discord bot and its first C# game, with more tools to follow."
+  description="Next Step Studios is an independent creative and software studio run by Candler Shaw — currently building a private Discord bot and Places Left Behind, a first-person C# game prototype, with more tools to follow."
   path="/"
 >
   <section class="hero">
@@ -111,8 +113,8 @@ const routes = [
           <p class="lede">
             Next Step Studios is the independent creative and software practice of
             {SITE.operator}. The current work is a private Discord bot for one community
-            server and the first game, written from scratch in C#. More tools are where it
-            goes next.
+            server and Places Left Behind, an early first-person game prototype written from
+            scratch in C#. More tools are where it goes next.
           </p>
           <div class="hero-actions">
             <a class="btn btn-primary" href="/projects">
@@ -311,19 +313,22 @@ const routes = [
 
       <div class="split">
         <div class="panel panel--pad">
-          <p class="label" style="margin-bottom: 0.9rem;">Policies · {policies.length} in two sets</p>
+          <p class="label" style="margin-bottom: 0.9rem;">Policies · {policies.length} in {publishedPolicyScopeCount} published scopes</p>
           <ul class="link-list">
             {policies.map((policy) => (
               <li>
                 <a href={policyPath(policy.id)}>
                   {policy.data.shortTitle}
                   <span class="link-meta">
-                    {scopeOf(policy.id) === 'bot' ? 'Bot' : 'Website'} · {isDraftDocument(policy.data.docStatus) ? 'Draft' : 'Current'}
+                    {scopeOf(policy.id) === 'bot' ? 'Bot' : scopeOf(policy.id) === 'website' ? 'Website' : 'Game'} · {isDraftDocument(policy.data.docStatus) ? 'Draft' : 'Current'}
                   </span>
                 </a>
               </li>
             ))}
           </ul>
+          <p style="color: var(--color-muted); font-size: 0.8125rem; margin-top: 0.9rem;">
+            Places Left Behind will use a separate game scope. No game policy is published yet.
+          </p>
         </div>
 
         <div class="panel panel--pad" style="display: flex; flex-direction: column; gap: 1rem;">

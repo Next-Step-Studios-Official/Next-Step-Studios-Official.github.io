@@ -27,6 +27,8 @@ export default defineConfig({
     '/website-privacy': '/policies/website/privacy',
     '/policies/bot': '/policies#bot',
     '/policies/website': '/policies#website',
+    '/policies/game': '/policies#game',
+    '/projects/first-game': '/projects/places-left-behind',
   },
   build: {
     format: 'directory',

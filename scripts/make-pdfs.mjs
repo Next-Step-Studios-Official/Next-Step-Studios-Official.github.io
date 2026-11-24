@@ -13,6 +13,8 @@ import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
 
 const ROOT = path.resolve('src/content/policies');
 const OUT = path.resolve('public/downloads');
+const COPYRIGHT =
+  'Copyright © 2026 Candler Shaw. All rights reserved. Developed under the name Next Step Studios.';
 
 const PAGE = { width: 595.28, height: 841.89 };
 const MARGIN = { top: 66, bottom: 62, left: 58, right: 58 };
@@ -37,7 +39,8 @@ const clean = (value) =>
     .replace(/[\u00B7\u2022]/g, '-')
     .replace(/\u2026/g, '...')
     .replace(/\u00A0/g, ' ')
-    .replace(/[^\x20-\x7E\n]/g, '')
+    // Keep the copyright sign; WinAnsi (used by Helvetica) supports it.
+    .replace(/[^\x20-\x7E\u00A9\n]/g, '')
     .replace(/[ \t]+/g, ' ');
 
 function parseFrontmatter(source) {
@@ -126,7 +129,7 @@ async function buildPdf(document, outputPath) {
   const italic = await pdf.embedFont(StandardFonts.HelveticaOblique);
 
   pdf.setTitle(document.title);
-  pdf.setAuthor('Next Step Studios');
+  pdf.setAuthor('Candler Shaw');
   pdf.setSubject(`${document.docStatus} · version ${document.version}`);
   pdf.setCreator('Next Step Studios website build');
   pdf.setProducer('pdf-lib');
@@ -270,21 +273,28 @@ async function buildPdf(document, outputPath) {
   const pages = pdf.getPages();
   pages.forEach((item, index) => {
     item.drawLine({
-      start: { x: MARGIN.left, y: 46 },
-      end: { x: PAGE.width - MARGIN.right, y: 46 },
+      start: { x: MARGIN.left, y: 50 },
+      end: { x: PAGE.width - MARGIN.right, y: 50 },
       thickness: 0.6,
       color: RULE,
     });
+    item.drawText(clean(COPYRIGHT), {
+      x: MARGIN.left,
+      y: 40,
+      size: 6.4,
+      font: regular,
+      color: MUTED,
+    });
     item.drawText(clean(`Next Step Studios  -  ${document.shortTitle}  -  v${document.version} ${document.docStatus.toLowerCase()}`), {
       x: MARGIN.left,
-      y: 34,
+      y: 28,
       size: 7,
       font: regular,
       color: MUTED,
     });
     item.drawText(`${index + 1} / ${pages.length}`, {
       x: PAGE.width - MARGIN.right - 30,
-      y: 34,
+      y: 28,
       size: 7,
       font: regular,
       color: MUTED,
@@ -312,10 +322,15 @@ for (const file of files) {
   const source = fs.readFileSync(file, 'utf8');
   const { data, body } = parseFrontmatter(source);
   const relative = path.relative(ROOT, file).replace(/\\/g, '/');
-  const scope = relative.startsWith('website/') ? 'website' : 'bot';
+  const scope = relative.startsWith('website/')
+    ? 'website'
+    : relative.startsWith('game/')
+      ? 'game'
+      : 'bot';
   const slug = path.basename(file, '.md');
   const key = scope === 'bot' ? slug : `${scope}-${slug}`;
-  const scopeLabel = scope === 'bot' ? 'Discord bot' : 'Website';
+  const scopeLabel =
+    scope === 'bot' ? 'Discord bot' : scope === 'website' ? 'Website' : 'Places Left Behind';
 
   const document = {
     slug,

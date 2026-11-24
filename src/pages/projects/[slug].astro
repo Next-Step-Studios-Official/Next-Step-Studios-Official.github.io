@@ -74,17 +74,23 @@ const formatDate = (date: Date) =>
     </div>
   </section>
 
-  {entry.data.cover && (
-    <div class="container">
-      <img
-        class="project-hero-cover"
-        src={entry.data.cover}
-        alt=""
-        width={1100}
-        height={594}
-        loading="eager"
-      />
+  {gallery.length > 0 ? (
+    <div class="container project-gallery-top">
+      <ProjectGallery images={gallery} />
     </div>
+  ) : (
+    entry.data.cover && (
+      <div class="container">
+        <img
+          class="project-hero-cover"
+          src={entry.data.cover}
+          alt=""
+          width={1100}
+          height={594}
+          loading="eager"
+        />
+      </div>
+    )
   )}
 
   <section class="section">
@@ -94,14 +100,6 @@ const formatDate = (date: Date) =>
       </article>
     </div>
   </section>
-
-  {gallery.length > 0 && (
-    <section class="section section--flush">
-      <div class="container">
-        <ProjectGallery images={gallery} />
-      </div>
-    </section>
-  )}
 
   {
     isBot && (
@@ -168,6 +166,10 @@ const formatDate = (date: Date) =>
   </section>
 
   <style>
+    .project-gallery-top {
+      margin-bottom: clamp(1.75rem, 4vw, 3rem);
+    }
+
     .project-next p:last-child {
       margin: 0.65rem 0 0;
       max-width: 72ch;

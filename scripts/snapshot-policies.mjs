@@ -15,7 +15,7 @@
 import { readFile, writeFile, mkdir, access, readdir } from 'node:fs/promises';
 import { join } from 'node:path';
 
-const SOURCES = ['bot', 'website'];
+const SOURCES = ['bot', 'website', 'game'];
 const TARGET = 'src/data/policy-snapshots';
 
 let recorded = 0;

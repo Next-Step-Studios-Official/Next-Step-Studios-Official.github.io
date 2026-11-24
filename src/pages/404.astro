@@ -8,7 +8,7 @@ const policyCount = (await getCollection('policies')).length;
 const suggestions = [
   { href: '/projects', label: 'Projects', note: 'What exists, and at what stage' },
   { href: '/commands', label: 'Command reference', note: `All ${COMMANDS.length} slash commands` },
-  { href: '/policies', label: 'Policies', note: `${policyCount} documents in two sets` },
+  { href: '/policies', label: 'Policies', note: `${policyCount} documents in two published scopes` },
   { href: '/trust', label: 'Trust centre', note: 'Data, security and requests' },
   { href: '/modules', label: 'Module register', note: 'The bot, module by module' },
   { href: '/downloads', label: 'Downloads', note: 'Every document as a file' },

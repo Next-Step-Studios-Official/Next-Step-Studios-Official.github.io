@@ -11,32 +11,42 @@ import { DOCS_POLICIES_URL, DOCS_REPO_URL } from './links';
  * builds the file body so the download page, the endpoints and the page sizes
  * all agree.
  *
- * Documents live in two separate sets:
+ * Documents live in separate sets:
  *   - `bot/`     — the Discord bot, at /policies/bot/<slug>
  *   - `website/` — this website, at /policies/website/<slug>
+ *   - `game/`    — Places Left Behind, at /policies/game/<slug>
+ *
+ * The game set is supported by the publishing system but has no published
+ * documents yet. Nothing may be added there until the actual game documents
+ * exist; the policy index presents the scope as in preparation.
  *
  * File downloads and version snapshots use one flat key. Bot documents keep
- * their existing filenames (`privacy.md`); website documents are prefixed
- * (`website-privacy.md`) so two documents called "privacy" cannot collide.
+ * their existing filenames (`privacy.md`); other scopes are prefixed
+ * (`website-privacy.md`, `game-privacy.md`) so documents called "privacy"
+ * cannot collide.
  */
 
-export type PolicyScope = 'bot' | 'website';
+export type PolicyScope = 'bot' | 'website' | 'game';
 
-export const POLICY_SCOPES: PolicyScope[] = ['bot', 'website'];
+export const POLICY_SCOPES: PolicyScope[] = ['bot', 'website', 'game'];
 
 export const POLICY_SCOPE_LABELS: Record<PolicyScope, string> = {
   bot: 'Discord bot',
   website: 'Website',
+  game: 'Places Left Behind',
 };
 
 export const POLICY_SCOPE_DESCRIPTIONS: Record<PolicyScope, string> = {
   bot: 'The bot operating in one private Discord server, and the records it keeps.',
   website: 'This public site: what it collects, the rules for using it, copyright and security.',
+  game: 'The game as a separate product: licensing, EULA, privacy, modding and distribution. No game policy is published yet.',
 };
 
 /** The directory in `src/content/policies` a document belongs to. */
-export const scopeOf = (id: string): PolicyScope =>
-  id.startsWith('website/') ? 'website' : 'bot';
+export const scopeOf = (id: string): PolicyScope => {
+  const prefix = id.split('/')[0];
+  return POLICY_SCOPES.includes(prefix as PolicyScope) ? (prefix as PolicyScope) : 'bot';
+};
 
 /** The document's own slug, without its scope directory. */
 export const slugOf = (id: string) => id.split('/').filter(Boolean).pop() ?? id;
@@ -119,7 +129,7 @@ export function buildDocumentFile(entry: PolicyEntry): string {
   const header = [
     '<!--',
     `  ${data.title}`,
-    `  Next Step Studios - ${scope === 'bot' ? 'Discord bot' : 'website'} documentation`,
+    `  ${SITE.name} - ${POLICY_SCOPE_LABELS[scope]} documentation`,
     '',
     `  Version:    ${data.version}`,
     `  Status:     ${data.docStatus}`,
@@ -136,7 +146,7 @@ export function buildDocumentFile(entry: PolicyEntry): string {
     '  This is an offline copy. The version published at the address above is',
     '  the authoritative one, and this copy may become out of date.',
     '',
-    `  Next Step Studios, operated by ${SITE.operator}.`,
+    `  ${SITE.copyright}`,
     `  Contact: ${SITE.contactEmail}`,
     '-->',
     '',
@@ -179,7 +189,7 @@ export function buildPlainTextFile(document: DownloadableDocument): string {
   return [
     rule,
     document.title.toUpperCase(),
-    `Next Step Studios — ${document.scope === 'bot' ? 'Discord bot' : 'website'} documentation`,
+    `${SITE.name} — ${document.scopeLabel} documentation`,
     rule,
     '',
     `Version:    ${document.version}`,
@@ -194,7 +204,7 @@ export function buildPlainTextFile(document: DownloadableDocument): string {
     'This is an offline copy. The version published on the website is the',
     'authoritative one, and this copy may become out of date.',
     '',
-    `Next Step Studios, operated by ${SITE.operator}.`,
+    SITE.copyright,
     `Contact: ${SITE.contactEmail}`,
     '',
     rule,
@@ -210,7 +220,7 @@ export function buildPlainTextFile(document: DownloadableDocument): string {
 
 export async function getDocuments(): Promise<DownloadableDocument[]> {
   const policies = await getCollection('policies');
-  const scopeRank: Record<PolicyScope, number> = { bot: 0, website: 1 };
+  const scopeRank: Record<PolicyScope, number> = { bot: 0, website: 1, game: 2 };
 
   return policies
     .sort(

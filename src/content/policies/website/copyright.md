@@ -1,13 +1,13 @@
 ---
 title: "Website Copyright and Takedown Notice"
 shortTitle: "Copyright and Takedown"
-version: "0.1.0"
+version: "0.2.0"
 docStatus: "Draft for review. Not yet effective."
 appliesTo: "Content published on the Next Step Studios website"
 order: 3
 summary: "Who owns the content on this site, what reuse is permitted, and how to report material you believe infringes your rights."
-plainSummary: "The studio owns the original content on this site. You may read, link, quote briefly with attribution, and use the brand kit under the press guidelines. If you believe something here infringes your copyright, email the studio with the details listed in this notice; the material will be reviewed and may be removed."
-updated: 2026-11-23
+plainSummary: "Candler Shaw owns the original content created for this site. You may read, link, quote briefly with attribution, and use the brand kit under the press guidelines. If you believe something here infringes your copyright, email the studio with the details listed in this notice; the material will be reviewed and may be removed."
+updated: 2026-11-24
 ---
 
 ## 1. What this notice covers
@@ -18,9 +18,13 @@ It is a draft for review. It is not legal advice, and it does not claim complian
 
 ## 2. Who owns what
 
-The original text, page design, source code, logo, brand marks and artwork created for this site belong to the studio or are used with permission.
+The original text, page design, source code, logo, brand marks and artwork created for this site are owned by Candler Shaw and were developed under the name Next Step Studios.
 
-Some material may belong to someone else: third-party names, logos, trademarks, quoted passages and linked resources remain the property of their owners. Their appearance here does not transfer ownership.
+Copyright © 2026 Candler Shaw. All rights reserved. Developed under the name Next Step Studios.
+
+Some material may belong to someone else: third-party names, logos, trademarks, quoted passages and linked resources remain the property of their owners. Their appearance here does not transfer ownership. This attribution does not apply to third-party material or community-created work that the studio does not own.
+
+Places Left Behind is a separate product. Its copyright, licensing, privacy and takedown documents will live in its own game policy scope. This notice covers this website only; it does not set the rules for the game.
 
 ## 3. What you may do
 
@@ -70,6 +74,6 @@ Complaints that are not about copyright — impersonation, trademarks, privacy o
 
 ## 8. Status of this notice
 
-This notice is version 0.1.0 and is marked **draft for review**. It has no effective date. It is published so the intended process is visible before it is relied upon.
+This notice is version 0.2.0 and is marked **draft for review**. It has no effective date. It is published so the intended process is visible before it is relied upon.
 
 If it is later made effective, the version, effective date and any material changes will be recorded on this page and in the version history.

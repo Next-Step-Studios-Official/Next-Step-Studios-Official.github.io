@@ -26,6 +26,9 @@ if (commands.length < 40) {
 }
 
 const pdf = await PDFDocument.create();
+pdf.setTitle('Next Step Bot command cheatsheet');
+pdf.setAuthor('Candler Shaw');
+pdf.setCreator('Next Step Studios');
 const regular = await pdf.embedFont(StandardFonts.Helvetica);
 const bold = await pdf.embedFont(StandardFonts.HelveticaBold);
 const mono = await pdf.embedFont(StandardFonts.Courier);
@@ -135,11 +138,14 @@ for (const groupId of orderedGroups) {
   y -= 6;
 }
 
-page.drawText('Command names and descriptions are read from the bot source. Existing in source is not the same as verified.', {
+page.drawText('Copyright © 2026 Candler Shaw. All rights reserved. Developed under the name Next Step Studios.', {
   x: margin, y: margin - 6, size: 5.5, font: regular, color: muted,
 });
-page.drawText('next-step-studios-official.github.io/commands', {
+page.drawText('Command names and descriptions are read from the bot source. Existing in source is not the same as verified.', {
   x: margin, y: margin - 14, size: 5.5, font: regular, color: muted,
+});
+page.drawText('next-step-studios-official.github.io/commands', {
+  x: margin, y: margin - 22, size: 5.5, font: regular, color: muted,
 });
 
 const bytes = await pdf.save();

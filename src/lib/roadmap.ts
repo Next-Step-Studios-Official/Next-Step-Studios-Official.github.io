@@ -3,7 +3,7 @@
  * cannot keep, and the point of the page is to be trustworthy.
  */
 
-export type RoadmapStatus = 'In development' | 'Draft' | 'Planned' | 'Live' | 'Not planned';
+export type RoadmapStatus = 'In development' | 'Prototype' | 'Draft' | 'Planned' | 'Live' | 'Not planned';
 
 export type RoadmapItem = {
   title: string;
@@ -33,10 +33,11 @@ export const ROADMAP: RoadmapItem[] = [
     title: 'Public documentation',
     status: 'Draft',
     summary:
-      'Eleven policy documents in two sets — seven for the Discord bot and four for this website — published in full on this site, downloadable as files, with the bot set mirrored to a public GitHub repository.',
+      'Eleven policy documents in two published scopes — seven for the Discord bot and four for this website — published in full on this site, downloadable as files, with the bot set mirrored to a public GitHub repository.',
     points: [
       'Bot set: privacy, terms, acceptable use, community guidelines, moderation, data retention and security, all drafts for review.',
       'Website set: privacy and security are current; terms and copyright remain drafts for review.',
+      'Places Left Behind has a separate game scope in preparation. No game license, EULA or privacy document is presented as effective yet.',
       'Missing: legal review. That is why the draft documents are drafts rather than a 1.0.',
       'Every document is versioned, and the GitHub mirror makes each bot-document change visible.',
     ],
@@ -68,15 +69,16 @@ export const ROADMAP: RoadmapItem[] = [
     link: { href: '/status', label: 'The live status board' },
   },
   {
-    title: 'First Game',
-    status: 'In development',
+    title: 'Places Left Behind',
+    status: 'Prototype',
     summary:
-      'An original game being written from scratch in C# (pronounced “C-sharp”). The title, genre, art direction, platforms and release date are still being worked out.',
+      'An independently developed first-person 3D exploration and mystery game, being built from scratch in C# with a custom Vulkan and Silk.NET engine. The current build is an early prototype.',
     points: [
-      'The project page shows early visual studies, not gameplay screenshots.',
-      'The status moves to Prototype only when something runnable exists — a build that can be played, even badly.',
+      'Movement with WASD and mouse camera control works; the engine, windowing, Vulkan initialization, input, scene, entity, transform and player foundations exist.',
+      'The environment-loading pipeline, full rendering system, investigation mechanics, complete locations and much of the gameplay remain under development.',
+      'The project page shows early concept studies, not in-game screenshots. No release date or storefront is promised.',
     ],
-    link: { href: '/projects/first-game', label: 'The first game' },
+    link: { href: '/projects/places-left-behind', label: 'The game project' },
   },
   {
     title: 'Studio tools',

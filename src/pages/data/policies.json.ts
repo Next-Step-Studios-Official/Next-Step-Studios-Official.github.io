@@ -13,7 +13,7 @@ import {
 export const prerender = true;
 
 export const GET: APIRoute = async () => {
-  const scopeRank = { bot: 0, website: 1 } as const;
+  const scopeRank = { bot: 0, website: 1, game: 2 } as const;
   const policies = (await getCollection('policies')).sort(
     (a, b) => scopeRank[scopeOf(a.id)] - scopeRank[scopeOf(b.id)] || a.data.order - b.data.order,
   );
@@ -23,11 +23,12 @@ export const GET: APIRoute = async () => {
       {
         generated: new Date().toISOString(),
         source: `${SITE.url}/policies`,
-        note: 'Two separate scopes. Markdown, plain-text, PDF and print editions are available under /downloads.',
+        note: 'Separate policy scopes. Markdown, plain-text, PDF and print editions are available under /downloads. The Places Left Behind game scope is supported but has no published document yet.',
         count: policies.length,
         scopes: {
           bot: policies.filter((policy) => scopeOf(policy.id) === 'bot').length,
           website: policies.filter((policy) => scopeOf(policy.id) === 'website').length,
+          game: policies.filter((policy) => scopeOf(policy.id) === 'game').length,
         },
         policies: policies.map((policy) => {
           const scope = scopeOf(policy.id);

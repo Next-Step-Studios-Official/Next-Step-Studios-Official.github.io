@@ -32,7 +32,7 @@ Every path below is relative to that folder unless it starts with `D:\`.
 | Header and theme toggle | `D:\NextStepStudios\next-step-studios-website\src\components\Header.astro` |
 | Breadcrumb navigation used by detail pages | `D:\NextStepStudios\next-step-studios-website\src\components\Breadcrumbs.astro` |
 | Project picture gallery | `D:\NextStepStudios\next-step-studios-website\src\components\ProjectGallery.astro` |
-| First Game page and its gallery guide | `D:\NextStepStudios\next-step-studios-website\FIRST_GAME_EDITING.md` |
+| Places Left Behind page and its gallery guide | `D:\NextStepStudios\next-step-studios-website\PLACES_LEFT_BEHIND_EDITING.md` |
 | A policy document page | `D:\NextStepStudios\next-step-studios-website\src\pages\policies\[scope]\[slug].astro` |
 | Policy version history | `D:\NextStepStudios\next-step-studios-website\src\pages\policies\versions\[slug].astro` |
 | A project page | `D:\NextStepStudios\next-step-studios-website\src\pages\projects\[slug].astro` |
@@ -1076,13 +1076,13 @@ devlog and contact page. The wording is shared by every project, so edit it once
 
 A project can list pictures in its frontmatter under `gallery:`. The shared gallery component
 shows the large image, thumbnails, previous/next controls, a count and a full-screen viewer.
-The First Game page is the first project using it.
+The Places Left Behind page is the first project using it.
 
 **Gallery component:** `D:\NextStepStudios\next-step-studios-website\src\components\ProjectGallery.astro`
 
-**First Game content:** `D:\NextStepStudios\next-step-studios-website\src\content\projects\first-game.md`
+**Places Left Behind content:** `D:\NextStepStudios\next-step-studios-website\src\content\projects\places-left-behind.md`
 
-**Step-by-step guide:** `D:\NextStepStudios\next-step-studios-website\FIRST_GAME_EDITING.md`
+**Step-by-step guide:** `D:\NextStepStudios\next-step-studios-website\PLACES_LEFT_BEHIND_EDITING.md`
 
 ### Modules
 
@@ -1849,8 +1849,8 @@ full paths for the policy filter and breadcrumb files are at the top of this gui
 | `src/pages/projects/index.astro` | Project list, search, status/category filters and sort |
 | `src/pages/projects/[slug].astro` | Project detail page and gallery placement |
 | `src/components/ProjectGallery.astro` | Project pictures, thumbnails, counter and full-screen viewer |
-| `src/content/projects/first-game.md` | First Game copy, status and gallery list |
-| `FIRST_GAME_EDITING.md` | Standalone guide to the First Game page and its pictures |
+| `src/content/projects/places-left-behind.md` | Places Left Behind copy, status and gallery list |
+| `PLACES_LEFT_BEHIND_EDITING.md` | Standalone guide to the Places Left Behind page and its pictures |
 | `src/styles/global.css` | Base styles, dark tokens and the shared filter note |
 | `src/styles/pages.css` | Page-specific layout and shared touch-target rules |
 | `src/components/Footer.astro` | Footer navigation and contact |

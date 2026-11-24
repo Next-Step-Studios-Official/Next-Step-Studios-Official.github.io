@@ -4,7 +4,6 @@ import logoMark from '../assets/brand/logo-mark.png';
 import { SITE } from '../lib/site';
 import { discordInvite, DISCORD } from '../lib/discord';
 
-const year = new Date().getFullYear();
 const invite = discordInvite();
 
 const studioLinks = [
@@ -91,7 +90,7 @@ const policyLinks = [
     </div>
 
     <div class="footer-base">
-      <p>© {year} <span class="wordmark-dim">{SITE.name}</span> · {SITE.operator}</p>
+      <p>{SITE.copyright}</p>
       <p>Public-facing name of an independent studio. Not a registered company.</p>
     </div>
   </div>

@@ -3,7 +3,7 @@ title: This Website
 tagline: The public site you are reading, built as a static reference.
 status: In development
 category: Website
-summary: "The Next Step Studios website: pre-built Astro pages, two separate policy sets, downloadable editions, a small local assistant and a status page. Published, and still being revised."
+summary: "The Next Step Studios website: pre-built Astro pages, separate policy scopes for the Discord bot and the site, downloadable editions, a small local assistant and a status page. Published, and still being revised."
 order: 5
 updated: 2026-11-23
 ---
@@ -21,7 +21,7 @@ downloads are generated from that source rather than edited by hand in several p
 ## What is real
 
 - The pages are pre-built and publicly readable.
-- The policy documents are published in two separate sets, with Markdown, plain-text, PDF and
+- The policy documents are published in separate scopes for the Discord bot and this site, with Markdown, plain-text, PDF and
   print editions.
 - The search index and the Step assistant run locally in the browser.
 - The status page reads a public JSON feed and falls back to a build-time copy.

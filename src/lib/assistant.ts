@@ -605,7 +605,7 @@ const PAGE_STARTERS: Array<{ prefix: string; questions: string[] }> = [
   },
   {
     prefix: '/projects',
-    questions: ['What projects exist?', 'What is Next Step Bot?', 'What is the first game?'],
+    questions: ['What projects exist?', 'What is Next Step Bot?', 'What is Places Left Behind?'],
   },
   {
     prefix: '/policies',

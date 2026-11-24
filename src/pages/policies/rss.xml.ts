@@ -19,7 +19,7 @@ const escape = (value: string) =>
 
 export const GET: APIRoute = async ({ site }) => {
   const base = (site ?? new URL(SITE.url)).toString().replace(/\/$/, '');
-  const scopeRank = { bot: 0, website: 1 } as const;
+  const scopeRank = { bot: 0, website: 1, game: 2 } as const;
   const policies = (await getCollection('policies')).sort(
     (a, b) => scopeRank[scopeOf(a.id)] - scopeRank[scopeOf(b.id)] || a.data.order - b.data.order,
   );

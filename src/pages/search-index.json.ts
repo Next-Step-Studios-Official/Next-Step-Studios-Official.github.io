@@ -54,7 +54,7 @@ const PAGES: IndexEntry[] = [
   { type: 'Page', title: 'Official links', url: '/links', text: 'Every official link in one place, mirroring the bot links panel.' },
   { type: 'Page', title: 'About', url: '/about', text: 'The studio, the operator, the contributors, how it works and what it is for.' },
   { type: 'Page', title: 'Team', url: '/team', text: 'The people who contribute to Next Step Studios: the operator and the volunteer contributors, with what each one works on.' },
-  { type: 'Page', title: 'Policies', url: '/policies', text: 'Public policy documents in two separate scopes: seven for the Discord bot, covering privacy, terms, acceptable use, community guidelines, moderation, data retention and security; four for the website, covering privacy, terms, copyright and security.' },
+  { type: 'Page', title: 'Policies', url: '/policies', text: 'Public policy documents in two published scopes: seven for the Discord bot, covering privacy, terms, acceptable use, community guidelines, moderation, data retention and security; four for the website, covering privacy, terms, copyright and security. Places Left Behind has a separate game scope in preparation.' },
   { type: 'Page', title: 'Downloads', url: '/downloads', text: 'Documents, brand and press files, and any game, app, tool or media builds. Every policy in Markdown, plain text, print layout and PDF, plus one combined file.' },
   { type: 'Page', title: 'Roadmap', url: '/roadmap', text: 'What is in development, what is planned and what has been decided against.' },
   { type: 'Page', title: 'FAQ', url: '/faq', text: 'Questions about the bot, the server, data, moderation, privacy and this website.' },

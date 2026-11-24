@@ -14,6 +14,13 @@ export const SITE = {
    * domain-based address is set up.
    */
   contactEmail: 'nextstepstudiosofficial.contact@gmail.com',
+  /**
+   * Exact attribution for original studio-created work. Used in the footer,
+   * generated documents and the Places Left Behind project page. Do not apply
+   * this to third-party material or community-created work.
+   */
+  copyright:
+    'Copyright © 2026 Candler Shaw. All rights reserved. Developed under the name Next Step Studios.',
   /** The public mirror of the policy documents. */
   docsRepoUrl: 'https://github.com/Next-Step-Studios-Official/bot-documentation',
 } as const;

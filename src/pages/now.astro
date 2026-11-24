@@ -8,7 +8,7 @@ import { isDraftDocument, scopeOf } from '../lib/documents';
 
 const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
 const featured = projects.find((project) => project.data.featured) ?? projects[0];
-const scopeRank = { bot: 0, website: 1 } as const;
+const scopeRank = { bot: 0, website: 1, game: 2 } as const;
 const policies = (await getCollection('policies')).sort(
   (a, b) => scopeRank[scopeOf(a.id)] - scopeRank[scopeOf(b.id)] || a.data.order - b.data.order,
 );
@@ -28,13 +28,13 @@ const threads = [
     cta: 'Read the project',
   },
   {
-    state: 'In development',
-    tone: 'dev',
-    title: 'First Game',
+    state: 'Prototype',
+    tone: 'prototype',
+    title: 'Places Left Behind',
     body:
-      'An original game being written from scratch in C#. The title, genre, art direction, platforms and release date are still being worked out.',
-    meta: 'C# · early visual studies',
-    href: '/projects/first-game',
+      'An early first-person exploration and mystery prototype, being built from scratch in C# with a custom engine. Movement and camera control exist; the environment pipeline, investigation systems and complete locations are still in development.',
+    meta: 'C# · custom engine · early prototype',
+    href: '/projects/places-left-behind',
     cta: 'Read the project',
   },
   {
@@ -42,8 +42,8 @@ const threads = [
     tone: 'draft',
     title: 'Public policy documents',
     body:
-      `The ${policies.length} documents are published in full, versioned and downloadable across two scopes. ${draftPolicyCount} are still drafts under review; ${currentPolicyCount} describe the published site and are marked current.`,
-    meta: `2 sets · ${draftPolicyCount} drafts · ${currentPolicyCount} current`,
+      `The ${policies.length} documents are published in full, versioned and downloadable across two published scopes: the Discord bot and this website. ${draftPolicyCount} are still drafts under review; ${currentPolicyCount} describe the published site and are marked current. Places Left Behind has a separate game scope in preparation.`,
+    meta: `2 published sets · game scope pending · ${draftPolicyCount} drafts · ${currentPolicyCount} current`,
     href: '/policies',
     cta: 'Read the documents',
   },
@@ -87,7 +87,7 @@ const notStarted = [
 
 <Base
   title="Now"
-  description="Dated November 2026 snapshot: the Discord bot, the first game, the public documents, this website, Press & brand, and what has deliberately not started."
+  description="Dated November 2026 snapshot: the Discord bot, Places Left Behind, the public documents, this website, Press & brand, and what has deliberately not started."
   path="/now"
   ogImage="og/now.png"
 >

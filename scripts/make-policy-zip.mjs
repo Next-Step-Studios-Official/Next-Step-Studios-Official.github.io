@@ -16,6 +16,8 @@ const ROOT = path.resolve('src/content/policies');
 const OUTPUT = path.resolve('public/downloads/next-step-studios-policies.zip');
 const OPERATOR = 'Candler Shaw';
 const CONTACT = 'nextstepstudiosofficial.contact@gmail.com';
+const COPYRIGHT =
+  'Copyright © 2026 Candler Shaw. All rights reserved. Developed under the name Next Step Studios.';
 
 function parseFrontmatter(source) {
   const match = source.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/);
@@ -32,7 +34,7 @@ function parseFrontmatter(source) {
   return { data, body: match[2] };
 }
 
-const scopeRank = { bot: 0, website: 1 };
+const scopeRank = { bot: 0, website: 1, game: 2 };
 
 const files = fs
   .readdirSync(ROOT, { recursive: true })
@@ -42,13 +44,18 @@ const files = fs
     const source = fs.readFileSync(full, 'utf8');
     const { data, body } = parseFrontmatter(source);
     const relative = file.replace(/\\/g, '/');
-    const scope = relative.startsWith('website/') ? 'website' : 'bot';
+    const scope = relative.startsWith('website/')
+      ? 'website'
+      : relative.startsWith('game/')
+        ? 'game'
+        : 'bot';
     const slug = path.basename(file, '.md');
     return {
       slug,
       key: scope === 'bot' ? slug : `${scope}-${slug}`,
       scope,
-      scopeLabel: scope === 'bot' ? 'Discord bot' : 'Website',
+      scopeLabel:
+        scope === 'bot' ? 'Discord bot' : scope === 'website' ? 'Website' : 'Places Left Behind',
       data,
       body,
       order: Number(data.order) || 100,
@@ -75,7 +82,7 @@ const documentMarkdown = (file) => {
   const header = [
     '<!--',
     `  ${data.title ?? file.slug}`,
-    `  Next Step Studios - ${file.scope === 'bot' ? 'Discord bot' : 'website'} documentation`,
+    `  Next Step Studios - ${file.scopeLabel} documentation`,
     '',
     `  Version:    ${data.version ?? '—'}`,
     `  Status:     ${data.docStatus ?? 'Draft'}`,
@@ -89,7 +96,7 @@ const documentMarkdown = (file) => {
     '  This is an offline copy. The version published at the address above is',
     '  the authoritative one, and this copy may become out of date.',
     '',
-    `  Next Step Studios, operated by ${OPERATOR}.`,
+    `  ${COPYRIGHT}`,
     `  Contact: ${CONTACT}`,
     '-->',
     '',
@@ -110,12 +117,12 @@ const combinedHeader = [
   '<!--',
   '  Next Step Studios — complete public document set',
   '',
-  `  ${files.length} documents across the Discord bot and website sets,`,
+  `  ${files.length} documents across the published policy scopes,`,
   '  all at the versions listed in each section.',
   '  This is an offline copy. The versions published on the website are',
   '  authoritative, and this file may become out of date.',
   '',
-  `  Next Step Studios, operated by ${OPERATOR}.`,
+  `  ${COPYRIGHT}`,
   `  Contact: ${CONTACT}`,
   '-->',
   '',
@@ -146,6 +153,7 @@ WHAT IS IN HERE
   all-policies.md         Every document in one file, in publishing order.
   bot/<slug>.md           The Discord bot documents.
   website/<slug>.md       The website documents.
+  game/<slug>.md          The Places Left Behind documents, when published.
 
 DOCUMENTS
 
@@ -160,17 +168,18 @@ nothing in this archive claims legal compliance.
 
 SCOPES
 
-These documents cover two separate things. The bot set covers the Next Step
+These documents cover separate things. The bot set covers the Next Step
 Studios Discord bot operating in one private server. The website set covers
-this public site. They are not interchangeable, and one is not a substitute
-for the other.
+this public site. Places Left Behind has its own game scope in preparation;
+no game document is included here until the real document is published.
+They are not interchangeable, and one is not a substitute for another.
 
 The authoritative version of each document is the page at
 https://next-step-studios-official.github.io/policies/<scope>/<slug>, and
 the individual downloads are available from /downloads. A copy in this ZIP
 can become out of date.
 
-Next Step Studios, operated by ${OPERATOR}.
+${COPYRIGHT}
 Contact: ${CONTACT}
 `;
 
