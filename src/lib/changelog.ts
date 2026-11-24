@@ -13,6 +13,20 @@ export type ChangelogEntry = {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    date: '2026-11-24',
+    version: '3.12',
+    title: 'The applied-styles edition',
+    summary:
+      'Several styles were silently not applying: two undefined tokens, the generated status strip and incident rows, and the search typo button. This pass makes those rules real and records where the theme tokens live.',
+    changes: [
+      'The live status banner and the press asset table header now use defined surface tokens; their previous `--color-panel` was never declared, so both backgrounds were transparent.',
+      'The press type specimen now uses the Inter token instead of an undefined `--font-body`, so the sample renders in the face it names.',
+      'The status 24-hour strip was effectively invisible: its slots are created in JavaScript, but the scoped CSS only matched elements present at build time. The slot rules are now scoped to the rendered strip, and empty slots follow the theme instead of a dark-only grey.',
+      'Search typo suggestions now actually receive their button styling, including the 44px touch target; the button is created after load, so the scoped rule had been skipped.',
+      'EDITING.md now records where the dark and light token sets live, why an undefined `var(--…)` fails silently, and how generated elements need `:global` styling.',
+    ],
+  },
+  {
     date: '2026-11-23',
     version: '3.11',
     title: 'The touch edition',

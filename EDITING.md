@@ -28,6 +28,7 @@ Every path below is relative to that folder unless it starts with `D:\`.
 | Team page | `D:\NextStepStudios\next-step-studios-website\src\pages\team.astro` |
 | Shared filter note style | `D:\NextStepStudios\next-step-studios-website\src\styles\global.css` |
 | Shared touch-target styles | `D:\NextStepStudios\next-step-studios-website\src\styles\pages.css` |
+| Theme tokens and light overrides | `D:\NextStepStudios\next-step-studios-website\src\styles\theme.css` |
 | Header and theme toggle | `D:\NextStepStudios\next-step-studios-website\src\components\Header.astro` |
 | Breadcrumb navigation used by detail pages | `D:\NextStepStudios\next-step-studios-website\src\components\Breadcrumbs.astro` |
 | A policy document page | `D:\NextStepStudios\next-step-studios-website\src\pages\policies\[scope]\[slug].astro` |
@@ -1832,7 +1833,7 @@ full paths for the policy filter and breadcrumb files are at the top of this gui
 | `src/pages/policies/index.astro` | Policy hub, search and scope/status filters |
 | `src/pages/downloads/index.astro` | Download catalogue, category chips and platform/type/search filters |
 | `src/pages/projects/index.astro` | Project list, search, status/category filters and sort |
-| `src/styles/global.css` | Base styles, including the shared filter note |
+| `src/styles/global.css` | Base styles, dark tokens and the shared filter note |
 | `src/styles/pages.css` | Page-specific layout and shared touch-target rules |
 | `src/components/Footer.astro` | Footer navigation and contact |
 | `src/components/Assistant.astro` | Floating Step launcher, chat panel and local loader |
@@ -1866,6 +1867,22 @@ full paths for the policy filter and breadcrumb files are at the top of this gui
 | `.env.example` | Local environment template |
 | `astro.config.mjs` | Static output and canonical site |
 | `.github/workflows/deploy.yml` | GitHub Pages deployment |
+
+### Theme tokens
+
+Dark values are defined once in `src/styles/global.css`; `src/styles/theme.css` restates every
+colour for light mode. Use an existing token rather than a raw colour, and check the spelling:
+an undefined `var(--…)` does not raise an error, it quietly makes that declaration invalid.
+For surfaces, `--color-surface` is the main panel fill and `--color-surface-2` is the quieter
+tint used for headers and nested areas. The body face is `--font-sans`.
+
+Astro adds a scope attribute to elements it renders at build time. Elements created later
+in JavaScript do not get that attribute, so a normal scoped selector will skip them. Use a
+`:global(...)` selector inside a rendered wrapper, as the Status strip and Search suggestion
+do; otherwise the styles silently do nothing.
+
+**Full paths:** `D:\NextStepStudios\next-step-studios-website\src\styles\global.css` and
+`D:\NextStepStudios\next-step-studios-website\src\styles\theme.css`
 
 ### Commands
 

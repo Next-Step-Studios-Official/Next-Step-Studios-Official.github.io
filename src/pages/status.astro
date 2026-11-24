@@ -254,7 +254,7 @@ const stateClass: Record<string, string> = {
     padding: 0.85rem 1rem;
     border: 1px solid var(--color-line);
     border-radius: 10px;
-    background: var(--color-panel);
+    background: var(--color-surface);
     margin-bottom: 1rem;
   }
 
@@ -298,19 +298,22 @@ const stateClass: Record<string, string> = {
     border-radius: 6px;
   }
 
-  .uptime-slot { flex: 1 1 0; border-radius: 2px; background: #1a2130; min-width: 1px; }
-  .uptime-slot--up { background: #3f9d82; }
-  .uptime-slot--down { background: #b04a4a; }
+  /* Slots are created in JavaScript after load, so Astro's scoped attribute
+     is not present. Scope these to the rendered strip with :global instead. */
+  .uptime-strip :global(.uptime-slot) { flex: 1 1 0; border-radius: 2px; background: var(--color-line); min-width: 1px; }
+  .uptime-strip :global(.uptime-slot--up) { background: #3f9d82; }
+  .uptime-strip :global(.uptime-slot--down) { background: #b04a4a; }
 
   .live-legend { display: flex; flex-wrap: wrap; gap: 1.1rem; margin-top: 0.8rem; font-size: 0.75rem; color: var(--color-muted); }
   .live-legend span { display: inline-flex; align-items: center; gap: 0.4rem; }
-  .legend-dot { width: 8px; height: 8px; border-radius: 2px; display: inline-block; background: #1a2130; }
+  .legend-dot { width: 8px; height: 8px; border-radius: 2px; display: inline-block; background: var(--color-muted); }
   .legend-dot--up { background: #3f9d82; }
   .legend-dot--down { background: #b04a4a; }
 
   .incident-list { margin-top: 0.75rem; display: grid; gap: 0.7rem; }
 
-  .incident {
+  /* Incident rows and the empty message are created in JavaScript too. */
+  .incident-list :global(.incident) {
     display: flex;
     flex-wrap: wrap;
     align-items: baseline;
@@ -320,9 +323,10 @@ const stateClass: Record<string, string> = {
     border-bottom: 1px solid var(--color-line-soft);
   }
 
-  .incident:last-child { border-bottom: 0; padding-bottom: 0; }
-  .incident-name { font-size: 0.9rem; color: var(--color-ink); }
-  .incident-meta { font-family: var(--font-mono); font-size: 0.7rem; color: var(--color-muted); }
+  .incident-list :global(.incident:last-child) { border-bottom: 0; padding-bottom: 0; }
+  .incident-list :global(.incident-name) { font-size: 0.9rem; color: var(--color-ink); }
+  .incident-list :global(.incident-meta) { font-family: var(--font-mono); font-size: 0.7rem; color: var(--color-muted); }
+  .incident-list :global(.incident-empty) { color: var(--color-muted); font-size: 0.78rem; margin-top: 0.4rem; line-height: 1.5; }
 
   .live-note { color: var(--color-muted); font-size: 0.85rem; line-height: 1.65; margin-top: 0.75rem; }
   .live-links { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 0.9rem; }
@@ -457,7 +461,7 @@ const stateClass: Record<string, string> = {
 
       if (incidents.length === 0) {
         const none = document.createElement('p');
-        none.className = 'live-sub';
+        none.className = 'incident-empty';
         none.textContent =
           sorted.length === 0
             ? 'No checks have been published yet.'

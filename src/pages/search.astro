@@ -498,7 +498,9 @@ const indexUrl = `${import.meta.env.BASE_URL}search-index.json`;
       gap: 0.4rem;
     }
 
-    .search-suggestion {
+    /* The suggestion button is created after load, so it has no Astro scope
+       attribute. Scope the rule through the rendered wrapper instead. */
+    .search-suggestions :global(.search-suggestion) {
       min-height: 2.75rem;
       padding: 0.4rem 0.65rem;
       border: 1px solid var(--color-line);
@@ -508,9 +510,10 @@ const indexUrl = `${import.meta.env.BASE_URL}search-index.json`;
       font: inherit;
       font-size: 0.875rem;
       text-align: left;
+      cursor: pointer;
     }
 
-    .search-suggestion:hover {
+    .search-suggestions :global(.search-suggestion:hover) {
       border-color: var(--color-accent);
     }
 
