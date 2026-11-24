@@ -13,6 +13,7 @@
     "pdfs": "node scripts/make-pdfs.mjs && node scripts/make-cheatsheet.mjs",
     "cheatsheet": "node scripts/make-cheatsheet.mjs",
     "snapshot": "node scripts/snapshot-policies.mjs",
+    "docs:sync": "node scripts/sync-places-left-behind-docs.mjs",
     "og": "node scripts/make-og-pages.mjs",
     "releases": "node scripts/fetch-releases.mjs",
     "brand": "node scripts/make-brand-assets.mjs && node scripts/make-brand-zip.mjs",

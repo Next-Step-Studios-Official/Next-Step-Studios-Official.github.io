@@ -12,12 +12,16 @@ import {
   scopeOf,
 } from '../../lib/documents';
 import { readingLabel } from '../../lib/reading';
+import { countPlacesDocs, getPlacesDocs } from '../../lib/placesDocs';
 import { numberWord } from '../../lib/words';
 
 const scopeRank = { bot: 0, website: 1, game: 2 } as const;
 const policies = (await getCollection('policies')).sort(
   (a, b) => scopeRank[scopeOf(a.id)] - scopeRank[scopeOf(b.id)] || a.data.order - b.data.order,
 );
+
+const placesDocs = await getPlacesDocs();
+const placesCounts = countPlacesDocs(placesDocs);
 
 const draftCount = policies.filter((policy) => isDraftDocument(policy.data.docStatus)).length;
 const currentCount = policies.length - draftCount;
@@ -35,10 +39,9 @@ const scopes = POLICY_SCOPES.map((scope) => {
   };
 });
 
-// A scope with no documents is not a published set. It is shown separately as
-// in preparation, never as an empty filter or an effective agreement.
+// A scope with no documents is not a published set. The game scope remains
+// empty by design; those documents live in the separate placesDocs collection.
 const publishedScopes = scopes.filter((scope) => scope.items.length > 0);
-const pendingScopes = scopes.filter((scope) => scope.items.length === 0);
 const publishedScopeList = new Intl.ListFormat('en-GB', {
   style: 'long',
   type: 'conjunction',
@@ -53,7 +56,7 @@ const publishedScopeList = new Intl.ListFormat('en-GB', {
 
 <Base
   title="Policies"
-  description="The public policy documents for Next Step Studios, in separate scopes for the Discord bot and this website, with a separate Places Left Behind game scope in preparation."
+  description="The public policy documents for Next Step Studios, in separate scopes for the Discord bot and this website, plus the separate Places Left Behind documentation section."
   path="/policies"
   ogImage="og/policies.png"
 >
@@ -65,14 +68,13 @@ const publishedScopeList = new Intl.ListFormat('en-GB', {
         <p class="lede">
           {CountWord} public documents in {publishedScopes.length} published scopes:
           {publishedScopeList}. Each says what it applies to, what version it is, and whether it
-          is current or still a draft.
-          {pendingScopes.length > 0 &&
-            ` ${pendingScopes[0].label} has its own game scope in preparation; no game policy is published here yet.`}
+          is current or still a draft. Places Left Behind's {placesCounts.total} documents are
+          published separately, in their own dedicated section.
         </p>
         <div class="meta-bar">
           <span>{policies.length} documents</span>
           <span>{publishedScopes.length} published scopes</span>
-          {pendingScopes.length > 0 && <span>{pendingScopes[0].label} scope in preparation</span>}
+          <span>{placesCounts.total} game documents · separate section</span>
           <span>{currentCount} current · {draftCount} draft</span>
         </div>
       </div>
@@ -234,33 +236,19 @@ const publishedScopeList = new Intl.ListFormat('en-GB', {
       </p>
 
       <div class="split" style="margin-top: 2rem;">
-        <div class="panel panel--pad" id={pendingScopes[0]?.scope ?? 'future'} style="scroll-margin-top: 6rem;">
-          <p class="label">
-            {pendingScopes[0] ? `${pendingScopes[0].label} · game scope in preparation` : 'Future products'}
+        <div class="panel panel--pad" id="game" style="scroll-margin-top: 6rem;">
+          <p class="label">Places Left Behind · separate documentation</p>
+          <p style="color: var(--color-muted); font-size: 0.9375rem; margin-top: 0.6rem;">
+            The game's {placesCounts.total} licensing, policy and engineering documents live in
+            their own section: {placesCounts.current} are marked current, {placesCounts.draft} are
+            drafts or future drafts, and none of the custom agreements has been reviewed by a
+            lawyer. They are not part of this website or Discord bot policy set, and they do not
+            replace the documents above.
           </p>
-          {pendingScopes[0] ? (
-            <>
-              <p style="color: var(--color-muted); font-size: 0.9375rem; margin-top: 0.6rem;">
-                Places Left Behind has its own legal and licensing documentation in progress:
-                copyright and proprietary licensing, engine licensing, third-party notices,
-                asset licensing, prototype distribution terms, the game EULA, game privacy,
-                modding and community content rules, contributor agreements and distribution
-                compliance. When the real documents are ready, they will be published through
-                this policy system as a separate game scope. Nothing here is an effective game
-                agreement, and none of it replaces the website or Discord bot policies.
-              </p>
-              <div style="display: flex; flex-wrap: wrap; gap: 0.85rem; margin-top: 0.85rem;">
-                <a class="text-link" href="/projects/places-left-behind" style="font-size: 0.875rem;">The game's current stage →</a>
-                <a class="text-link" href="/roadmap" style="font-size: 0.875rem;">Roadmap →</a>
-              </div>
-            </>
-          ) : (
-            <p style="color: var(--color-muted); font-size: 0.9375rem; margin-top: 0.6rem;">
-              Games, apps and anything else the studio releases will get their own document set
-              before release. No placeholder policy is published for a product that does not exist,
-              and nothing here claims to cover one.
-            </p>
-          )}
+          <div style="display: flex; flex-wrap: wrap; gap: 0.85rem; margin-top: 0.85rem;">
+            <a class="text-link" href="/docs/places-left-behind" style="font-size: 0.875rem;">All game documentation →</a>
+            <a class="text-link" href="/projects/places-left-behind" style="font-size: 0.875rem;">The game's current stage →</a>
+          </div>
         </div>
         <div class="panel panel--pad">
           <p class="label">Privacy requests</p>

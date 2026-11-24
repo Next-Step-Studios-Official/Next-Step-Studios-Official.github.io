@@ -3,6 +3,7 @@ import Base from '../layouts/Base.astro';
 import { COMMANDS } from '../lib/commands';
 import { FAQ } from '../lib/faq';
 import { getDocuments, isDraftDocument } from '../lib/documents';
+import { countPlacesDocs, getPlacesDocs } from '../lib/placesDocs';
 import {
   STATUS_FALLBACK_URL,
   STATUS_FEED_URL,
@@ -13,6 +14,8 @@ import {
 } from '../lib/status';
 
 const documents = await getDocuments();
+const placesDocs = await getPlacesDocs();
+const placesCounts = countPlacesDocs(placesDocs);
 const draftDocuments = documents.filter((document) => isDraftDocument(document.docStatus)).length;
 const currentDocuments = documents.length - draftDocuments;
 const buildDate = new Intl.DateTimeFormat('en-GB', {
@@ -38,13 +41,21 @@ const rows = [
   {
     name: 'Policy documents',
     state: 'mixed',
-    detail: `${documents.length} documents in two published scopes: ${currentDocuments} current, ${draftDocuments} draft. A separate Places Left Behind game scope is in preparation. Complete and downloadable, not legally reviewed.`,
+    detail: `${documents.length} website and bot documents in two published scopes: ${currentDocuments} current, ${draftDocuments} draft. Places Left Behind's ${placesCounts.total} game documents are published separately: ${placesCounts.current} current, ${placesCounts.draft} draft or future draft. Not legally reviewed.`,
     meta: 'Draft & current',
+  },
+  {
+    name: 'Places Left Behind',
+    state: 'dev',
+    detail:
+      'In Development. The engine has a Vulkan foundation, swapchain, depth buffering, indexed mesh drawing, shader compilation, cube rendering, and first-person camera and player movement. Environment loading, investigation, complete locations, saves and distribution are unfinished.',
+    meta: 'In Development',
   },
   {
     name: 'Discord bot',
     state: 'dev',
-    detail: 'Running in one private community server. The live cards above come from the bot\u2019s own checks.',
+    detail:
+      'Running in one private community server. Its status publisher is not writing the public feed yet, so the cards above use the build-time fallback.',
     meta: 'In development',
   },
   {
@@ -87,7 +98,7 @@ const stateClass: Record<string, string> = {
 
 <Base
   title="Status"
-  description="Live checks from the Next Step Bot, refreshed every five minutes, plus the state of the website and its documents."
+  description="The state of the website, documents and Places Left Behind, plus the bot status feed and its build-time fallback."
   path="/status"
   ogImage="og/status.png"
 >
@@ -97,9 +108,9 @@ const stateClass: Record<string, string> = {
         <p class="eyebrow"><a class="text-link" href="/about">Studio</a> · Status</p>
         <h1 class="display display--page">What's up, in plain terms.</h1>
         <p class="lede">
-          The bot writes a check every five minutes and this page reads it. No uptime theatre and
-          no invented green dots: if the feed stops, the page says so rather than pretending
-          everything is fine.
+          The status board is built to read a check from the bot every five minutes. The publisher
+          is not live yet, so it currently shows the build-time fallback and no history. No uptime
+          theatre and no invented green dots: when the feed stops, the page says so.
         </p>
         <div class="meta-bar" id="status-config"
           data-status-root
@@ -110,7 +121,7 @@ const stateClass: Record<string, string> = {
           data-window={String(STATUS_WINDOW_MS)}
           data-slots={String(STATUS_SLOTS)}
         >
-          <span>Live feed</span>
+          <span>Status feed</span>
           <span>5-minute checks</span>
           <span>24-hour history</span>
         </div>
@@ -191,9 +202,10 @@ const stateClass: Record<string, string> = {
         <div class="panel panel--pad">
           <p class="label">How this works</p>
           <p class="live-note">
-            The bot writes <code>status.json</code> to the public repository after each check. This
-            page reads that file in your browser; there is no monitoring service and no analytics.
-            GitHub sees the request for the file, as it would for any image or link.
+            When the publisher runs, it writes <code>status.json</code> to the public repository
+            after each check. This page reads that file in your browser; there is no monitoring
+            service and no analytics. GitHub sees the request for the file, as it would for any
+            image or link.
           </p>
           <div class="live-links">
             <a class="text-link" href="/policies/website/privacy">Website privacy →</a>
@@ -237,9 +249,9 @@ const stateClass: Record<string, string> = {
       </div>
 
       <p class="live-note" style="margin-top: 1.25rem;">
-        This lower table is written at build time. {documents.length} documents, {COMMANDS.length}
-        commands and {FAQ.length} answered questions feed it, so the counts cannot drift from the
-        pages they describe.
+        This lower table is written at build time. {documents.length} website and bot documents,
+        {placesCounts.total} game documents, {COMMANDS.length} commands and {FAQ.length} answered
+        questions feed it, so the counts cannot drift from the pages they describe.
       </p>
     </div>
   </section>

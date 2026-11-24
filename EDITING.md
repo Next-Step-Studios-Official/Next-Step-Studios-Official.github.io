@@ -1057,7 +1057,9 @@ updated: 2026-11-21
 
 `status` must be one of: `In development`, `Prototype`, `Testing`, `Planned`, `On hold`.
 There is no “Released” status. If a project ships, that is a deliberate change to the
-schema and the status styles, not a casual edit.
+schema and the status styles, not a casual edit. The public badge renders the stored
+`In development` value as **In Development**; keep the stored value as written so filters
+and the schema continue to agree.
 
 `category` must be one of exactly four values: `Discord bot`, `Games`, `Apps & tools`,
 `Website`. The projects index groups and counts by these; an unknown category fails the
@@ -1075,8 +1077,15 @@ devlog and contact page. The wording is shared by every project, so edit it once
 ### Project picture galleries
 
 A project can list pictures in its frontmatter under `gallery:`. The shared gallery component
-shows the large image, thumbnails, previous/next controls, a count and a full-screen viewer.
-The Places Left Behind page is the first project using it.
+shows a 16:9 preview, compact square thumbnails, previous/next controls, a count and a larger
+viewer. Every project gallery uses this component, so a gallery change applies everywhere it is
+used. The Places Left Behind page is the first project using it.
+
+**Places Left Behind documentation:** the game has a separate documentation section at
+`/docs/places-left-behind`. It is generated from the game repository by
+`npm run docs:sync -- "C:\Users\Panda\Documents\CustomGames\Places Left Behind"`; do not move
+those documents into `src/content/policies/game/` or edit the generated pages by hand. The full
+workflow is in `PLACES_LEFT_BEHIND_EDITING.md`.
 
 **Gallery component:** `D:\NextStepStudios\next-step-studios-website\src\components\ProjectGallery.astro`
 
@@ -1848,8 +1857,12 @@ full paths for the policy filter and breadcrumb files are at the top of this gui
 | `src/pages/downloads/index.astro` | Download catalogue, category chips and platform/type/search filters |
 | `src/pages/projects/index.astro` | Project list, search, status/category filters and sort |
 | `src/pages/projects/[slug].astro` | Project detail page and gallery placement |
-| `src/components/ProjectGallery.astro` | Project pictures, thumbnails, counter and full-screen viewer |
+| `src/components/ProjectGallery.astro` | Project pictures, square thumbnails, counter and larger viewer |
 | `src/content/projects/places-left-behind.md` | Places Left Behind copy, status and gallery list |
+| `src/pages/docs/places-left-behind/` | Game documentation index and one page per source document |
+| `src/content/places-left-behind-docs/` | Generated game document copies; refresh with `npm run docs:sync` |
+| `src/lib/placesDocs.ts` | Game documentation categories, statuses, paths and counts |
+| `scripts/sync-places-left-behind-docs.mjs` | Read-only importer from the game repository |
 | `PLACES_LEFT_BEHIND_EDITING.md` | Standalone guide to the Places Left Behind page and its pictures |
 | `src/styles/global.css` | Base styles, dark tokens and the shared filter note |
 | `src/styles/pages.css` | Page-specific layout and shared touch-target rules |

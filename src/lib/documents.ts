@@ -16,9 +16,9 @@ import { DOCS_POLICIES_URL, DOCS_REPO_URL } from './links';
  *   - `website/` — this website, at /policies/website/<slug>
  *   - `game/`    — Places Left Behind, at /policies/game/<slug>
  *
- * The game set is supported by the publishing system but has no published
- * documents yet. Nothing may be added there until the actual game documents
- * exist; the policy index presents the scope as in preparation.
+ * The game's own documents are published in a separate collection and route,
+ * `/docs/places-left-behind`. The `game/` policy scope remains empty; it is
+ * not used as a shortcut around the game's source-controlled documentation.
  *
  * File downloads and version snapshots use one flat key. Bot documents keep
  * their existing filenames (`privacy.md`); other scopes are prefixed
@@ -39,7 +39,7 @@ export const POLICY_SCOPE_LABELS: Record<PolicyScope, string> = {
 export const POLICY_SCOPE_DESCRIPTIONS: Record<PolicyScope, string> = {
   bot: 'The bot operating in one private Discord server, and the records it keeps.',
   website: 'This public site: what it collects, the rules for using it, copyright and security.',
-  game: 'The game as a separate product: licensing, EULA, privacy, modding and distribution. No game policy is published yet.',
+  game: 'The game as a separate product. Its documents are published separately at /docs/places-left-behind.',
 };
 
 /** The directory in `src/content/policies` a document belongs to. */

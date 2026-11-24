@@ -1,0 +1,68 @@
+[
+  {
+    "id": "foundations",
+    "label": "Licensing foundations",
+    "description": "Ownership, game licensing, engine licensing and the plan for publishing this documentation.",
+    "order": 10
+  },
+  {
+    "id": "prototype",
+    "label": "Prototype access",
+    "description": "Proposed terms for pre-release builds, testers, feedback and sharing. No prototype programme is operating.",
+    "order": 20
+  },
+  {
+    "id": "commercial",
+    "label": "Commercial release",
+    "description": "Proposed end-user, distribution, update and warranty terms for a future release. Nothing is for sale.",
+    "order": 30
+  },
+  {
+    "id": "privacy",
+    "label": "Privacy and player data",
+    "description": "Proposed privacy, data-retention and save-data terms. The game currently has no save system, accounts, network code or telemetry.",
+    "order": 40
+  },
+  {
+    "id": "third-party",
+    "label": "Third-party software",
+    "description": "The dependency inventory and compliance rules for software used by the game and engine.",
+    "order": 50
+  },
+  {
+    "id": "assets",
+    "label": "Assets and attribution",
+    "description": "Asset licensing, the current asset register, and sourcing and attribution rules.",
+    "order": 60
+  },
+  {
+    "id": "modding",
+    "label": "Modding and community content",
+    "description": "Proposed modding, distribution, SDK and community-content rules for features that do not exist yet.",
+    "order": 70
+  },
+  {
+    "id": "contributors",
+    "label": "Contributions and engine rights",
+    "description": "The current position on external contributions, a proposed CLA, future guidelines and engine relicensing rights.",
+    "order": 80
+  },
+  {
+    "id": "compliance",
+    "label": "Distribution and compliance",
+    "description": "Proposed packaging, redistribution and release checks. None has been exercised for a distributed build.",
+    "order": 90
+  },
+  {
+    "id": "future",
+    "label": "Future and proposed terms",
+    "description": "Draft terms for accounts, launchers, online services, community processes, copyright and IP enforcement. None is active.",
+    "order": 100
+  },
+  {
+    "id": "engineering",
+    "label": "Engineering reference",
+    "description": "Internal architecture, development and Git conventions from the game repository. Reference material, not a policy.",
+    "order": 110
+  }
+]

@@ -1,0 +1,447 @@
+---
+import Base from '../../../layouts/Base.astro';
+import Breadcrumbs from '../../../components/Breadcrumbs.astro';
+import {
+  PLACES_DOCS_INDEX,
+  PLACES_DOCS_SOURCE,
+  countPlacesDocs,
+  docPath,
+  docStatusClass,
+  formatDocDate,
+  getPlacesDocs,
+  groupPlacesDocs,
+  versionLabel,
+} from '../../../lib/placesDocs';
+import { readingLabel } from '../../../lib/reading';
+import { SITE } from '../../../lib/site';
+
+const docs = await getPlacesDocs();
+const groups = groupPlacesDocs(docs);
+const counts = countPlacesDocs(docs);
+const description =
+  'The Places Left Behind licensing, policy and engineering documents, reproduced from the game repository with their source versions and statuses.';
+
+const schema = {
+  '@type': 'CollectionPage',
+  name: 'Places Left Behind documentation',
+  description,
+  isPartOf: { '@id': `${(Astro.site ?? SITE.url).origin}#website` },
+  about: { '@type': 'CreativeWork', name: 'Places Left Behind', creativeWorkStatus: 'In development' },
+};
+
+const breadcrumbs = {
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: new URL('/', Astro.site ?? SITE.url).toString() },
+    { '@type': 'ListItem', position: 2, name: 'Projects', item: new URL('/projects', Astro.site ?? SITE.url).toString() },
+    {
+      '@type': 'ListItem',
+      position: 3,
+      name: 'Places Left Behind',
+      item: new URL('/projects/places-left-behind', Astro.site ?? SITE.url).toString(),
+    },
+    {
+      '@type': 'ListItem',
+      position: 4,
+      name: 'Documentation',
+      item: new URL(PLACES_DOCS_INDEX, Astro.site ?? SITE.url).toString(),
+    },
+  ],
+};
+---
+
+<Base
+  title="Places Left Behind documentation"
+  description={description}
+  path={PLACES_DOCS_INDEX}
+  ogImage="og/project-places-left-behind.png"
+  ogAlt="Places Left Behind — documentation and policies"
+  schema={[schema, breadcrumbs]}
+>
+  <section class="page-head">
+    <div class="container">
+      <div class="page-head-stack" style="max-width: 66rem;">
+        <Breadcrumbs
+          items={[
+            { label: 'Home', href: '/' },
+            { label: 'Projects', href: '/projects' },
+            { label: 'Places Left Behind', href: '/projects/places-left-behind' },
+            { label: 'Documentation' },
+          ]}
+        />
+        <p class="eyebrow">Places Left Behind · Documentation</p>
+        <h1 class="display display--page">Documentation and policies.</h1>
+        <p class="lede">
+          The licensing, policy and engineering documents held in the game repository. All
+          {counts.total} are reproduced here with their own scope, version and status — including the
+          drafts, proposed terms and future-feature documents. The repository remains the
+          authoritative copy.
+        </p>
+        <div class="meta-bar">
+          <span>{counts.total} documents</span>
+          <span>{counts.categories} categories</span>
+          <span>{counts.current} marked current</span>
+          <span>{counts.draft} draft or future draft</span>
+          <span>{counts.reference} engineering references</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--flush">
+    <div class="container">
+      <div class="notice" role="note">
+        <span class="status status--draft">{counts.draft} not in force</span>
+        <p class="notice-body">
+          <strong>{counts.draft} documents are drafts or future drafts.</strong> They are not
+          adopted, signed or in force, and no custom agreement in this set has been reviewed by a
+          lawyer. A version number records the source text; it does not make a document effective.
+          The {counts.current} documents marked <strong>Current</strong> describe existing ownership
+          or practice, not legal approval. The {counts.reference} engineering references are not
+          policies at all.
+        </p>
+      </div>
+
+      <div class="doc-key-grid" aria-label="What the document statuses mean">
+        <div class="panel panel--pad doc-key">
+          <span class="status status--testing">Current</span>
+          <p>Describes existing ownership or verified practice. Not a legal review or a compliance claim.</p>
+        </div>
+        <div class="panel panel--pad doc-key">
+          <span class="status status--draft">Draft</span>
+          <p>Complete proposed terms that have not been adopted or signed and are not in force.</p>
+        </div>
+        <div class="panel panel--pad doc-key">
+          <span class="status status--prototype">Future draft</span>
+          <p>Prepared for a planned feature that does not exist. Not active and creates no rights.</p>
+        </div>
+        <div class="panel panel--pad doc-key">
+          <span class="status status--planned">Reference</span>
+          <p>Internal engineering documentation. Not a policy, agreement or legal document.</p>
+        </div>
+      </div>
+
+      <nav class="doc-index-nav" aria-label="Documentation categories">
+        {groups.map(({ category, docs: categoryDocs }) => (
+          <a class="chip" href={`#category-${category.id}`}>
+            {category.label} <span class="chip-count">{categoryDocs.length}</span>
+          </a>
+        ))}
+      </nav>
+
+      <div class="game-doc-groups">
+        {groups.map(({ category, docs: categoryDocs }) => (
+          <section
+            class="game-doc-group"
+            id={`category-${category.id}`}
+            aria-labelledby={`category-${category.id}-title`}
+          >
+            <div class="game-doc-group-head">
+              <div>
+                <p class="label">{category.label}</p>
+                <h2 id={`category-${category.id}-title`}>{category.label}</h2>
+                <p>{category.description}</p>
+              </div>
+              <span class="game-doc-group-count">
+                {categoryDocs.length} {categoryDocs.length === 1 ? 'document' : 'documents'}
+              </span>
+            </div>
+
+            <div class="game-doc-grid">
+              {categoryDocs.map((doc) => (
+                <article class="panel game-doc-card">
+                  <div class="game-doc-card-top">
+                    <span class={docStatusClass(doc.data.docStatus)}>{doc.data.docStatus}</span>
+                    <span class="game-doc-version">{versionLabel(doc.data.version)}</span>
+                  </div>
+                  <h3>
+                    <a href={docPath(doc)}>{doc.data.title}</a>
+                  </h3>
+                  <p class="game-doc-summary">{doc.data.summary}</p>
+                  <div class="game-doc-meta">
+                    {doc.data.sourceId && <span>{doc.data.sourceId}</span>}
+                    {doc.data.lastRevised && <span>Revised {formatDocDate(doc.data.lastRevised)}</span>}
+                    <span>{readingLabel(doc.body)}</span>
+                  </div>
+                  <a class="text-link game-doc-read" href={docPath(doc)}>
+                    Read document <span aria-hidden="true">→</span>
+                  </a>
+                </article>
+              ))}
+            </div>
+          </section>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="source-only-files">
+    <div class="container">
+      <div class="split" style="align-items: start;">
+        <div class="panel panel--pad">
+          <p class="label">Source files not reproduced</p>
+          <h2 class="source-note-title">Standalone licences and repository files</h2>
+          <p class="source-note-body">
+            These files are deliberately not individual documentation entries. The published
+            licensing documents above describe and link to them; links that point at these files in
+            the source text return to this note rather than producing a broken address.
+          </p>
+          <ul class="link-list source-only-list">
+            {PLACES_DOCS_SOURCE.excluded.map((file) => (
+              <li>
+                <span class="mono">{file.path}</span>
+                <span class="source-only-reason">{file.reason}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div class="panel panel--pad">
+          <p class="label">Source snapshot</p>
+          <h2 class="source-note-title">One revision, recorded</h2>
+          <p class="source-note-body">
+            Imported from the private game repository at commit
+            <code>{PLACES_DOCS_SOURCE.shortCommit}</code>, committed
+            {formatDocDate(new Date(PLACES_DOCS_SOURCE.commitDate))}. Wording is preserved; only
+            relative link addresses are pointed at website pages.
+          </p>
+          <p class="source-note-body">
+            The game repository remains authoritative. The website is a read-only snapshot, so a
+            later game change needs a deliberate sync; the public site cannot read the private
+            repository by itself. The sync command requires local read access to the game folder and
+            no API key.
+          </p>
+          <div class="hero-actions" style="margin-top: 1rem;">
+            <a class="btn" href="/policies">Website and bot policies</a>
+            <a class="text-link" href="/projects/places-left-behind">Back to the project</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="copyright-line">
+        <p>{SITE.copyright}</p>
+        <p>Next Step Studios is the public-facing name under which Candler Shaw operates. It is not a registered company.</p>
+      </div>
+    </div>
+  </section>
+
+  <style>
+    .doc-key-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+
+    .doc-key {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.7rem;
+    }
+
+    .doc-key p {
+      margin: 0;
+      color: var(--color-muted);
+      font-size: 0.875rem;
+      line-height: 1.6;
+    }
+
+    .doc-index-nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      margin: 1.5rem 0 0;
+      padding-top: 1.1rem;
+      border-top: 1px solid var(--color-line-soft);
+    }
+
+    .game-doc-groups {
+      display: flex;
+      flex-direction: column;
+      gap: 2.75rem;
+      margin-top: 2.25rem;
+    }
+
+    .game-doc-group {
+      scroll-margin-top: 6rem;
+    }
+
+    .game-doc-group-head {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+      padding-bottom: 0.9rem;
+      border-bottom: 1px solid var(--color-line);
+    }
+
+    .game-doc-group-head h2 {
+      margin-top: 0.45rem;
+      font-family: var(--font-display);
+      font-size: clamp(1.35rem, 2.5vw, 1.75rem);
+      letter-spacing: -0.025em;
+    }
+
+    .game-doc-group-head p:last-child {
+      max-width: 68ch;
+      margin-top: 0.45rem;
+      color: var(--color-muted);
+      font-size: 0.9375rem;
+    }
+
+    .game-doc-group-count {
+      padding-top: 0.35rem;
+      color: var(--color-muted);
+      font-family: var(--font-mono);
+      font-size: 0.6875rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .game-doc-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
+      gap: 0.9rem;
+      margin-top: 1rem;
+    }
+
+    .game-doc-card {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      padding: 1.1rem 1.15rem;
+    }
+
+    .game-doc-card-top {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
+    .game-doc-card-top .status {
+      max-width: 100%;
+      line-height: 1.45;
+      white-space: normal;
+    }
+
+    .game-doc-version {
+      color: var(--color-muted);
+      font-family: var(--font-mono);
+      font-size: 0.625rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .game-doc-card h3 {
+      font-family: var(--font-display);
+      font-size: 1.12rem;
+      letter-spacing: -0.02em;
+      line-height: 1.3;
+    }
+
+    .game-doc-card h3 a {
+      color: var(--color-ink);
+      text-decoration: none;
+    }
+
+    .game-doc-card h3 a:hover {
+      color: var(--color-accent-soft);
+    }
+
+    .game-doc-summary {
+      margin: 0;
+      color: var(--color-muted);
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+
+    .game-doc-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.25rem 0.8rem;
+      margin-top: auto;
+      padding-top: 0.55rem;
+      color: var(--color-muted);
+      font-family: var(--font-mono);
+      font-size: 0.625rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .game-doc-read {
+      align-self: flex-start;
+      font-size: 0.8125rem;
+    }
+
+    #source-only-files {
+      scroll-margin-top: 6rem;
+    }
+
+    .source-note-title {
+      margin-top: 0.5rem;
+      font-size: clamp(1.2rem, 2.2vw, 1.45rem);
+      letter-spacing: -0.02em;
+    }
+
+    .source-note-body {
+      margin-top: 0.65rem;
+      color: var(--color-muted);
+      font-size: 0.9375rem;
+      line-height: 1.65;
+    }
+
+    .source-note-body code {
+      overflow-wrap: anywhere;
+    }
+
+    .source-only-list {
+      margin-top: 0.9rem;
+    }
+
+    .source-only-list li {
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+      padding: 0.55rem 0;
+      border-top: 1px solid var(--color-line-soft);
+    }
+
+    .source-only-reason {
+      color: var(--color-muted);
+      font-size: 0.8125rem;
+      line-height: 1.5;
+    }
+
+    .copyright-line {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 0.5rem 2rem;
+      margin-top: 2rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--color-line-soft);
+      color: var(--color-muted);
+      font-size: 0.8125rem;
+    }
+
+    .copyright-line p {
+      margin: 0;
+    }
+
+    @media (max-width: 640px) {
+      .game-doc-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      .game-doc-group-head {
+        gap: 0.45rem;
+      }
+    }
+  </style>
+</Base>

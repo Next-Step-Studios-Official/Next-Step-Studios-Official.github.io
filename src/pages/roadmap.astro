@@ -11,6 +11,9 @@ const statusClass: Record<RoadmapStatus, string> = {
   'Not planned': 'status status--planned',
 };
 
+const statusLabel = (status: RoadmapStatus) =>
+  status === 'In development' ? 'In Development' : status;
+
 const counts = ROADMAP.reduce<Record<string, number>>((totals, item) => {
   totals[item.status] = (totals[item.status] ?? 0) + 1;
   return totals;
@@ -19,17 +22,19 @@ const counts = ROADMAP.reduce<Record<string, number>>((totals, item) => {
 
 <Base
   title="Roadmap"
-  description="What Next Step Studios is building, what is only planned, and what has been decided against — with statuses instead of dates."
+  description="What Next Step Studios is building, what is planned, and what is already live — with statuses instead of dates."
   path="/roadmap"
 >
   <section class="page-head">
     <div class="container">
       <div class="page-head-stack">
         <p class="eyebrow"><a class="text-link" href="/projects">Projects</a> · Roadmap</p>
-        <h1 class="display display--page">What's next, and what isn't.</h1>
+        <h1 class="display display--page">What's being built, and what's next.</h1>
         <p class="lede">{ROADMAP_INTRO}</p>
         <div class="meta-bar">
-          {Object.entries(counts).map(([status, count]) => <span>{count} {status.toLowerCase()}</span>)}
+          {Object.entries(counts).map(([status, count]) => (
+            <span>{count} {statusLabel(status as RoadmapStatus)}</span>
+          ))}
         </div>
       </div>
     </div>
@@ -49,7 +54,7 @@ const counts = ROADMAP.reduce<Record<string, number>>((totals, item) => {
               <div class="roadmap-body">
                 <div class="roadmap-head">
                   <h2 class="roadmap-title">{item.title}</h2>
-                  <span class={statusClass[item.status]}>{item.status}</span>
+                  <span class={statusClass[item.status]}>{statusLabel(item.status)}</span>
                 </div>
                 <p class="roadmap-summary">{item.summary}</p>
                 <ul class="roadmap-points">

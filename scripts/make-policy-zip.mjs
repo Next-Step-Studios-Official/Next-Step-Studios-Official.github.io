@@ -153,7 +153,9 @@ WHAT IS IN HERE
   all-policies.md         Every document in one file, in publishing order.
   bot/<slug>.md           The Discord bot documents.
   website/<slug>.md       The website documents.
-  game/<slug>.md          The Places Left Behind documents, when published.
+
+Places Left Behind documents are not in this archive. They are published in
+their own section at /docs/places-left-behind.
 
 DOCUMENTS
 
@@ -170,9 +172,10 @@ SCOPES
 
 These documents cover separate things. The bot set covers the Next Step
 Studios Discord bot operating in one private server. The website set covers
-this public site. Places Left Behind has its own game scope in preparation;
-no game document is included here until the real document is published.
-They are not interchangeable, and one is not a substitute for another.
+this public site. Places Left Behind's licensing, policy and engineering
+documents are published separately at /docs/places-left-behind and are not
+included here. They are not interchangeable, and one is not a substitute for
+another.
 
 The authoritative version of each document is the page at
 https://next-step-studios-official.github.io/policies/<scope>/<slug>, and

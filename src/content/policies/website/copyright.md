@@ -1,7 +1,7 @@
 ---
 title: "Website Copyright and Takedown Notice"
 shortTitle: "Copyright and Takedown"
-version: "0.2.0"
+version: "0.3.0"
 docStatus: "Draft for review. Not yet effective."
 appliesTo: "Content published on the Next Step Studios website"
 order: 3
@@ -24,7 +24,7 @@ Copyright © 2026 Candler Shaw. All rights reserved. Developed under the name Ne
 
 Some material may belong to someone else: third-party names, logos, trademarks, quoted passages and linked resources remain the property of their owners. Their appearance here does not transfer ownership. This attribution does not apply to third-party material or community-created work that the studio does not own.
 
-Places Left Behind is a separate product. Its copyright, licensing, privacy and takedown documents will live in its own game policy scope. This notice covers this website only; it does not set the rules for the game.
+Places Left Behind is a separate product. Its licensing, policy and engineering documents are published in a separate game documentation section at `/docs/places-left-behind` and are not part of this notice. This notice covers this website only; it does not set the rules for the game.
 
 ## 3. What you may do
 
@@ -74,6 +74,6 @@ Complaints that are not about copyright — impersonation, trademarks, privacy o
 
 ## 8. Status of this notice
 
-This notice is version 0.2.0 and is marked **draft for review**. It has no effective date. It is published so the intended process is visible before it is relied upon.
+This notice is version 0.3.0 and is marked **draft for review**. It has no effective date. It is published so the intended process is visible before it is relied upon.
 
 If it is later made effective, the version, effective date and any material changes will be recorded on this page and in the version history.

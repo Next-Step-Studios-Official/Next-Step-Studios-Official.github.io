@@ -5,6 +5,7 @@ import { SITE } from '../lib/site';
 import { COMMANDS } from '../lib/commands';
 import { BOT_MODULES } from '../lib/modules';
 import { isDraftDocument, scopeOf } from '../lib/documents';
+import { countPlacesDocs, getPlacesDocs } from '../lib/placesDocs';
 
 const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
 const featured = projects.find((project) => project.data.featured) ?? projects[0];
@@ -14,6 +15,8 @@ const policies = (await getCollection('policies')).sort(
 );
 const draftPolicyCount = policies.filter((policy) => isDraftDocument(policy.data.docStatus)).length;
 const currentPolicyCount = policies.length - draftPolicyCount;
+const placesDocs = await getPlacesDocs();
+const placesCounts = countPlacesDocs(placesDocs);
 
 const threads = [
   {
@@ -28,31 +31,31 @@ const threads = [
     cta: 'Read the project',
   },
   {
-    state: 'Prototype',
-    tone: 'prototype',
+    state: 'In Development',
+    tone: 'dev',
     title: 'Places Left Behind',
     body:
-      'An early first-person exploration and mystery prototype, being built from scratch in C# with a custom engine. Movement and camera control exist; the environment pipeline, investigation systems and complete locations are still in development.',
-    meta: 'C# · custom engine · early prototype',
+      'A first-person exploration and mystery game, being built from scratch in C# with a custom Vulkan and Silk.NET engine. The current build has a Vulkan foundation, indexed mesh rendering, first-person movement and mouse camera control; environment loading, investigation systems and complete locations are still to be built.',
+    meta: 'C# · custom engine · In Development',
     href: '/projects/places-left-behind',
     cta: 'Read the project',
   },
   {
     state: 'Draft & current',
     tone: 'draft',
-    title: 'Public policy documents',
+    title: 'Public documentation',
     body:
-      `The ${policies.length} documents are published in full, versioned and downloadable across two published scopes: the Discord bot and this website. ${draftPolicyCount} are still drafts under review; ${currentPolicyCount} describe the published site and are marked current. Places Left Behind has a separate game scope in preparation.`,
-    meta: `2 published sets · game scope pending · ${draftPolicyCount} drafts · ${currentPolicyCount} current`,
-    href: '/policies',
-    cta: 'Read the documents',
+      `The ${policies.length} website and bot documents are published in full, versioned and downloadable across two scopes. ${draftPolicyCount} are still drafts under review; ${currentPolicyCount} describe the published site and are marked current. Places Left Behind's ${placesCounts.total} licensing, policy and engineering documents now live in their own section: ${placesCounts.current} current, ${placesCounts.draft} draft or future draft.`,
+    meta: `2 policy scopes · ${placesCounts.total} game documents · ${draftPolicyCount} policy drafts`,
+    href: '/docs/places-left-behind',
+    cta: 'Open the game documentation',
   },
   {
     state: 'Live',
     tone: 'info',
     title: 'This website',
     body:
-      'Static HTML, a local search index and a local assistant. No accounts, analytics, advertising or third-party embeds. The code and copy are maintained in the open repository.',
+      'Static HTML, a local search index and a local assistant. A manual light/dark theme toggle keeps the choice in the browser. No accounts, analytics, advertising or third-party embeds. The code and copy are maintained in the open repository.',
     meta: 'Static build · no server',
     href: '/stack',
     cta: 'How it is built',
@@ -77,10 +80,11 @@ const notStarted = [
     body: 'Small software tools are planned. No build, repository or release date exists yet.',
   },
   {
-    state: 'Not planned',
-    tone: 'hold',
+    state: 'Planned',
+    tone: 'planned',
     title: 'Analytics and accounts',
-    body: 'No visitor analytics, advertising, tracking or account system is planned for this site.',
+    body:
+      'Planned eventually, but not anytime soon. No visitor analytics, advertising, tracking or account system exists today, and the privacy notice must change before any of it ships.',
   },
 ];
 ---

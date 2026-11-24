@@ -1,0 +1,44 @@
+---
+const { docStatus, version, legal } = Astro.props as {
+  docStatus: string;
+  version: string;
+  legal: boolean;
+};
+
+const future = /^future/i.test(docStatus);
+const draft = /^draft/i.test(docStatus);
+const current = /^current/i.test(docStatus);
+
+const label = !legal ? 'Reference' : future ? 'Future draft' : draft ? 'Draft' : 'Current';
+const statusClass = !legal
+  ? 'status status--planned'
+  : future
+    ? 'status status--prototype'
+    : draft
+      ? 'status status--draft'
+      : 'status status--testing';
+
+const title = !legal
+  ? 'Engineering reference — not a policy'
+  : future
+    ? 'Future draft — not active'
+    : draft
+      ? `Draft for review — version ${version}`
+      : 'Current — describes existing practice';
+
+const body = !legal
+  ? 'This is internal engineering documentation from the game repository. It is not a legal document, does not create rights or obligations, and is not legal advice.'
+  : future
+    ? 'This document is prepared for a feature that does not exist. It has not been adopted, signed or legally reviewed, and it creates no rights or obligations.'
+    : draft
+      ? 'This document is published for review. It has no effective date, has not been adopted or signed, and creates no rights or obligations. It has not been reviewed by a lawyer.'
+      : 'This document describes existing ownership or current practice. That does not mean it has been legally reviewed, and it is not a claim of legal compliance.';
+---
+
+<div class="notice notice--neutral" role="note">
+  <span class={statusClass}>{label}</span>
+  <div class="notice-body">
+    <p class="notice-title">{title}</p>
+    <p>{body}</p>
+  </div>
+</div>

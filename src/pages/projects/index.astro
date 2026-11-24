@@ -6,7 +6,13 @@ import { numberWord } from '../../lib/words';
 
 const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
 
-const statuses = ['In development', 'Prototype', 'Testing', 'Planned', 'On hold'];
+const statuses = [
+  { value: 'In development', label: 'In Development' },
+  { value: 'Prototype', label: 'Prototype' },
+  { value: 'Testing', label: 'Testing' },
+  { value: 'Planned', label: 'Planned' },
+  { value: 'On hold', label: 'On hold' },
+];
 const categories = [...new Set(projects.map((project) => project.data.category))];
 
 const statusCount = (status: string) => projects.filter((project) => project.data.status === status).length;
@@ -78,8 +84,8 @@ const plural = (count: number) => (count === 1 ? 'project' : 'projects');
               All statuses <span class="chip-count">{projects.length}</span>
             </button>
             {statuses.map((status) => (
-              <button type="button" class="chip" aria-pressed="false" data-status={status}>
-                {status} <span class="chip-count">{statusCount(status)}</span>
+              <button type="button" class="chip" aria-pressed="false" data-status={status.value}>
+                {status.label} <span class="chip-count">{statusCount(status.value)}</span>
               </button>
             ))}
           </div>

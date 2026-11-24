@@ -1,5 +1,11 @@
 import { defineCollection, z } from 'astro:content';
 import { glob } from 'astro/loaders';
+import docCategories from './data/places-left-behind-categories.json';
+
+const placesDocCategoryIds = docCategories.map((category) => category.id) as [
+  string,
+  ...string[],
+];
 
 /**
  * The only status labels a project may carry. Anything not yet real must use
@@ -74,4 +80,27 @@ const policies = defineCollection({
   }),
 });
 
-export const collections = { projects, devlog, policies };
+/**
+ * Places Left Behind's own documentation, imported verbatim from the game
+ * repository by `npm run docs:sync`. These are intentionally not in the
+ * general policy collection: the game's documents have their own page, status
+ * labels and navigation.
+ */
+const placesDocs = defineCollection({
+  loader: glob({ pattern: '*.md', base: './src/content/places-left-behind-docs' }),
+  schema: z.object({
+    title: z.string(),
+    version: z.string(),
+    docStatus: z.string(),
+    summary: z.string(),
+    sourceId: z.string(),
+    sourcePath: z.string(),
+    category: z.enum(placesDocCategoryIds),
+    order: z.number().default(100),
+    lastRevised: z.coerce.date().optional(),
+    sourceCommit: z.string(),
+    legal: z.boolean().default(true),
+  }),
+});
+
+export const collections = { projects, devlog, policies, placesDocs };

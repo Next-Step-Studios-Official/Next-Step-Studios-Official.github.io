@@ -1,0 +1,69 @@
+{
+  "repository": "Pandagamerteen08/Places-Left-Behind",
+  "commit": "9f8e7151d9a86f58305f0889dd4f5ef7b5e51fb2",
+  "shortCommit": "9f8e715",
+  "commitDate": "2026-11-24T12:40:38-05:00",
+  "syncedAt": "2026-11-24T17:44:11.425Z",
+  "sourceRoot": "Documentation",
+  "documentCount": 43,
+  "licensingDocumentCount": 40,
+  "engineeringDocumentCount": 3,
+  "excluded": [
+    {
+      "path": "LICENSE",
+      "reason": "Standalone project licence; not a documentation entry."
+    },
+    {
+      "path": "LICENSE.md",
+      "reason": "Markdown copy of the standalone project licence; not a documentation entry."
+    },
+    {
+      "path": "Source/Engine/LICENSE",
+      "reason": "Standalone engine licence; not a documentation entry."
+    },
+    {
+      "path": "Source/Engine/LICENSE.md",
+      "reason": "Markdown copy of the standalone engine licence; not a documentation entry."
+    },
+    {
+      "path": "Source/Game/LICENSE",
+      "reason": "Standalone game-scope licence notice; not a documentation entry."
+    },
+    {
+      "path": "Source/Game/LICENSE.md",
+      "reason": "Markdown copy of the standalone game-scope notice; not a documentation entry."
+    },
+    {
+      "path": "THIRD-PARTY-NOTICES.txt",
+      "reason": "Third-party attribution file. The Third-Party Licenses document is published instead."
+    },
+    {
+      "path": "Scripts/Build.ps1",
+      "reason": "Build script. Referenced by the packaging checklist; not documentation."
+    },
+    {
+      "path": "Scripts/Run.ps1",
+      "reason": "Run script. Referenced by the packaging checklist; not documentation."
+    },
+    {
+      "path": "README.md",
+      "reason": "Repository overview; the public project page carries the current summary."
+    },
+    {
+      "path": "Assets/Fonts/README.md",
+      "reason": "Asset-folder note; font licensing is covered by the published asset documents."
+    }
+  ],
+  "sourceOnlyLinks": [
+    "Assets/Fonts/README.md",
+    "LICENSE",
+    "LICENSE.md",
+    "Scripts/Build.ps1",
+    "Scripts/Run.ps1",
+    "Source/Engine/LICENSE",
+    "Source/Engine/LICENSE.md",
+    "Source/Game/LICENSE",
+    "Source/Game/LICENSE.md",
+    "THIRD-PARTY-NOTICES.txt"
+  ]
+}

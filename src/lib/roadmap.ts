@@ -14,7 +14,7 @@ export type RoadmapItem = {
 };
 
 export const ROADMAP_INTRO =
-  'What is being worked on, what is only an intention, and what has been decided against. Nothing here has a date, because a date would be a guess dressed as a commitment.';
+  'What is being built, what is planned, and what is already live. Nothing here has a date, because a date would be a guess dressed as a commitment.';
 
 export const ROADMAP: RoadmapItem[] = [
   {
@@ -30,18 +30,67 @@ export const ROADMAP: RoadmapItem[] = [
     link: { href: '/projects/next-step-bot', label: 'Project state and module register' },
   },
   {
+    title: 'Places Left Behind',
+    status: 'In development',
+    summary:
+      'An independently developed first-person 3D exploration and mystery game, being built from scratch in C# with a custom Vulkan and Silk.NET engine. It is in development, not released.',
+    points: [
+      'The current build has a Vulkan swapchain, depth buffering, indexed mesh drawing, shader compilation, cube rendering and first-person camera and player movement.',
+      'The environment-loading pipeline, investigation and photography mechanics, complete locations, saves and much of the gameplay remain to be built.',
+      'The project page shows early concept studies, not in-game screenshots. No release date or storefront is promised.',
+      '43 licensing, policy and engineering documents are published in their own section: 11 current, 29 draft or future draft, and 3 engineering references. None of the custom agreements has been reviewed by a lawyer.',
+    ],
+    link: { href: '/projects/places-left-behind', label: 'The game project' },
+  },
+  {
+    title: 'Bot status feed',
+    status: 'In development',
+    summary:
+      'The status page is built, but the bot\u2019s JSON publisher is not running yet. Until it does, the page shows the copy built with the site and no live history.',
+    points: [
+      'The page has a layout ready for current state, response time and a 24-hour strip of five-minute checks.',
+      'If the feed cannot be read, the page says so and falls back to the copy built with the site.',
+      'The publisher needs a GitHub token; until it runs, no live history is presented rather than inventing one.',
+    ],
+    link: { href: '/status', label: 'The status page' },
+  },
+  {
     title: 'Public documentation',
     status: 'Draft',
     summary:
-      'Eleven policy documents in two published scopes — seven for the Discord bot and four for this website — published in full on this site, downloadable as files, with the bot set mirrored to a public GitHub repository.',
+      'Eleven policy documents in two published scopes \u2014 seven for the Discord bot and four for this website \u2014 published in full on this site, downloadable as files, with the bot set mirrored to a public GitHub repository.',
     points: [
       'Bot set: privacy, terms, acceptable use, community guidelines, moderation, data retention and security, all drafts for review.',
       'Website set: privacy and security are current; terms and copyright remain drafts for review.',
-      'Places Left Behind has a separate game scope in preparation. No game license, EULA or privacy document is presented as effective yet.',
       'Missing: legal review. That is why the draft documents are drafts rather than a 1.0.',
       'Every document is versioned, and the GitHub mirror makes each bot-document change visible.',
+      'Places Left Behind\u2019s documents are not part of this policy set; they now sit inside the game\u2019s roadmap entry.',
     ],
     link: { href: '/policies', label: 'Read the documents' },
+  },
+  {
+    title: 'Studio tools',
+    status: 'Planned',
+    summary:
+      'Small software tools of the kind this studio would use itself. The category is real; the products are not, and nothing is planned for the near future.',
+    points: [
+      'No tool has been started.',
+      'The planned entries on the projects page are placeholders for the category, not for a specific product.',
+      'There is no timeframe and no repository.',
+    ],
+    link: { href: '/projects', label: 'Projects' },
+  },
+  {
+    title: 'Analytics and accounts',
+    status: 'Planned',
+    summary:
+      'Planned eventually, but not anytime soon. No analytics, cookies, accounts or advertising exist today, and the website privacy notice must change before any of it ships.',
+    points: [
+      'No analytics, no cookies, no accounts, no advertising exist today.',
+      'If that ever changes, the privacy notice changes first and the claim is removed before the feature ships.',
+      'There is no timeframe; this is an intention, not scheduled work.',
+    ],
+    link: { href: '/policies/website/privacy', label: 'Website privacy notice' },
   },
   {
     title: 'This website',
@@ -51,65 +100,10 @@ export const ROADMAP: RoadmapItem[] = [
     points: [
       'Done: full-text search, command reference, document exports, devlog and policy tooling.',
       'Done: every document readable, printable, downloadable and mirrored to GitHub.',
-      'Done: transparent marks, a permanent brand archive, a ZIP of every asset and a live status page.',
+      'Done: transparent marks, a permanent brand archive, a ZIP of every asset and a status page that falls back honestly when the feed is absent.',
+      'Done: a light theme with a manual toggle; dark remains the default and the choice is stored in the browser only.',
       'Next: keep it current as the bot changes.',
     ],
     link: { href: '/changelog', label: 'What changed, and when' },
-  },
-  {
-    title: 'Live status',
-    status: 'Live',
-    summary:
-      'The bot publishes a small JSON file after each check, and the status page reads it in the browser. No monitoring service, account or analytics is involved.',
-    points: [
-      'The page shows the current state, response time, version and a 24-hour strip of five-minute checks.',
-      'If the feed cannot be read, the page says so and falls back to the copy built with the site.',
-      'The publisher needs a GitHub token; until it runs, the page shows an empty history rather than inventing one.',
-    ],
-    link: { href: '/status', label: 'The live status board' },
-  },
-  {
-    title: 'Places Left Behind',
-    status: 'Prototype',
-    summary:
-      'An independently developed first-person 3D exploration and mystery game, being built from scratch in C# with a custom Vulkan and Silk.NET engine. The current build is an early prototype.',
-    points: [
-      'Movement with WASD and mouse camera control works; the engine, windowing, Vulkan initialization, input, scene, entity, transform and player foundations exist.',
-      'The environment-loading pipeline, full rendering system, investigation mechanics, complete locations and much of the gameplay remain under development.',
-      'The project page shows early concept studies, not in-game screenshots. No release date or storefront is promised.',
-    ],
-    link: { href: '/projects/places-left-behind', label: 'The game project' },
-  },
-  {
-    title: 'Studio tools',
-    status: 'Planned',
-    summary:
-      'Small software tools of the kind this studio would use itself. The category is real; the products are not.',
-    points: [
-      'No tool has been started.',
-      'The planned entries on the projects page are placeholders for the category, not for a specific product.',
-    ],
-    link: { href: '/projects', label: 'Projects' },
-  },
-  {
-    title: 'A light theme',
-    status: 'Live',
-    summary:
-      'Shipped: a light palette with a manual toggle. Dark remains the default, and the choice is stored in the browser only.',
-    points: [
-      'The toggle writes one local value, nss-theme; no account or server is involved.',
-      'Both palettes share the same contrast, type and layout rules.',
-    ],
-  },
-  {
-    title: 'Analytics and accounts',
-    status: 'Not planned',
-    summary:
-      'Not now, and not quietly later. The privacy notice says none of this exists, and that has to stay true.',
-    points: [
-      'No analytics, no cookies, no accounts, no advertising.',
-      'If that ever changes, the notice changes first and the claim is removed before the feature ships.',
-    ],
-    link: { href: '/policies/website/privacy', label: 'Website privacy notice' },
   },
 ];

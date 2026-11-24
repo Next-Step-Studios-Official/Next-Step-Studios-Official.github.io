@@ -16,6 +16,7 @@ const variants: Record<string, string> = {
 };
 
 const variant = variants[status] ?? 'status--planned';
+const display = status === 'In development' ? 'In Development' : status;
 ---
 
-<span class={`status ${variant}`}>{label ?? status}</span>
+<span class={`status ${variant}`}>{label ?? display}</span>

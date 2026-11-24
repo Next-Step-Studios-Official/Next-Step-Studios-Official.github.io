@@ -3,9 +3,12 @@ import Base from '../layouts/Base.astro';
 import { CHANGELOG } from '../lib/changelog';
 
 const formatDate = (value: string) =>
-  new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }).format(
-    new Date(`${value}T00:00:00Z`),
-  );
+  new Intl.DateTimeFormat('en-GB', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+    timeZone: 'UTC',
+  }).format(new Date(`${value}T00:00:00Z`));
 ---
 
 <Base

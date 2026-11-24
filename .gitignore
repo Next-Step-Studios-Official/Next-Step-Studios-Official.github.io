@@ -15,6 +15,10 @@ dist/
 documentation-source/
 .freebuff/
 docs/
+# The public game documentation pages are website source, not the local
+# documentation-source archive the rule above is meant to ignore.
+!src/pages/docs/
+!src/pages/docs/**
 COPY_DRAFTS.md
 .env.local
 server-data/

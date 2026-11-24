@@ -14,6 +14,22 @@ export type ChangelogEntry = {
 export const CHANGELOG: ChangelogEntry[] = [
   {
     date: '2026-11-24',
+    version: '3.15',
+    title: 'The Places Left Behind documentation edition',
+    summary:
+      'Places Left Behind gains a dedicated documentation section, its gallery becomes compact and square-thumbnailed, and its status now reflects the actual In Development build.',
+    changes: [
+      'A separate Places Left Behind documentation section now publishes 43 source documents at /docs/places-left-behind: 40 licensing and policy documents plus 3 engineering references. Eleven are marked Current, 29 are drafts or future drafts, and every page shows the source status and version.',
+      'The documents are grouped into 11 categories, from project foundations and prototype access to modding, contributors, compliance, future terms and engineering. The index carries status keys, source-file exclusions and the exact source commit, add0a5f.',
+      'Wording is reproduced from the game repository; only relative link addresses are rewritten. Root LICENSE and LICENSE.md, engine and game-scope licence notices, THIRD-PARTY-NOTICES.txt and asset-folder notes are deliberately not separate entries.',
+      'A local docs:sync command imports a clean documentation tree from the game folder and records the commit. The website does not read the private game repository at runtime, and the game files remain untouched.',
+      'The shared project gallery now uses compact square thumbnails, a 16:9 preview stage and a responsive larger viewer. HTML height attributes can no longer stretch thumbnails into tall strips, and the same component applies the change to every existing project gallery.',
+      'Places Left Behind is marked In Development throughout the site. Its page now records the actual build: a Vulkan swapchain, depth buffering, indexed mesh drawing, shader compilation, cube rendering and first-person camera and player movement. Environment loading, investigation, complete locations, saves and distribution remain unfinished.',
+      'The project page carries a clear “View all documentation” callout, and the policy hub, home page, Now, Status, Trust centre, Roadmap, Search, sitemap, assistant facts and downloads point to the separate game section rather than describing it as a scope in preparation.',
+    ],
+  },
+  {
+    date: '2026-11-24',
     version: '3.14',
     title: 'The Places Left Behind edition',
     summary:

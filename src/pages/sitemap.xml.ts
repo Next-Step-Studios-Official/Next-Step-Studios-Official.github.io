@@ -3,6 +3,7 @@ import { getCollection } from 'astro:content';
 import { SITE } from '../lib/site';
 import { BOT_MODULES } from '../lib/modules';
 import { downloadKey, policyPath } from '../lib/documents';
+import { PLACES_DOCS_INDEX, PLACES_DOCS_SOURCE, docPath, getPlacesDocs } from '../lib/placesDocs';
 
 export const prerender = true;
 
@@ -16,6 +17,7 @@ const STATIC_ROUTES = [
   '/about',
   '/team',
   '/policies',
+  PLACES_DOCS_INDEX,
   '/downloads',
   '/roadmap',
   '/faq',
@@ -48,6 +50,8 @@ export const GET: APIRoute = async ({ site }) => {
   const policies = await getCollection('policies');
   const posts = await getCollection('devlog');
   const projects = await getCollection('projects');
+  const placesDocs = await getPlacesDocs();
+  const placesUpdated = new Date(PLACES_DOCS_SOURCE.commitDate);
 
   const tags = [...new Set(posts.flatMap((post) => post.data.tags))];
 
@@ -60,6 +64,7 @@ export const GET: APIRoute = async ({ site }) => {
     '/': latestContent,
     '/projects': latestProject,
     '/policies': latestPolicy,
+    [PLACES_DOCS_INDEX]: placesUpdated,
     '/downloads': latestPolicy,
     '/devlog': latestPost,
   };
@@ -74,6 +79,10 @@ export const GET: APIRoute = async ({ site }) => {
     ...policies.map((policy) => ({
       path: policyPath(policy.id),
       lastmod: policy.data.updated,
+    })),
+    ...placesDocs.map((doc) => ({
+      path: docPath(doc),
+      lastmod: placesUpdated,
     })),
     ...policies.map((policy) => ({
       path: `/policies/versions/${downloadKey(policy.id)}`,

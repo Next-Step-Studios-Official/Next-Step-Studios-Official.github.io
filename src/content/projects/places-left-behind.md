@@ -1,9 +1,9 @@
 ---
 title: Places Left Behind
 tagline: A first-person exploration and mystery game, being built from scratch.
-status: Prototype
+status: In development
 category: Games
-summary: An independently developed first-person 3D exploration and mystery game, being built from scratch in C# with a custom engine. The current build is an early prototype; no release date or storefront is promised.
+summary: An independently developed first-person 3D exploration and mystery game, being built from scratch in C# with a custom engine. It is in development; no release date or storefront is promised.
 order: 2
 cover: /images/project-places-left-behind.webp
 gallery:
@@ -28,8 +28,8 @@ updated: 2026-11-24
 ## What Places Left Behind is
 
 **Places Left Behind** is an independently developed first-person 3D exploration and mystery
-game. It is being developed by **Next Step Studios** entirely from scratch using **C#** and a
-**custom game engine**. It is not being developed in Unity, Unreal Engine or Godot.
+game. It is being developed by **Next Step Studios** from scratch using **C#** and a **custom game
+engine**. It is not being developed in Unity, Unreal Engine or Godot.
 
 The engine uses **Vulkan** for graphics and **Silk.NET** for the .NET bindings.
 
@@ -86,15 +86,16 @@ rather than assembled from a ready-made game kit or an existing game engine.
 
 ## Where development is now
 
-This is an **early prototype**.
+Places Left Behind is **In Development**. It is not finished, has not been released, and no demo
+is available.
 
-The player can currently move using **WASD** and control the camera with the mouse. The project
-has basic engine, windowing, Vulkan initialization, input, scene, entity, transform and player
-foundations.
+The current build has a working Vulkan graphics foundation: a swapchain, depth buffering, indexed
+mesh drawing, shader compilation and rendering of a cube. The player can move in first person and
+control the camera with the mouse.
 
-Substantial work remains. The game is not finished, and the current prototype is not a completed
-playable game. The actual environment-loading pipeline, full rendering system, investigation
-mechanics, complete locations and much of the gameplay are still under development.
+Substantial work remains. The actual environment-loading pipeline, investigation and photography
+mechanics, complete locations, save systems and much of the gameplay are still to be built. The
+current build is an engine and movement foundation, not a completed playable game.
 
 Planned functionality is not described here as already implemented. There is no release date,
 trailer or finished game to announce.
@@ -103,7 +104,7 @@ trailer or finished game to announce.
 
 No release date or commercial distribution platform has been committed to. Future distribution
 may happen through the Next Step Studios website or other storefronts, but no particular
-storefront has been chosen.
+storefront has been chosen. Nothing on this page is available to purchase or download.
 
 ## The pictures are studies, not screenshots
 
@@ -111,21 +112,21 @@ The pictures on this page are **early concept studies**, not in-game screenshots
 finished system. They show visual direction only. No screenshot, trailer, feature or release date
 has been invented for this page.
 
-## Documents and licensing
+## Documentation and policies
 
-Places Left Behind is a separate product from this website and from the Discord bot. Its
-copyright and proprietary licensing, engine licensing, third-party licenses and notices, asset
-licensing, prototype distribution terms, game EULA, game privacy documentation, modding terms,
-community content policy, contributor agreements and distribution compliance documents are being
-established in the game's own repository. Some will be active for the prototype; others will be
-complete drafts for future features and commercial distribution.
+Places Left Behind has its own documentation section on this site. It reproduces the game
+repository's licensing, policy and engineering documents, and the status and version shown on
+each one are the source document's own. Most are drafts or future drafts, and none of the custom
+agreements has been reviewed by a lawyer.
 
-When those documents are published, they will use a **separate Places Left Behind policy scope**
-on this site; they will not be merged into the website or Discord bot sets. None is presented
-here as effective, and none replaces the website Terms of Use or the website Privacy Notice.
+The documents cover project and game licensing, the engine, commercial terms, privacy, third-party
+software, assets, modding, contributors, compliance, future features, and how the game is
+architected and developed. The game repository remains the authoritative source.
 
-Copyright and takedown questions for the game should be coordinated with the studio's existing
-copyright process, but the game's own rules will remain separate from the website rules.
+The full set is linked from the documentation callout above and from the site's Documents
+navigation. This documentation belongs to Places Left Behind. It does not replace the website
+Terms of Use,
+the website Privacy Notice or the Discord bot policies.
 
 ## Copyright
 

@@ -1,8 +1,8 @@
 # Places Left Behind page — how to edit it
 
 This guide covers the **Places Left Behind** project page, its picture gallery, its copyright
-line and its separate policy scope. It is kept separate from the main editing guide so the game
-page can grow without making the whole site manual harder to use.
+line and its separate documentation section. It is kept separate from the main editing guide so
+the game page can grow without making the whole site manual harder to use.
 
 - Public page: `https://next-step-studios-official.github.io/projects/places-left-behind/`
 - Previous address (redirects): `https://next-step-studios-official.github.io/projects/first-game/`
@@ -17,7 +17,9 @@ page can grow without making the whole site manual harder to use.
 2. Open `src\content\projects\places-left-behind.md`.
 3. Add one block per picture under `gallery:` in the frontmatter.
 4. Run `npx astro dev` and open `/projects/places-left-behind/` to check it.
-5. Run `npx astro build` before publishing.
+5. To refresh the game documentation, run
+   `npm run docs:sync -- "C:\Users\Panda\Documents\CustomGames\Places Left Behind"`.
+6. Run `npx astro build` before publishing.
 
 The page counts the pictures automatically. Do not edit the `1 / 3` counter by hand.
 
@@ -29,13 +31,17 @@ large image; the thumbnails and the `1 / N` counter sit underneath it.
 
 The gallery gives visitors:
 
-- a large view of the selected picture;
+- a 16:9 preview of the selected picture;
 - previous and next buttons when there is more than one picture;
-- a thumbnail for each picture, in order;
+- compact, square thumbnails for every picture, in order;
 - a `1 / 3` counter under the set;
-- a **Full screen** view when the large picture is clicked;
-- arrow-key movement and Escape to close in the full-screen viewer;
+- a **View larger** dialog when the preview is clicked;
+- arrow-key movement and Escape to close in the larger viewer;
 - focus returning to the gallery when the viewer closes.
+
+The thumbnails keep their square shape because the component sets `aspect-ratio: 1 / 1` and
+`height: 100%`. HTML `height` attributes only supply the image's real dimensions; they must not
+override the thumbnail layout.
 
 It works without a third-party image service. The pictures are ordinary files in this project.
 
@@ -48,8 +54,13 @@ All paths are complete Windows paths.
 | `D:\NextStepStudios\next-step-studios-website\src\content\projects\places-left-behind.md` | The page text, status, cover, gallery list and copyright block. This is the normal file to edit. |
 | `D:\NextStepStudios\next-step-studios-website\public\images\places-left-behind\` | Put gallery image files here. The folder already exists. |
 | `D:\NextStepStudios\next-step-studios-website\src\content.config.ts` | Defines the allowed `gallery:` shape. Usually you do not need to change it. |
-| `D:\NextStepStudios\next-step-studios-website\src\components\ProjectGallery.astro` | The gallery component: pictures, thumbnails, arrows, counter and full-screen dialog. |
-| `D:\NextStepStudios\next-step-studios-website\src\pages\projects\[slug].astro` | The project page template that places the gallery directly under the title. |
+| `D:\NextStepStudios\next-step-studios-website\src\components\ProjectGallery.astro` | The shared gallery component: preview, square thumbnails, arrows, counter and larger viewer. Every project gallery uses it. |
+| `D:\NextStepStudios\next-step-studios-website\src\pages\projects\[slug].astro` | The project page template that places the gallery under the title and adds the documentation callout. |
+| `D:\NextStepStudios\next-step-studios-website\src\content\places-left-behind-docs\` | The 43 imported game documents. Regenerate with `npm run docs:sync`; do not hand-edit. |
+| `D:\NextStepStudios\next-step-studios-website\src\data\places-left-behind-categories.json` | The 11 documentation categories and their descriptions. |
+| `D:\NextStepStudios\next-step-studios-website\src\data\places-left-behind-docs-source.json` | The recorded source commit, counts, excluded files and source-only links. |
+| `D:\NextStepStudios\next-step-studios-website\src\pages\docs\places-left-behind\` | The documentation index and the page for each document. |
+| `D:\NextStepStudios\next-step-studios-website\scripts\sync-places-left-behind-docs.mjs` | The read-only importer. |
 | `D:\NextStepStudios\next-step-studios-website\src\lib\site.ts` | The shared `SITE` values, including the exact copyright line. |
 | `D:\NextStepStudios\next-step-studios-website\src\components\Footer.astro` | The site-wide footer copyright display. |
 | `D:\NextStepStudios\next-step-studios-website\src\content\policies\website\copyright.md` | The website copyright and takedown notice. It owns website content only. |
@@ -57,7 +68,7 @@ All paths are complete Windows paths.
 | `D:\NextStepStudios\next-step-studios-website\scripts\make-pdfs.mjs` | PDF page footers, including the copyright line. |
 | `D:\NextStepStudios\next-step-studios-website\scripts\make-policy-zip.mjs` | The combined policy ZIP and its README. |
 | `D:\NextStepStudios\next-step-studios-website\src\pages\downloads\print\[slug].astro` | The printable policy edition footer. |
-| `D:\NextStepStudios\next-step-studios-website\src\pages\policies\index.astro` | The policy index, including the Places Left Behind game scope in preparation. |
+| `D:\NextStepStudios\next-step-studios-website\src\pages\policies\index.astro` | The website and bot policy index, with a link to the separate game documentation section. |
 | `D:\NextStepStudios\next-step-studios-website\src\pages\assistant-facts.json.ts` | Step's written answers about the game and policies. |
 | `D:\NextStepStudios\next-step-studios-website\src\lib\roadmap.ts` | The Places Left Behind roadmap entry. |
 | `D:\NextStepStudios\next-step-studios-website\src\pages\now.astro` | The dated Now page. |
@@ -95,8 +106,8 @@ D:\NextStepStudios\next-step-studios-website\public\images\places-left-behind\vi
 D:\NextStepStudios\next-step-studios-website\public\images\places-left-behind\visual-study-03.webp
 ```
 
-They are **concept studies**, not screenshots. The current early prototype does not have
-publishable in-game screenshots. Do not relabel them as screenshots.
+They are **concept studies**, not screenshots. The current build does not have publishable
+in-game screenshots. Do not relabel them as screenshots.
 
 ### 2. List the pictures in the page frontmatter
 
@@ -142,7 +153,7 @@ Rules:
 
 - `src` starts with `/images/` and points at a file inside `public/images/`.
 - `alt` is required. It is read by screen readers and shown when the image fails to load.
-- `caption` is optional. It appears under the large picture and in full screen.
+- `caption` is optional. It appears under the preview and in the larger viewer.
 - `width` and `height` are the real pixel dimensions. They stop the page jumping while the image
   loads. If you leave them out, the page assumes `1100 × 594`; that is safe but may be a little
   off for a different shape.
@@ -162,18 +173,19 @@ entry, the picture section disappears and the normal cover image is used instead
 
 The page currently says:
 
-- **Status:** Prototype — an early prototype, not a finished game.
+- **Status:** In Development — not released, and no demo is available.
 - **Language:** C# and .NET 10.
 - **Engine:** custom engine, not Unity, Unreal Engine or Godot.
 - **Graphics:** Vulkan.
 - **Bindings:** Silk.NET.
 - **Assets:** Blender and a glTF 2.0 / GLB pipeline.
-- **Current build:** WASD movement and mouse camera control; basic engine, windowing, Vulkan
-  initialization, input, scene, entity, transform and player foundations.
-- **Still under development:** the environment-loading pipeline, full rendering system,
-  investigation mechanics, complete locations and much of the gameplay.
+- **Current build:** Vulkan swapchain, depth buffering, indexed mesh drawing, shader compilation,
+  cube rendering, and first-person camera and player movement.
+- **Still to build:** the environment-loading pipeline, investigation and photography mechanics,
+  complete locations, saves and much of the gameplay.
 - **Pictures:** early concept studies, not in-game screenshots.
-- **Release:** no release date or storefront commitment.
+- **Release:** no release date, storefront, purchase option or download.
+- **Documents:** 43 game documents in a separate section, 11 current, 29 draft or future draft.
 
 The allowed project statuses are:
 
@@ -181,7 +193,7 @@ The allowed project statuses are:
 
 Change the status only when it is true:
 
-- `In development` means work has started.
+- `In development` means work has started; the site displays this status as **In Development**.
 - `Prototype` means something runnable exists, even if it is rough.
 - `Testing` means there is a build being tested.
 - `Planned` means it has not started.
@@ -229,41 +241,48 @@ npm run policies:zip
 `npm run build` also regenerates the PDFs and policy ZIP, but it runs the full release pipeline.
 For a quick check, `npx astro build` is enough.
 
-## The separate game policy scope
+## The separate documentation section
 
-Places Left Behind has a **separate game policy scope** in the publishing system. It is deliberately
-empty today:
+Places Left Behind does **not** use the website and bot policy system. Its documents live in their
+own collection and route at `/docs/places-left-behind`:
 
-- The website keeps its own four website documents.
-- The Discord bot keeps its own seven bot documents.
-- The game scope is shown on `/policies` as **in preparation**.
-- No game EULA, licence, privacy notice or prototype agreement is published or presented as
-  effective until the real document exists in the Places Left Behind repository.
+- `src\content\places-left-behind-docs\` — the 43 imported Markdown files. These are generated;
+  do not hand-edit them.
+- `src\data\places-left-behind-categories.json` — the 11 display categories and descriptions.
+- `src\data\places-left-behind-docs-source.json` — the source commit, counts, excluded files and
+  source-only links.
+- `src\lib\placesDocs.ts` — category, status, version, path and count helpers.
+- `src\pages\docs\places-left-behind\index.astro` — the documentation index.
+- `src\pages\docs\places-left-behind\[slug].astro` — one page for every document.
+- `src\components\PlacesDocNotice.astro` — the status notice on each document.
+- `scripts\sync-places-left-behind-docs.mjs` — the read-only importer.
 
-The scope is supported in:
+The game repository is authoritative. To refresh the website copy:
 
-- `src\lib\documents.ts` — `PolicyScope`, labels, descriptions and paths.
-- `src\pages\policies\index.astro` — published scopes versus scopes in preparation.
-- `src\pages\policies\[scope]\[slug].astro` — detail pages and game-only notices.
-- `src\pages\data\policies.json.ts` and the RSS feed.
-- `src\pages\downloads\index.astro`, `src\lib\downloads.ts` and the generated document headers.
-- `scripts\make-pdfs.mjs`, `scripts\make-policy-zip.mjs` and `scripts\snapshot-policies.mjs`.
+1. Confirm the documentation itself is committed. The script refuses uncommitted changes under
+   `Documentation/`; unrelated source changes are reported but do not block the import.
+2. Run:
 
-When the actual game documents are ready:
+   ```powershell
+   npm run docs:sync -- "C:\Users\Panda\Documents\CustomGames\Places Left Behind"
+   ```
 
-1. Put them under `src\content\policies\game\` using the existing policy frontmatter shape.
-2. Give each one a version and a `docStatus`; do not call a draft effective.
-3. Use `Places Left Behind` as the scope, not `Website` or `Discord bot`.
-4. Run `npm run snapshot` to record the versions.
-5. Run `npm run pdfs`, `npm run policies:zip` and then the build.
-6. Check `/policies` — the game scope should become a published scope automatically; it should no
-   longer be described as “in preparation”.
-7. Check that the game privacy notice is clearly separate from the website privacy notice, and the
-   game EULA is clearly separate from the website Terms of Use.
+3. The script reads Git `HEAD`, requires all 40 licensing Markdown files and the three engineering
+   references to be tracked, preserves their wording and rewrites only relative link addresses.
+4. It writes the 43 pages and records the commit in the source data file. It never writes to the
+   game folder and uses no network or API key.
+5. Run `npx astro build` and open `/docs/places-left-behind`.
 
-Do not merge the game documents into the website set, and do not copy website rules into the game
-scope. The game's copyright and takedown process should be coordinated with the studio's existing
-process, but the documents remain separate.
+Do not copy game documents into `src\content\policies\game\`. That policy scope is intentionally
+empty; the game's documents are a different collection with different status labels and
+navigation. Root `LICENSE` and `LICENSE.md`, the engine and game-scope licence notices,
+`THIRD-PARTY-NOTICES.txt`, the game repository README and asset-folder notes are not separate
+entries. Their links return to the source-files note on the documentation index.
+
+The website is a snapshot, not a live mirror: the game repository is private and the public site
+has no credentials to read it. Keeping it current means running the sync deliberately. No
+scheduled CI job is configured, and none can read the private repository without a separate
+credential and checkout.
 
 ## Test the page
 
@@ -281,12 +300,14 @@ Check:
 - The large picture loads.
 - The `1 / N` count matches the number of gallery entries.
 - Previous/next buttons and thumbnails move through the set.
-- Clicking the large picture opens the full-screen viewer.
+- Clicking the preview opens the larger viewer.
 - Escape, the close button and the backdrop close it.
 - The caption changes with the picture.
-- A narrow window still scrolls the thumbnails sideways instead of breaking the page.
+- The thumbnails are square and compact at desktop, tablet and mobile widths.
 - The copyright block at the bottom is exact.
-- `/policies` shows the website and bot scopes and the game scope in preparation.
+- `/policies` shows the website and bot scopes and links to the separate game section.
+- `/docs/places-left-behind` lists all 43 documents and every document page opens.
+- The draft and future-draft notices are visible; nothing is presented as legally reviewed.
 - `/projects/first-game/` redirects to `/projects/places-left-behind/`.
 
 Then build:
@@ -302,7 +323,7 @@ for a quick check because `npm run build` also regenerates PDFs and ZIPs with fr
 
 - Write real alt text for every picture. The thumbnail has an empty alt because the link already
   names the picture; the large image carries the description.
-- The full-screen viewer is a native `<dialog>`, so Escape and focus handling are built in.
+- The larger viewer is a native `<dialog>`, so Escape and focus handling are built in.
 - The previous/next and close controls are at least 44px on touch screens.
 - The counter and captions update as you move; the counter is announced politely.
 - Do not remove the `aria-label` values on the controls.
@@ -318,9 +339,9 @@ body, and that it has at least one entry with the correct indentation.
 **The count is wrong.** Count the `- src:` entries. The number is generated from that list; do not
 edit `1 / 3` in the HTML, because it is replaced by the script.
 
-**The full-screen viewer does not open.** The large picture is also a normal link, so it opens the
-image directly if JavaScript is off. With JavaScript on, clicking it should open the dialog. Check
-the browser console for an error.
+**The larger viewer does not open.** The preview is also a normal link, so it opens the image
+directly if JavaScript is off. With JavaScript on, clicking it should open the dialog. Check the
+ browser console for an error.
 
 **The page still shows an old picture.** Hard-refresh, or check that you edited
 `src/content/projects/places-left-behind.md` and not the built copy in `dist/`. The source is in
@@ -342,7 +363,9 @@ If the game's facts or status change, keep these in step:
 - `src\pages\assistant-facts.json.ts` — Step's answers
 - `src\lib\assistant.ts` — Step's page starter questions
 - `src\lib\changelog.ts` — optional release note
-- `src\pages\policies\index.astro` — the game policy scope in preparation
+- `src\pages\policies\index.astro` — the link to the separate game documentation
+- `src\pages\docs\places-left-behind\` — the documentation index and pages
+- `src\data\places-left-behind-categories.json` — category names and descriptions
 - `src\lib\site.ts` — the shared copyright line
 
 Do not describe the game as released, finished, commercially available or using an engine it does

@@ -21,6 +21,7 @@ import {
   policyPath,
   scopeOf,
 } from '../lib/documents';
+import { countPlacesDocs, getPlacesDocs } from '../lib/placesDocs';
 
 export const prerender = true;
 
@@ -80,7 +81,7 @@ const FOLLOW_UPS: Record<string, string[]> = {
   changelog: ['What is the latest devlog?', 'What is on the roadmap?', 'What is the status?'],
   source: ['What is this site built with?', 'Why are the policies drafts?', 'What can you do?'],
   'project-next-step-bot': ['Is the bot public?', 'Which modules does it have?', 'What policies cover the bot?'],
-  'project-places-left-behind': ['What engine does it use?', 'What is on the roadmap?', 'What projects exist?'],
+  'project-places-left-behind': ['What engine does it use?', 'Where is the documentation?', 'What projects exist?'],
   'project-studio-tools': ['What projects are planned?', 'What is on the roadmap?', 'What is Next Step Bot?'],
 };
 
@@ -99,11 +100,13 @@ const formatDate = (date: Date) =>
   new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }).format(date);
 
 export const GET: APIRoute = async () => {
-  const [policies, projects, posts] = await Promise.all([
+  const [policies, projects, posts, placesDocs] = await Promise.all([
     getCollection('policies'),
     getCollection('projects'),
     getCollection('devlog'),
+    getPlacesDocs(),
   ]);
+  const placesCounts = countPlacesDocs(placesDocs);
 
   projects.sort((a, b) => a.data.order - b.data.order);
   const scopeRank = { bot: 0, website: 1, game: 2 } as const;
@@ -117,7 +120,8 @@ export const GET: APIRoute = async () => {
   );
   const socialNames = socialLinks.map((entry) => entry.name);
   const projectNames = projects.map(
-    (project) => `${project.data.title} (${project.data.status.toLowerCase()})`,
+    (project) =>
+      `${project.data.title} (${project.data.status === 'In development' ? 'In Development' : project.data.status})`,
   );
   const policyNames = policies.map(
     (policy) =>
@@ -144,7 +148,7 @@ export const GET: APIRoute = async () => {
         'who is next step studios',
         'what does the studio do',
       ],
-      `Next Step Studios is an independent creative and software studio run by ${SITE.operator}, with volunteer contributors whose credits are still being confirmed. It is a public-facing name rather than a registered company. The current work is Next Step Bot and the Places Left Behind game prototype; studio tools are planned, not released.`,
+      `Next Step Studios is an independent creative and software studio run by ${SITE.operator}, with volunteer contributors whose credits are still being confirmed. It is a public-facing name rather than a registered company. The current work is Next Step Bot and the Places Left Behind game, which is in development; studio tools are planned, not released.`,
       [link('/about', 'About the studio'), link('/team', 'Team')],
       8,
     ),
@@ -194,7 +198,7 @@ export const GET: APIRoute = async () => {
       'projects',
       'Projects',
       ['projects', 'what are you building', 'what is being built', 'current projects', 'all projects', 'portfolio'],
-      `The site lists ${projects.length} projects: ${projectNames.join(', ')}. Next Step Bot and this website are in development; Places Left Behind is an early prototype; First App and Studio Tools are planned. No game or app is released.`,
+      `The site lists ${projects.length} projects: ${projectNames.join(', ')}. Next Step Bot, this website and Places Left Behind are in development; First App and Studio Tools are planned. No game or app is released.`,
       [link('/projects', 'All projects'), ...projects.map((project) => link(projectPath(project.id), project.data.title))],
       7,
     ),
@@ -245,8 +249,8 @@ export const GET: APIRoute = async () => {
         'godot',
         'roblox studio',
       ],
-      `Places Left Behind is an independently developed first-person 3D exploration and mystery game, being built from scratch in C# with a custom engine. It uses Vulkan for graphics and Silk.NET for the .NET bindings, and is not being made in Unity, Unreal Engine or Godot. The current build is an early prototype: WASD movement and mouse camera control exist, but the environment pipeline, investigation systems and complete locations remain under development. There is no release date, and the project page shows concept studies rather than gameplay screenshots. C# is pronounced “C-sharp”; the # is the musical sharp sign, not a hashtag.`,
-      [link('/projects/places-left-behind', 'Places Left Behind'), link('/projects', 'Projects')],
+      `Places Left Behind is an independently developed first-person 3D exploration and mystery game, being built from scratch in C# with a custom engine. It uses Vulkan for graphics and Silk.NET for the .NET bindings, and is not being made in Unity, Unreal Engine or Godot. It is In Development. The current build has a Vulkan swapchain, depth buffering, indexed mesh drawing, shader compilation, cube rendering and first-person camera and player movement. Environment loading, investigation and photography mechanics, complete locations, saves and distribution remain unfinished. There is no release date, and the project page shows concept studies rather than gameplay screenshots. C# is pronounced “C-sharp”; the # is the musical sharp sign, not a hashtag. Its ${placesCounts.total} licensing, policy and engineering documents are published at /docs/places-left-behind.`,
+      [link('/projects/places-left-behind', 'Places Left Behind'), link('/docs/places-left-behind', 'Places Left Behind documentation'), link('/projects', 'Projects')],
       7,
     ),
     fact(
@@ -261,8 +265,8 @@ export const GET: APIRoute = async () => {
       'policies',
       'Policies',
       ['policies', 'policy', 'documents', 'terms', 'terms of service', 'community guidelines', 'acceptable use', 'moderation policy', 'data retention', 'security overview'],
-      `The site publishes ${policies.length} policy documents in two published scopes: ${policies.filter((policy) => scopeOf(policy.id) === 'bot').length} cover the Discord bot, and ${policies.filter((policy) => scopeOf(policy.id) === 'website').length} cover this website. The documents are: ${policyNames.join('; ')}. Drafts and current documents are labelled individually. Places Left Behind has a separate game scope in preparation; no game policy is published or presented as effective yet.`,
-      [link('/policies', 'All policies'), ...policies.map((policy) => link(policyPath(policy.id), policy.data.shortTitle))],
+      `The site publishes ${policies.length} policy documents in two published scopes: ${policies.filter((policy) => scopeOf(policy.id) === 'bot').length} cover the Discord bot, and ${policies.filter((policy) => scopeOf(policy.id) === 'website').length} cover this website. The documents are: ${policyNames.join('; ')}. Drafts and current documents are labelled individually. Places Left Behind has ${placesCounts.total} separate licensing, policy and engineering documents in its own section: ${placesCounts.current} current, ${placesCounts.draft} draft or future draft.`,
+      [link('/policies', 'All policies'), link('/docs/places-left-behind', 'Places Left Behind documentation'), ...policies.map((policy) => link(policyPath(policy.id), policy.data.shortTitle))],
       7,
     ),
     fact(
@@ -453,7 +457,7 @@ export const GET: APIRoute = async () => {
         'dates',
         'roadmap dates',
       ],
-      'The roadmap deliberately uses statuses, not dates. Next Step Bot and this website are in development, Places Left Behind is an early prototype, the policy set mixes drafts with current website documents, the live status page is live, apps and studio tools are planned, and analytics and accounts are not planned. No release date is published.',
+      'The roadmap deliberately uses statuses, not dates. Next Step Bot and Places Left Behind are in development, and the bot status feed is still being built. This website is live, the public documentation remains a draft set, studio tools and analytics and accounts are planned without a timeframe, and no release date is published. Places Left Behind\u2019s 43 game documents are published in their own section.',
       [link('/roadmap', 'Roadmap'), link('/projects/places-left-behind', 'Places Left Behind')],
       7,
     ),
@@ -525,7 +529,7 @@ export const GET: APIRoute = async () => {
       'status',
       'Status',
       ['status', 'is the bot online', 'is the site live', 'status page', 'uptime'],
-      `The status page shows the current state of the website, documents and bot. The bot publishes a small JSON feed after each check; the page reads it in the browser and falls back to the copy built with the site if the feed cannot be read.`,
+      `The status page is built to read a small JSON feed from the bot after each check. The publisher is not live yet, so the page currently uses the build-time fallback and shows no live history; if the feed cannot be read, it says so.`,
       [link('/status', 'Status page')],
       5,
     ),
@@ -533,24 +537,24 @@ export const GET: APIRoute = async () => {
       'roadmap',
       'Roadmap',
       ['roadmap', 'what is next', 'future plans', 'planned', 'what are you working on next'],
-      `The roadmap uses statuses, not dates. It lists Next Step Bot and the public documentation as in development or draft, this website and live status as live, Places Left Behind as an early prototype, studio tools as planned, and analytics and accounts as not planned.`,
-      [link('/roadmap', 'Roadmap')],
+      `The roadmap uses statuses, not dates. It lists Next Step Bot, Places Left Behind and the bot status feed as in development; the public documentation as a draft; studio tools and analytics and accounts as planned; and this website as live. No release date is published.`,
+      [link('/roadmap', 'Roadmap'), link('/docs/places-left-behind', 'Places Left Behind documentation')],
       6,
     ),
     fact(
       'now',
       'Now',
       ['now', 'what are you working on now', 'current work', 'current focus', 'this month'],
-      `The Now page is a dated snapshot of current work, not a promise. As of 24 November 2026: Next Step Bot is in development, Places Left Behind is an early prototype, the public policies are drafts, the website and status page are live, the Press & brand page is consolidated, and studio tools are planned rather than started.`,
-      [link('/now', 'Now'), link('/roadmap', 'Roadmap')],
+      `The Now page is a dated snapshot of current work, not a promise. As of 24 November 2026: Next Step Bot and Places Left Behind are in development, the public policies and the 43 Places Left Behind documents are published with their statuses, the bot status feed is still being built, the website and Press & brand page are live, and studio tools and analytics and accounts are planned rather than started.`,
+      [link('/now', 'Now'), link('/roadmap', 'Roadmap'), link('/docs/places-left-behind', 'Game documentation')],
       6,
     ),
     fact(
       'search',
       'Search',
       ['search', 'site search', 'find something', 'where can i search'],
-      `The Search page searches a generated local index of every policy, devlog entry, command, FAQ answer, roadmap item, module, glossary term and page. The query stays in the browser; there is no search service.`,
-      [link('/search', 'Search the site')],
+      `The Search page searches a generated local index of every policy, Places Left Behind document, devlog entry, command, FAQ answer, roadmap item, module, glossary term and page. The query stays in the browser; there is no search service.`,
+      [link('/search', 'Search the site'), link('/docs/places-left-behind', 'Game documentation')],
       4,
     ),
     fact(
@@ -607,8 +611,13 @@ export const GET: APIRoute = async () => {
         `project-${project.id}`,
         project.data.title,
         [project.data.title, `${project.data.title} project`, project.data.category],
-        `${project.data.title} is listed as ${project.data.status.toLowerCase()} in ${project.data.category}. ${project.data.tagline} ${project.data.summary}`,
-        [link(projectPath(project.id), `${project.data.title} project page`)],
+        `${project.data.title} is listed as ${project.data.status === 'In development' ? 'In Development' : project.data.status} in ${project.data.category}. ${project.data.tagline} ${project.data.summary}`,
+        [
+          link(projectPath(project.id), `${project.data.title} project page`),
+          ...(project.id === 'places-left-behind'
+            ? [link('/docs/places-left-behind', 'Places Left Behind documentation')]
+            : []),
+        ],
         5,
       ),
     ),

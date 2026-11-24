@@ -5,6 +5,7 @@ import { FAQ } from '../lib/faq';
 import { ROADMAP } from '../lib/roadmap';
 import { BOT_MODULES, MODULE_STATUS_LABEL } from '../lib/modules';
 import { GLOSSARY } from '../lib/glossary';
+import { categoryFor, docPath, getPlacesDocs } from '../lib/placesDocs';
 import {
   POLICY_SCOPE_LABELS,
   isDraftDocument,
@@ -54,9 +55,10 @@ const PAGES: IndexEntry[] = [
   { type: 'Page', title: 'Official links', url: '/links', text: 'Every official link in one place, mirroring the bot links panel.' },
   { type: 'Page', title: 'About', url: '/about', text: 'The studio, the operator, the contributors, how it works and what it is for.' },
   { type: 'Page', title: 'Team', url: '/team', text: 'The people who contribute to Next Step Studios: the operator and the volunteer contributors, with what each one works on.' },
-  { type: 'Page', title: 'Policies', url: '/policies', text: 'Public policy documents in two published scopes: seven for the Discord bot, covering privacy, terms, acceptable use, community guidelines, moderation, data retention and security; four for the website, covering privacy, terms, copyright and security. Places Left Behind has a separate game scope in preparation.' },
+  { type: 'Page', title: 'Policies', url: '/policies', text: 'Public policy documents in two published scopes: seven for the Discord bot, covering privacy, terms, acceptable use, community guidelines, moderation, data retention and security; four for the website, covering privacy, terms, copyright and security. Places Left Behind documents are published separately.' },
+  { type: 'Page', title: 'Places Left Behind documentation', url: '/docs/places-left-behind', text: 'The Places Left Behind licensing, policy and engineering documents, reproduced from the game repository with their source versions and statuses. Current documents, drafts and future drafts are labelled individually.' },
   { type: 'Page', title: 'Downloads', url: '/downloads', text: 'Documents, brand and press files, and any game, app, tool or media builds. Every policy in Markdown, plain text, print layout and PDF, plus one combined file.' },
-  { type: 'Page', title: 'Roadmap', url: '/roadmap', text: 'What is in development, what is planned and what has been decided against.' },
+  { type: 'Page', title: 'Roadmap', url: '/roadmap', text: 'What is in development, what is planned and what is already live.' },
   { type: 'Page', title: 'FAQ', url: '/faq', text: 'Questions about the bot, the server, data, moderation, privacy and this website.' },
   { type: 'Page', title: 'Changelog', url: '/changelog', text: 'What changed on this website, version by version.' },
   { type: 'Page', title: 'Status', url: '/status', text: 'The current state of the website, the documents and the bot.' },
@@ -73,6 +75,7 @@ export const GET: APIRoute = async () => {
   const policies = await getCollection('policies');
   const posts = await getCollection('devlog');
   const projects = await getCollection('projects');
+  const placesDocs = await getPlacesDocs();
 
   const entries: IndexEntry[] = [
     ...PAGES,
@@ -89,6 +92,13 @@ export const GET: APIRoute = async () => {
       url: policyPath(policy.id),
       section: `${POLICY_SCOPE_LABELS[scopeOf(policy.id)]} · ${isDraftDocument(policy.data.docStatus) ? 'Draft' : 'Current'}`,
       text: strip(`${policy.data.summary} ${policy.data.plainSummary} ${policy.body ?? ''}`),
+    })),
+    ...placesDocs.map((doc) => ({
+      type: 'Documentation',
+      title: doc.data.title,
+      url: docPath(doc),
+      section: `Places Left Behind · ${categoryFor(doc.data.category).label} · ${doc.data.docStatus}`,
+      text: strip(`${doc.data.summary} ${doc.data.version} ${doc.body ?? ''}`),
     })),
     ...posts.map((post) => ({
       type: 'Devlog',

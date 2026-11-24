@@ -23,7 +23,7 @@ export const GET: APIRoute = async () => {
       {
         generated: new Date().toISOString(),
         source: `${SITE.url}/policies`,
-        note: 'Separate policy scopes. Markdown, plain-text, PDF and print editions are available under /downloads. The Places Left Behind game scope is supported but has no published document yet.',
+        note: 'Separate policy scopes. Markdown, plain-text, PDF and print editions are available under /downloads. Places Left Behind documents are published separately at /docs/places-left-behind.',
         count: policies.length,
         scopes: {
           bot: policies.filter((policy) => scopeOf(policy.id) === 'bot').length,

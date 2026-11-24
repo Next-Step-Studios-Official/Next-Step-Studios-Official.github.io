@@ -3,6 +3,7 @@ import Base from '../layouts/Base.astro';
 import { getCollection } from 'astro:content';
 import { numberWord } from '../lib/words';
 import { isDraftDocument, scopeOf } from '../lib/documents';
+import { countPlacesDocs, getPlacesDocs } from '../lib/placesDocs';
 
 const policies = await getCollection('policies');
 const policyCount = policies.length;
@@ -10,6 +11,8 @@ const botPolicyCount = policies.filter((policy) => scopeOf(policy.id) === 'bot')
 const websitePolicyCount = policies.filter((policy) => scopeOf(policy.id) === 'website').length;
 const draftPolicyCount = policies.filter((policy) => isDraftDocument(policy.data.docStatus)).length;
 const currentPolicyCount = policyCount - draftPolicyCount;
+const placesDocs = await getPlacesDocs();
+const placesCounts = countPlacesDocs(placesDocs);
 const policyCountWord = numberWord(policyCount);
 const PolicyCountWord = policyCountWord.charAt(0).toUpperCase() + policyCountWord.slice(1);
 
@@ -18,7 +21,13 @@ const cards = [
     href: '/policies',
     label: 'Policy documents',
     title: 'The rules, in writing',
-    body: `${PolicyCountWord} documents in two published scopes: ${botPolicyCount} for the Discord bot and ${websitePolicyCount} for this website. A separate Places Left Behind game scope is in preparation. Drafts and current documents are labelled individually.`,
+    body: `${PolicyCountWord} documents in two published scopes: ${botPolicyCount} for the Discord bot and ${websitePolicyCount} for this website. Drafts and current documents are labelled individually.`,
+  },
+  {
+    href: '/docs/places-left-behind',
+    label: 'Game documents',
+    title: 'Places Left Behind, in writing',
+    body: `${placesCounts.total} licensing, policy and engineering documents from the game repository: ${placesCounts.current} current, ${placesCounts.draft} draft or future draft. Separate from the website and bot policies, with every source status preserved.`,
   },
   {
     href: '/policies/website/privacy',
@@ -67,6 +76,7 @@ const facts = [
   { label: 'Contact form', value: 'Stores messages only' },
   { label: 'Bot data store', value: 'SQLite, one server' },
   { label: 'Documents', value: `${policyCount} · ${draftPolicyCount} draft · ${currentPolicyCount} current` },
+  { label: 'Game documents', value: `${placesCounts.total} · separate section` },
   { label: 'Policy scopes', value: `${botPolicyCount} bot · ${websitePolicyCount} website` },
   { label: 'Policy mirror', value: 'GitHub (bot set)' },
 ];
@@ -85,7 +95,7 @@ const facts = [
         <h1 class="display display--page">Everything that answers “is this safe?”</h1>
         <p class="lede">
           The policies, the security overview, the retention rules, the request route and the
-          honest status of the bot — collected here so nobody has to hunt for them.
+          honest status of the bot and the game — collected here so nobody has to hunt for them.
         </p>
         <div class="hero-actions">
           <a class="btn btn-primary" href="/policies">Read the policies</a>

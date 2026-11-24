@@ -5,6 +5,7 @@ import Breadcrumbs from '../../components/Breadcrumbs.astro';
 import ProjectGallery from '../../components/ProjectGallery.astro';
 import { getCollection, render } from 'astro:content';
 import { BOT_MODULES, MODULE_STATUS_LABEL, modulesByGroup, moduleCommandCount } from '../../lib/modules';
+import { countPlacesDocs, getPlacesDocs } from '../../lib/placesDocs';
 
 export async function getStaticPaths() {
   const projects = await getCollection('projects');
@@ -19,6 +20,8 @@ const { Content } = await render(entry);
 const { title, tagline, status, category, summary, gallery } = entry.data;
 
 const isBot = entry.id === 'next-step-bot';
+const isPlaces = entry.id === 'places-left-behind';
+const placesCounts = isPlaces ? countPlacesDocs(await getPlacesDocs()) : null;
 const metaDescription = summary.length > 170 ? `${summary.slice(0, 155).trimEnd()}…` : summary;
 const groups = modulesByGroup();
 
@@ -92,6 +95,30 @@ const formatDate = (date: Date) =>
       </div>
     )
   )}
+
+  {
+    isPlaces && (
+      <section class="section section--flush">
+        <div class="container">
+          <div class="panel panel--pad project-docs-callout">
+            <div>
+              <p class="label">Documentation · {placesCounts?.total} documents</p>
+              <h2>Licensing, policies and engineering notes</h2>
+              <p>
+                The game's own documents, reproduced from its repository with their source
+                versions and statuses: {placesCounts?.current} current, {placesCounts?.draft}
+                draft or future draft, and {placesCounts?.reference} engineering references.
+                None of the custom agreements has been reviewed by a lawyer.
+              </p>
+            </div>
+            <a class="btn btn-primary" href="/docs/places-left-behind">
+              View all documentation <span class="btn-arrow" aria-hidden="true">→</span>
+            </a>
+          </div>
+        </div>
+      </section>
+    )
+  }
 
   <section class="section">
     <div class="container">
@@ -168,6 +195,35 @@ const formatDate = (date: Date) =>
   <style>
     .project-gallery-top {
       margin-bottom: clamp(1.75rem, 4vw, 3rem);
+    }
+
+    .project-docs-callout {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.25rem 2rem;
+      border-color: rgba(143, 182, 255, 0.24);
+      background:
+        linear-gradient(110deg, rgba(77, 141, 255, 0.06), rgba(167, 139, 250, 0.035)),
+        var(--color-surface);
+    }
+
+    .project-docs-callout > div {
+      max-width: 62ch;
+    }
+
+    .project-docs-callout h2 {
+      margin-top: 0.55rem;
+      font-size: clamp(1.25rem, 2.6vw, 1.6rem);
+      letter-spacing: -0.025em;
+    }
+
+    .project-docs-callout p:last-child {
+      margin-top: 0.55rem;
+      color: var(--color-muted);
+      font-size: 0.9375rem;
+      line-height: 1.65;
     }
 
     .project-next p:last-child {
